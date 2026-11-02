@@ -56,7 +56,7 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 ## تصمیم‌ها
 
 - Next.js App Router و React با TypeScript strict.
-- Tailwind، shadcn/ui و Lucide؛ فونت فارسی Vazirmatn.
+- Tailwind و daisyUI برای تم و اجزای استاندارد؛ Lucide و فونت فارسی Vazirmatn. ابزار shadcn فعلاً نصب مانده است.
 - GSAP، ScrollTrigger و Lenis؛ فعال‌سازی در مرحله طراحی.
 - next-intl برای فارسی/انگلیسی و RTL/LTR.
 - TanStack Query، React Hook Form و Zod.
@@ -72,3 +72,11 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 - https://next-auth.js.org/getting-started/example
 - https://authjs.dev/getting-started/installation
 - نسخه دقیق نصب‌شده و وابستگی‌های انتقالی: package-lock.json
+
+## هویت و تم سایت
+
+پالت navy با primary #142D4E و secondary #008879 نهایی است. cobalt و violet تم‌های جایگزین‌اند. هر سه حالت روشن/تیره دارند؛ مرجع پیاده‌سازی و نتایج بررسی در [THEME.md](THEME.md) است. تم‌ها با daisyUI 5.7.50 مدیریت می‌شوند؛ سیستم توکن سفارشی قبلی حذف شده است.
+
+## مهاجرت به daisyUI
+
+daisyUI نسخه 5.7.50 به devDependencies اضافه شد. تم‌های داخلی nord/night، winter/dim و cupcake/dracula مبنا هستند و فقط رنگ برند تغییر می‌کند. مرجع جاری [THEME.md](THEME.md) است.

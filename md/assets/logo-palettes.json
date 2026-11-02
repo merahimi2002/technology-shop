@@ -1,0 +1,38 @@
+[
+  {
+    "id": "01",
+    "name": "Navy / Teal",
+    "primary": "#142D4E",
+    "secondary": "#008879"
+  },
+  {
+    "id": "02",
+    "name": "Cobalt / Orange",
+    "primary": "#2146D9",
+    "secondary": "#D85A1E"
+  },
+  {
+    "id": "03",
+    "name": "Violet / Jade",
+    "primary": "#5030A0",
+    "secondary": "#008C78"
+  },
+  {
+    "id": "04",
+    "name": "Graphite / Lime",
+    "primary": "#272E35",
+    "secondary": "#578800"
+  },
+  {
+    "id": "05",
+    "name": "Forest / Amber",
+    "primary": "#164F46",
+    "secondary": "#BD760B"
+  },
+  {
+    "id": "06",
+    "name": "Midnight / Berry",
+    "primary": "#243454",
+    "secondary": "#C23772"
+  }
+]

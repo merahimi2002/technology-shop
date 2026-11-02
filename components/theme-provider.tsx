@@ -1,0 +1,111 @@
+'use client';
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
+import {
+  DEFAULT_THEME,
+  THEME_STORAGE_KEY,
+  parseTheme,
+  resolveTheme,
+  type Palette,
+  type ThemeMode,
+  type ThemePreference,
+} from '@/lib/theme';
+
+const ThemeContext = createContext<{
+  preference: ThemePreference;
+  setPalette: (palette: Palette) => void;
+  setMode: (mode: ThemeMode) => void;
+} | null>(null);
+
+function applyTheme(preference: ThemePreference) {
+  const root = document.documentElement;
+  root.dataset.theme = resolveTheme(
+    preference,
+    matchMedia('(prefers-color-scheme: dark)').matches,
+  );
+  const background = getComputedStyle(root)
+    .getPropertyValue('--color-base-100')
+    .trim();
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', background);
+  document
+    .querySelectorAll<HTMLLinkElement>('link[rel="icon"]')
+    .forEach((link) => {
+      link.href = `/favicons/${preference.palette}.svg`;
+      link.type = 'image/svg+xml';
+      link.sizes.value = 'any';
+    });
+}
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [preference, setPreference] = useState(DEFAULT_THEME);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const read = () => {
+      let stored = null;
+      try {
+        stored = localStorage.getItem(THEME_STORAGE_KEY);
+      } catch {
+        /* Storage can be denied. */
+      }
+      setPreference(parseTheme(stored));
+      setReady(true);
+    };
+    const sync = (event: StorageEvent) => {
+      if (event.key === THEME_STORAGE_KEY || event.key === null) read();
+    };
+    read();
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    const update = () => applyTheme(preference);
+    update();
+    // Next can append icon metadata after hydration or navigation.
+    const observer = new MutationObserver(update);
+    observer.observe(document.head, { childList: true });
+    media.addEventListener('change', update);
+    return () => {
+      observer.disconnect();
+      media.removeEventListener('change', update);
+    };
+  }, [preference, ready]);
+
+  function update(next: ThemePreference) {
+    setPreference(next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* Keep the in-memory choice. */
+    }
+  }
+
+  return (
+    <ThemeContext.Provider
+      value={{
+        preference,
+        setPalette: (palette) => update({ ...preference, palette }),
+        setMode: (mode) => update({ ...preference, mode }),
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const theme = useContext(ThemeContext);
+  if (!theme) throw new Error('useTheme must be used within ThemeProvider');
+  return theme;
+}

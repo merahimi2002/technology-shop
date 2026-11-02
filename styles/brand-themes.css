@@ -1,0 +1,49 @@
+@plugin 'daisyui' {
+  themes: false;
+  logs: false;
+}
+/* Extend complete daisyUI themes; override only approved brand colors. */
+@plugin 'daisyui/theme' {
+  name: 'nord';
+  default: true;
+  --color-primary: #142d4e;
+  --color-primary-content: #ffffff;
+  --color-secondary: #008879;
+  --color-secondary-content: #000000;
+}
+@plugin 'daisyui/theme' {
+  name: 'night';
+  prefersdark: true;
+  --color-primary: #b6cff1;
+  --color-primary-content: #0b1625;
+  --color-secondary: #44cdb5;
+  --color-secondary-content: #07231f;
+}
+@plugin 'daisyui/theme' {
+  name: 'winter';
+  --color-primary: #2146d9;
+  --color-primary-content: #ffffff;
+  --color-secondary: #d85a1e;
+  --color-secondary-content: #000000;
+}
+@plugin 'daisyui/theme' {
+  name: 'dim';
+  --color-primary: #a5b8ff;
+  --color-primary-content: #101b46;
+  --color-secondary: #ffa476;
+  --color-secondary-content: #381505;
+}
+@plugin 'daisyui/theme' {
+  name: 'cupcake';
+  --color-primary: #5030a0;
+  --color-primary-content: #ffffff;
+  --color-secondary: #008c78;
+  --color-secondary-content: #000000;
+}
+@plugin 'daisyui/theme' {
+  name: 'dracula';
+  --color-primary: #c9aff4;
+  --color-primary-content: #261342;
+  --color-secondary: #57d2b5;
+  --color-secondary-content: #082a22;
+}

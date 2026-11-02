@@ -11,3 +11,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Project conventions
 
 Use npm only. Keep package-lock.json. Read md/README.md and md/TECH_STACK.md before changes. Use stable compatible releases, NextAuth (not Better Auth), Oxlint, and a lightweight Vitest setup. Keep project documentation in root md/.
+
+Use daisyUI themes and standard component classes. Keep only brand color overrides in styles/brand-themes.css. Do not recreate a parallel token generator or global input/button styles.
