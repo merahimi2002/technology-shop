@@ -7,3 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Project conventions
+
+Use npm only. Keep package-lock.json. Read md/README.md and md/TECH_STACK.md before changes. Use stable compatible releases, NextAuth (not Better Auth), Oxlint, and a lightweight Vitest setup. Keep project documentation in root md/.

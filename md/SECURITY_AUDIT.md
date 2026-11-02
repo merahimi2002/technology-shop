@@ -1,0 +1,68 @@
+# بررسی امنیتی وابستگی‌های shadcn
+
+تاریخ: ۲۰۲۶/۱۱/۰۲ — پروژه D:/Code/Next Js/tech-shop
+
+## نتیجه
+
+در نسخه‌های منتشرشده فعلی، رفع کامل این ۶ گزارش با حفظ محدوده سازگاری اعلام‌شده بسته‌ها ممکن نیست. package.json و package-lock.json برای این بررسی تغییر نکردند؛ override، downgrade و audit fix --force اعمال نشد.
+
+۶ مورد audit به معنی ۶ نقص مستقل نیست: دو آسیب‌پذیری اصلی در deepmerge و minimatch وجود دارد و چهار بسته دیگر به‌علت وابستگی به آن‌ها گزارش می‌شوند. وضعیت فعلی: ۲ low، ۴ moderate، بدون high یا critical.
+
+## زنجیره واقعی نصب
+
+```text
+shadcn@4.23.0
+├── deepmerge@4.3.1
+├── @shadcn/registry@0.2.1 → deepmerge@4.3.1
+└── ts-morph@26.0.0
+    └── @ts-morph/common@0.27.0
+        └── minimatch@10.2.6
+```
+
+| بسته گزارش‌شده   | شدت audit | علت                                                      |
+| ---------------- | --------- | -------------------------------------------------------- |
+| deepmerge        | low       | prototype poisoning؛ GHSA-gcqx-w48m-w2h4                 |
+| @shadcn/registry | low       | وابستگی به deepmerge                                     |
+| minimatch        | moderate  | مصرف بیش از حد منابع با الگوی ورودی؛ GHSA-g3hv-75wg-m249 |
+| @ts-morph/common | moderate  | وابستگی به minimatch                                     |
+| ts-morph         | moderate  | وابستگی به common                                        |
+| shadcn           | moderate  | وابستگی به زنجیره‌های بالا                               |
+
+## گزینه‌های بررسی‌شده
+
+### deepmerge
+
+آخرین نسخه منتشرشده 4.3.1 است. advisory رسمی نسخه‌های 4.2.0 تا 4.3.1 را آسیب‌پذیر و patched version را None اعلام می‌کند. shadcn نسخه ^4.3.1 می‌خواهد. بنابراین patch یا minor اصلاح‌شده‌ای برای نصب سازگار وجود ندارد. downgrade به 4.1.1 خارج از قرارداد shadcn است و صرفاً قرار نگرفتن در بازه advisory اثبات امنیت نسخه قدیمی نیست؛ انجام نشد.
+
+### minimatch
+
+آخرین نسخه شاخه ۱۰ برابر 10.2.6 و آخرین stable برابر 11.0.4 است. advisory نسخه اصلاح‌شده را از 11.0.1 معرفی می‌کند. @ts-morph/common@0.27.0 محدوده ^10.0.1 را می‌خواهد؛ حتی آخرین common@0.29.0 همین محدوده را اعلام می‌کند. آخرین ts-morph@28.0.0 نیز به common@~0.29.0 وابسته است و علاوه بر این خارج از ^26.0.0 مورد نیاز shadcn قرار می‌گیرد.
+
+Node 24 پروژه با engine نسخه ۱۱ minimatch سازگار است، اما این به معنی سازگاری با قرارداد ts-morph نیست. override به نسخه ۱۱ خارج از محدوده درخواست‌شده است؛ بدون تأیید upstream و تست مسیرهای ویرایش کد/الگوها، سازگاری آن را تضمین نمی‌کنیم و اعمال نشد. هیچ شکست عملی نسخه ۱۱ در این بررسی ادعا یا اثبات نشده است؛ مانع فعلی، نبود اصلاح در محدوده پشتیبانی اعلام‌شده است.
+
+### پیشنهاد npm
+
+npm audit fix --dry-run --json هیچ بسته‌ای برای افزودن، حذف یا تغییر پیشنهاد نکرد و همان ۶ گزارش باقی ماند. پیشنهاد --force برای بخش deepmerge بازگشت shadcn به 1.0.0 بود؛ این بازگشت چند نسخه اصلی با پشته فعلی Tailwind 4 و CLI 4 هم‌ارز نیست و انجام نشد.
+
+## دامنه اثر و اقدام فعلی
+
+این زنجیره در CLI توسعه shadcn است. npm audit --omit=dev --json در زمان بررسی صفر آسیب‌پذیری گزارش کرد؛ این نتیجه به معنی رفع خطر هنگام اجرای CLI یا اثبات امنیت کل برنامه نیست. registry یا تنظیمات نامطمئن می‌توانند هنگام اجرای ابزار توسعه ورودی مسئله‌دار ایجاد کنند.
+
+تا انتشار اصلاح upstream، CLI فقط برای افزودن اجزای مورد نیاز از registry رسمی و ورودی بررسی‌شده استفاده شود. پس از انتشار نسخه جدید، وابستگی‌های shadcn و audit دوباره بررسی شوند. حذف CLI گزارش را از درخت نصب حذف می‌کند، اما رفع خود آسیب‌پذیری نیست و در این درخواست انجام نشد.
+
+## بررسی‌های اجراشده
+
+- npm audit --json: همان ۶ مورد؛ دو ریشه آسیب‌پذیری.
+- npm audit fix --dry-run --json: صفر تغییر پیشنهادی سازگار.
+- npm audit --omit=dev --json: صفر گزارش.
+- npm view برای نسخه‌ها و dependencies بسته‌های shadcn، deepmerge، minimatch، ts-morph و common.
+- npm ls deepmerge minimatch @shadcn/registry ts-morph @ts-morph/common: زنجیره فوق تأیید شد.
+- npm exec shadcn -- --version: نسخه 4.23.0 با موفقیت اجرا شد.
+- npm exec shadcn -- info: شناسایی Next.js 16.4.3، Tailwind 4، App Router و RTL موفق بود؛ فایل کامپوننتی اضافه نشد.
+- تست محصول یا build مجدد لازم نبود؛ تغییری در کد یا نسخه‌ها انجام نشد.
+
+## منابع
+
+- [گزارش رسمی deepmerge](https://github.com/advisories/GHSA-gcqx-w48m-w2h4)
+- [گزارش رسمی minimatch](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+- متادیتای نسخه و dependencies در npm registry، تطبیق‌داده‌شده با package-lock.json همین پروژه.
