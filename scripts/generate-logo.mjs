@@ -3,7 +3,12 @@ import sharp from 'sharp';
 
 // Palette 01 is the approved default. Palettes 02 and 03 are alternate site themes.
 const palettes = [
-  { id: '01', name: 'Navy / Teal', primary: '#142D4E', secondary: '#008879' },
+  {
+    id: '01',
+    name: 'Navy / Teal',
+    primary: 'hsl(244 100% 36%)',
+    secondary: '#008879',
+  },
   {
     id: '02',
     name: 'Cobalt / Orange',
@@ -11,26 +16,8 @@ const palettes = [
     secondary: '#D85A1E',
   },
   { id: '03', name: 'Violet / Jade', primary: '#5030A0', secondary: '#008C78' },
-  {
-    id: '04',
-    name: 'Graphite / Lime',
-    primary: '#272E35',
-    secondary: '#578800',
-  },
-  {
-    id: '05',
-    name: 'Forest / Amber',
-    primary: '#164F46',
-    secondary: '#BD760B',
-  },
-  {
-    id: '06',
-    name: 'Midnight / Berry',
-    primary: '#243454',
-    secondary: '#C23772',
-  },
 ];
-const artwork = `<g fill="none" stroke="var(--logo-primary, #142D4E)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+const artwork = `<g fill="none" stroke="var(--logo-primary, hsl(244 100% 36%))" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
   <path d="M65 91 99 44m76 47-34-47" stroke="var(--logo-secondary, #008879)"/>
   <path d="M44 95l18 77q4 18 22 18h72q18 0 22-18l18-77"/>
   <path d="M37 91h166" stroke-width="12"/>
@@ -39,7 +26,6 @@ const artwork = `<g fill="none" stroke="var(--logo-primary, #142D4E)" stroke-wid
 </g>`;
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label="Tech Shop — TS shopping basket">\n${artwork}\n</svg>\n`;
 fs.writeFileSync('public/logo.svg', svg);
-fs.writeFileSync('public/logo-mark.svg', svg);
 const jsx = artwork
   .replaceAll('stroke-width=', 'strokeWidth=')
   .replaceAll('stroke-linejoin=', 'strokeLinejoin=')
@@ -65,7 +51,7 @@ export function Logo({ label = 'Tech Shop', primaryColor, secondaryColor, style,
 );
 const colorize = (palette) =>
   artwork
-    .replaceAll('var(--logo-primary, #142D4E)', palette.primary)
+    .replaceAll('var(--logo-primary, hsl(244 100% 36%))', palette.primary)
     .replaceAll('var(--logo-secondary, #008879)', palette.secondary);
 fs.mkdirSync('public/favicons', { recursive: true });
 for (const [index, name] of ['navy', 'cobalt', 'violet'].entries()) {
@@ -97,20 +83,4 @@ pngs.forEach((png, i) => {
   offset += png.length;
 });
 fs.writeFileSync('app/favicon.ico', Buffer.concat([header, ...pngs]));
-const tiles = palettes
-  .map((p, i) => {
-    const x = 30 + (i % 3) * 430;
-    const y = 82 + Math.floor(i / 3) * 440;
-    return `<g transform="translate(${x} ${y})"><rect width="400" height="410" rx="18" fill="#fff"/><text x="24" y="35" font-family="Arial,sans-serif" font-size="16" fill="#777">${p.id}</text><g transform="translate(80 36)">${colorize(p)}</g><text x="24" y="302" font-family="Arial,sans-serif" font-size="22" font-weight="bold" fill="#20272d">${p.name}</text><circle cx="33" cy="340" r="9" fill="${p.primary}"/><text x="52" y="346" font-family="Arial,sans-serif" font-size="16" fill="#444">P ${p.primary}</text><circle cx="212" cy="340" r="9" fill="${p.secondary}"/><text x="231" y="346" font-family="Arial,sans-serif" font-size="16" fill="#444">S ${p.secondary}</text><rect x="24" y="367" width="352" height="4" rx="2" fill="${p.primary}"/><rect x="258" y="367" width="118" height="4" rx="2" fill="${p.secondary}"/></g>`;
-  })
-  .join('');
-const board = `<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1000" viewBox="0 0 1320 1000"><rect width="1320" height="1000" fill="#F2F1EC"/><text x="32" y="49" font-family="Arial,sans-serif" font-weight="bold" font-size="25" fill="#20272d">TECH SHOP / COLOR DIRECTIONS</text>${tiles}</svg>`;
-fs.writeFileSync('md/assets/logo-palettes.svg', board);
-fs.writeFileSync(
-  'md/assets/logo-palettes.json',
-  JSON.stringify(palettes, null, 2) + '\n',
-);
-await sharp(Buffer.from(board)).png().toFile('md/assets/logo-palettes.png');
-console.log(
-  'Generated two-color logo, SVG/ICO favicons and six palette previews.',
-);
+console.log('Generated two-color logo and SVG/ICO favicons.');

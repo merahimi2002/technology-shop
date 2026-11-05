@@ -8,7 +8,8 @@ import {
   type KeyboardEvent,
 } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, Store, X } from 'lucide-react';
+import { ArrowLeft, Store } from 'lucide-react';
+import { ModalCloseButton } from '@/components/modal-close-button';
 import { Subtitle } from '@/components/subtitle';
 import { Title } from '@/components/title';
 import { GradientButton } from '@/components/gradient-button';
@@ -527,14 +528,7 @@ export function ProductHero() {
         onClose={() => setDetailsOpen(false)}
       >
         <div className="modal-box bg-base-100">
-          <form method="dialog">
-            <button
-              className="btn btn-sm btn-circle btn-ghost absolute left-3 top-3"
-              aria-label="بستن"
-            >
-              <X size={20} />
-            </button>
-          </form>
+          <ModalCloseButton className="absolute left-3 top-3" />
           <p className="text-secondary">انتخاب تک‌شاپ</p>
           <h2 className="mt-3 text-2xl font-bold" dir="ltr">
             {product.name}

@@ -9,6 +9,10 @@ import {
 } from 'react';
 import {
   DEFAULT_THEME,
+  DEFAULT_CUSTOM_COLORS,
+  applyCustomColors,
+  resolveMode,
+  type CustomColors,
   THEME_STORAGE_KEY,
   parseTheme,
   resolveTheme,
@@ -21,6 +25,7 @@ const ThemeContext = createContext<{
   preference: ThemePreference;
   setPalette: (palette: Palette) => void;
   setMode: (mode: ThemeMode) => void;
+  setColors: (colors: CustomColors) => void;
 } | null>(null);
 
 function applyTheme(preference: ThemePreference) {
@@ -29,6 +34,16 @@ function applyTheme(preference: ThemePreference) {
     preference,
     matchMedia('(prefers-color-scheme: dark)').matches,
   );
+  if (preference.palette === 'custom') {
+    applyCustomColors(
+      root,
+      preference.colors ?? DEFAULT_CUSTOM_COLORS,
+      resolveMode(
+        preference.mode,
+        matchMedia('(prefers-color-scheme: dark)').matches,
+      ),
+    );
+  } else root.removeAttribute('data-custom-palette');
   const background = getComputedStyle(root)
     .getPropertyValue('--color-base-100')
     .trim();
@@ -38,7 +53,7 @@ function applyTheme(preference: ThemePreference) {
   document
     .querySelectorAll<HTMLLinkElement>('link[rel="icon"]')
     .forEach((link) => {
-      link.href = `/favicons/${preference.palette}.svg`;
+      link.href = `/favicons/${preference.palette === 'custom' ? 'navy' : preference.palette}.svg`;
       link.type = 'image/svg+xml';
       link.sizes.value = 'any';
     });
@@ -95,6 +110,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <ThemeContext.Provider
       value={{
         preference,
+        setColors: (colors) =>
+          update({ ...preference, palette: 'custom', colors }),
         setPalette: (palette) => update({ ...preference, palette }),
         setMode: (mode) => update({ ...preference, mode }),
       }}

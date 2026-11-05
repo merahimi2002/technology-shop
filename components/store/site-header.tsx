@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Gamepad2,
   Headphones,
+  Heart,
   Laptop,
   LayoutGrid,
   Menu,
@@ -22,12 +23,15 @@ import {
   Palette,
   UserRound,
   Usb,
-  X,
 } from 'lucide-react';
+import { ModalCloseButton } from '@/components/modal-close-button';
 import { Logo } from '@/components/logo';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { STORE_CATEGORIES } from '@/lib/store-navigation';
+
+const actionButtonClass =
+  'btn btn-ghost btn-circle h-8 min-h-8 w-8 border-0 bg-base-content/7 p-0 shadow-none from-primary via-secondary to-primary [@media(hover:hover)_and_(pointer:fine)]:hover:bg-conic [@media(hover:hover)_and_(pointer:fine)]:hover:text-primary-content';
 
 const icons = {
   phone: Smartphone,
@@ -91,6 +95,7 @@ export function SiteHeader() {
   const cart = useRef<HTMLDialogElement>(null);
   const account = useRef<HTMLDialogElement>(null);
   const results = useRef<HTMLDialogElement>(null);
+  const searchDialog = useRef<HTMLDialogElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const categoryMenu = useRef<HTMLDetailsElement>(null);
   const [result, setResult] = useState({ title: 'محصولات', detail: '' });
@@ -111,10 +116,9 @@ export function SiteHeader() {
             target.closest('input, textarea, select')))
       )
         return;
-      if (searchInput.current?.getClientRects().length) {
-        event.preventDefault();
-        searchInput.current.focus();
-      }
+      event.preventDefault();
+      searchDialog.current?.showModal();
+      searchInput.current?.focus();
     }
     document.addEventListener('keydown', shortcuts);
     return () => document.removeEventListener('keydown', shortcuts);
@@ -124,6 +128,7 @@ export function SiteHeader() {
     setResult({ title, detail });
     categoryMenu.current?.removeAttribute('open');
     mobileMenu.current?.close();
+    searchDialog.current?.close();
     results.current?.showModal();
   }
   const search = (query: string) =>
@@ -147,7 +152,7 @@ export function SiteHeader() {
         aria-label="هدر فروشگاه تک‌شاپ"
       >
         <div className="glass-header rounded-[24px] [@media(max-width:1023px)]:rounded-[20px]">
-          <div className="navbar header-main gap-9 min-h-[98px] px-7 py-4 [@media(max-width:1023px)]:gap-2.5 [@media(max-width:1023px)]:min-h-[82px] [@media(max-width:1023px)]:px-4 [@media(max-width:1023px)]:py-3 [@media(max-width:390px)]:px-[10px] [@media(max-width:390px)]:gap-0.5">
+          <div className="navbar header-main flex-wrap lg:flex-nowrap gap-4 xl:gap-7 min-h-[98px] px-7 py-4 [@media(max-width:1023px)]:gap-2.5 [@media(max-width:1023px)]:min-h-[82px] [@media(max-width:1023px)]:px-4 [@media(max-width:1023px)]:py-3 [@media(max-width:390px)]:px-[10px] [@media(max-width:390px)]:gap-0.5">
             <button
               className="btn btn-ghost btn-square lg:hidden"
               type="button"
@@ -167,141 +172,153 @@ export function SiteHeader() {
                 <strong>
                   تک‌شاپ<span className="brand-dot text-secondary">.</span>
                 </strong>
-                <span lang="en" dir="ltr">
-                  TECH SHOP
-                </span>
               </span>
             </Link>
-            <div className="desktop-search flex-1 max-w-140 mx-auto hidden lg:block">
-              <SearchForm inputRef={searchInput} onSearch={search} />
+            <div className="header-nav hidden min-w-0 flex-1 items-center justify-center xl:justify-start lg:flex">
+              <nav
+                aria-label="ناوبری اصلی"
+                className="nav-links flex items-center gap-4 xl:gap-7 min-w-0"
+              >
+                <details
+                  ref={categoryMenu}
+                  className="dropdown category-dropdown shrink-0"
+                  onBlur={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget))
+                      event.currentTarget.open = false;
+                  }}
+                >
+                  <summary className="btn btn-ghost category-trigger border-0 bg-transparent shadow-none [&::marker]:hidden [&::-webkit-details-marker]:hidden [&>svg:last-child]:ms-1 h-[38px] min-h-[38px] p-0 gap-[9px] text-[13px] font-semibold text-secondary">
+                    <LayoutGrid size={18} />
+                    <span>دسته‌بندی محصولات</span>
+                    <ChevronDown size={15} />
+                  </summary>
+                  <ul
+                    className="dropdown-content menu category-menu border border-base-300 [&_button>svg:first-child]:text-secondary min-w-70 mt-[17px] p-2.5 rounded-[16px] bg-base-100 [&_button]:min-h-12 [&_button]:gap-3.5 [&_button]:text-[13px]"
+                    aria-label="دسته‌بندی محصولات"
+                  >
+                    {STORE_CATEGORIES.map((item) => {
+                      const Icon = icons[item.icon];
+                      return (
+                        <li key={item.slug}>
+                          <button
+                            type="button"
+                            aria-label={item.label}
+                            onClick={() => category(item.label)}
+                          >
+                            <Icon size={19} />
+                            <span>{item.label}</span>
+                            <ArrowUpLeft
+                              size={15}
+                              className="ms-auto text-base-content/35"
+                            />
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </details>
+                <span
+                  className="nav-divider bg-base-content/12 h-[17px] w-[1px]"
+                  aria-hidden="true"
+                />
+                <button
+                  className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
+                  type="button"
+                  onClick={() =>
+                    showResults(
+                      'همه محصولات',
+                      'هنوز محصولی برای نمایش وجود ندارد.',
+                    )
+                  }
+                >
+                  همه محصولات
+                </button>
+                <button
+                  className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
+                  type="button"
+                  onClick={() =>
+                    showResults(
+                      'تازه‌رسیده‌ها',
+                      'محصولات جدید به‌زودی اینجا قرار می‌گیرند.',
+                    )
+                  }
+                >
+                  تازه‌رسیده‌ها
+                </button>
+                <button
+                  className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
+                  type="button"
+                  onClick={() =>
+                    showResults(
+                      'پیشنهادهای ویژه',
+                      'در حال حاضر پیشنهاد فعالی وجود ندارد.',
+                    )
+                  }
+                >
+                  پیشنهادهای ویژه
+                  <span
+                    className="offer-dot h-[5px] w-[5px] rounded-full bg-secondary"
+                    aria-hidden="true"
+                  />
+                </button>
+              </nav>
             </div>
-            <div className="header-actions flex items-center gap-3 shrink-0 [@media(max-width:1023px)]:gap-1 [@media(max-width:390px)]:gap-0 [@media(max-width:639px)]:gap-0">
+            <div className="header-actions flex shrink-0 items-center gap-0.5 max-lg:w-full max-lg:justify-end">
               <ThemeToggle />
               <button
                 type="button"
-                className="account-button min-h-11 h-11 px-[9px] text-[13px] font-medium btn btn-ghost hidden sm:inline-flex"
+                className={`appearance-button ${actionButtonClass}`}
+                onClick={() => preferences.current?.showModal()}
+                aria-label="انتخاب تم دلخواه"
+                title="انتخاب تم دلخواه"
+              >
+                <Palette size={18} strokeWidth={1.7} />
+              </button>
+              <button
+                type="button"
+                className={`cart-button ${actionButtonClass}`}
+                onClick={() => cart.current?.showModal()}
+                aria-label="سبد خرید، بدون کالا"
+                title="سبد خرید"
+              >
+                <ShoppingBag size={18} strokeWidth={1.7} />
+              </button>
+              <button
+                type="button"
+                className={`favorites-button ${actionButtonClass}`}
+                onClick={() =>
+                  showResults(
+                    'علاقه‌مندی‌ها',
+                    'هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌ای.',
+                  )
+                }
+                aria-label="علاقه‌مندی‌ها"
+                title="علاقه‌مندی‌ها"
+              >
+                <Heart size={18} strokeWidth={1.7} />
+              </button>
+              <button
+                type="button"
+                className={`account-button ${actionButtonClass}`}
                 onClick={() => account.current?.showModal()}
                 aria-label="ورود یا ثبت‌نام"
+                title="ورود یا ثبت‌نام"
               >
-                <UserRound size={21} strokeWidth={1.7} />
-                <span className="hidden xl:inline">
-                  ورود <span className="text-base-content/30">/</span> ثبت‌نام
-                </span>
+                <UserRound size={18} strokeWidth={1.7} />
               </button>
-              <span
-                className="action-separator bg-base-content/12 h-6 w-[1px] [@media(max-width:1023px)]:hidden"
-                aria-hidden="true"
-              />
               <button
                 type="button"
-                className="cart-button relative w-11 min-h-11 h-11 btn btn-ghost btn-square"
-                aria-label="سبد خرید، بدون کالا"
-                onClick={() => cart.current?.showModal()}
-              >
-                <ShoppingBag size={22} strokeWidth={1.7} />
-              </button>
-            </div>
-          </div>
-          <div className="mobile-search px-4 pb-4 pt-0 lg:hidden">
-            <SearchForm onSearch={search} />
-          </div>
-          <div className="header-nav items-center justify-between gap-6 px-7 pb-2.5 pt-0 hidden lg:flex">
-            <nav
-              aria-label="ناوبری اصلی"
-              className="nav-links flex items-center gap-7 min-w-0"
-            >
-              <details
-                ref={categoryMenu}
-                className="dropdown category-dropdown"
-                onBlur={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget))
-                    event.currentTarget.open = false;
+                className={actionButtonClass}
+                aria-label="باز کردن جست‌وجو"
+                title="جست‌وجو"
+                onClick={() => {
+                  searchDialog.current?.showModal();
+                  searchInput.current?.focus();
                 }}
               >
-                <summary className="btn btn-ghost category-trigger border-0 bg-transparent shadow-none [&::marker]:hidden [&::-webkit-details-marker]:hidden [&>svg:last-child]:ms-1 h-[38px] min-h-[38px] p-0 gap-[9px] text-[13px] font-semibold text-secondary">
-                  <LayoutGrid size={18} />
-                  <span>دسته‌بندی محصولات</span>
-                  <ChevronDown size={15} />
-                </summary>
-                <ul
-                  className="dropdown-content menu category-menu border border-base-300 [&_button>svg:first-child]:text-secondary min-w-70 mt-[17px] p-2.5 rounded-[16px] bg-base-100 [&_button]:min-h-12 [&_button]:gap-3.5 [&_button]:text-[13px]"
-                  aria-label="دسته‌بندی محصولات"
-                >
-                  {STORE_CATEGORIES.map((item) => {
-                    const Icon = icons[item.icon];
-                    return (
-                      <li key={item.slug}>
-                        <button
-                          type="button"
-                          aria-label={item.label}
-                          onClick={() => category(item.label)}
-                        >
-                          <Icon size={19} />
-                          <span>{item.label}</span>
-                          <ArrowUpLeft
-                            size={15}
-                            className="ms-auto text-base-content/35"
-                          />
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </details>
-              <span
-                className="nav-divider bg-base-content/12 h-[17px] w-[1px]"
-                aria-hidden="true"
-              />
-              <button
-                className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
-                type="button"
-                onClick={() =>
-                  showResults(
-                    'همه محصولات',
-                    'هنوز محصولی برای نمایش وجود ندارد.',
-                  )
-                }
-              >
-                همه محصولات
+                <Search size={18} strokeWidth={1.7} />
               </button>
-              <button
-                className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
-                type="button"
-                onClick={() =>
-                  showResults(
-                    'تازه‌رسیده‌ها',
-                    'محصولات جدید به‌زودی اینجا قرار می‌گیرند.',
-                  )
-                }
-              >
-                تازه‌رسیده‌ها
-              </button>
-              <button
-                className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
-                type="button"
-                onClick={() =>
-                  showResults(
-                    'پیشنهادهای ویژه',
-                    'در حال حاضر پیشنهاد فعالی وجود ندارد.',
-                  )
-                }
-              >
-                پیشنهادهای ویژه
-                <span
-                  className="offer-dot h-[5px] w-[5px] rounded-full bg-secondary"
-                  aria-hidden="true"
-                />
-              </button>
-            </nav>
-            <button
-              className="appearance-button text-base-content/66 px-[10px] gap-2 text-xs font-normal btn btn-ghost btn-sm"
-              type="button"
-              onClick={() => preferences.current?.showModal()}
-              aria-label="انتخاب تم دلخواه"
-            >
-              <Palette size={16} />
-              <span>انتخاب تم دلخواه</span>
-            </button>
+            </div>
           </div>
         </div>
       </header>
@@ -317,14 +334,7 @@ export function SiteHeader() {
             <h2 id="mobile-menu-title" className="text-xl font-bold">
               تک‌شاپ<span className="text-secondary">.</span>
             </h2>
-            <form method="dialog">
-              <button
-                className="btn btn-ghost btn-square"
-                aria-label="بستن منو"
-              >
-                <X size={21} />
-              </button>
-            </form>
+            <ModalCloseButton label="بستن منو" />{' '}
           </div>
           <p className="mt-7 mb-3 text-sm text-base-content/55">
             دسته‌بندی محصولات
@@ -347,28 +357,6 @@ export function SiteHeader() {
               );
             })}
           </ul>
-          <div className="divider my-6" />
-          <button
-            className="btn btn-ghost w-full justify-start sm:hidden"
-            type="button"
-            onClick={() => {
-              mobileMenu.current?.close();
-              account.current?.showModal();
-            }}
-          >
-            <UserRound size={19} strokeWidth={1.7} />
-            ورود / ثبت‌نام
-          </button>
-          <button
-            className="btn btn-ghost w-full justify-start"
-            onClick={() => {
-              mobileMenu.current?.close();
-              preferences.current?.showModal();
-            }}
-          >
-            <Palette size={19} />
-            انتخاب تم دلخواه
-          </button>
         </div>
         <form method="dialog" className="modal-backdrop">
           <button aria-label="بستن منوی فروشگاه">بستن</button>
@@ -376,11 +364,25 @@ export function SiteHeader() {
       </dialog>
 
       <dialog
+        ref={searchDialog}
+        className="modal"
+        aria-labelledby="search-title"
+      >
+        <div className="modal-box">
+          <DialogHeading id="search-title" title="جست‌وجوی محصولات" />
+          <div className="mt-5">
+            <SearchForm inputRef={searchInput} onSearch={search} />
+          </div>
+        </div>
+        <Backdrop />
+      </dialog>
+
+      <dialog
         ref={preferences}
         className="modal"
         aria-labelledby="appearance-title"
       >
-        <div className="modal-box">
+        <div className="modal-box w-[min(440px,calc(100vw-32px))] max-w-none p-5">
           <DialogHeading id="appearance-title" title="انتخاب تم دلخواه" />
           <ThemeSwitcher />
         </div>
@@ -438,16 +440,7 @@ export function SiteHeader() {
 }
 
 function CloseButton() {
-  return (
-    <form method="dialog">
-      <button
-        className="btn btn-ghost btn-square shrink-0"
-        aria-label="بستن پنجره"
-      >
-        <X size={21} />
-      </button>
-    </form>
-  );
+  return <ModalCloseButton />;
 }
 function DialogHeading({ id, title }: { id: string; title: string }) {
   return (

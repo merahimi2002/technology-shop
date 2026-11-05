@@ -21,9 +21,9 @@ export function ThemeToggle() {
   const { preference, setMode } = useTheme();
   const dark = resolveMode(preference.mode, useSystemDark()) === 'dark';
   return (
-    <span className="inline-flex min-h-11 shrink-0 items-center px-1">
+    <span className="inline-flex min-h-11 shrink-0 items-center ps-0.5 pe-2">
       <label
-        className="toggle theme-toggle-control has-focus-visible:outline-2 has-focus-visible:outline-secondary has-focus-visible:outline-offset-4 "
+        className="toggle toggle-lg theme-toggle-control border-0 bg-conic from-primary via-secondary to-primary before:bg-base-100 before:bg-none [&>svg]:size-full [&>svg]:p-1 [&>svg]:text-base-content has-focus-visible:outline-2 has-focus-visible:outline-secondary has-focus-visible:outline-offset-4"
         title={dark ? 'تغییر به حالت روشن' : 'تغییر به حالت تیره'}
       >
         <input
@@ -34,8 +34,8 @@ export function ThemeToggle() {
           onChange={(event) => setMode(event.target.checked ? 'dark' : 'light')}
           aria-label="حالت تیره"
         />
-        <SunMedium size={17} strokeWidth={1.8} aria-hidden="true" />
-        <MoonStar size={17} strokeWidth={1.8} aria-hidden="true" />
+        <SunMedium size={18} strokeWidth={1.8} aria-hidden="true" />
+        <MoonStar size={18} strokeWidth={1.8} aria-hidden="true" />
       </label>
     </span>
   );

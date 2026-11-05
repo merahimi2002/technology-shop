@@ -29,7 +29,7 @@ export function Logo({
     >
       <g
         fill="none"
-        stroke="var(--logo-primary, #142D4E)"
+        stroke="var(--logo-primary, hsl(244 100% 36%))"
         strokeWidth="9"
         strokeLinecap="round"
         strokeLinejoin="round"

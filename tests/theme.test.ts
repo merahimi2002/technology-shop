@@ -8,6 +8,21 @@ import {
 } from '../lib/theme';
 
 function luminance(hex: string) {
+  const hsl = /^hsl\(([\d.]+) ([\d.]+)% ([\d.]+)%\)$/.exec(hex);
+  if (hsl) {
+    const h = Number(hsl[1]) / 30;
+    const saturation = Number(hsl[2]) / 100;
+    const lightness = Number(hsl[3]) / 100;
+    const a = saturation * Math.min(lightness, 1 - lightness);
+    const channels = [0, 8, 4].map((n) => {
+      const k = (n + h) % 12;
+      return lightness - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    });
+    const linear = channels.map((n) =>
+      n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4,
+    );
+    return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+  }
   const rgb = hex
     .replace('#', '')
     .match(/.{2}/g)!
@@ -80,10 +95,9 @@ for (const block of brandCss.matchAll(
 )) {
   const name = /name:\s*'([^']+)'/.exec(block[1])![1];
   const tokens = Object.fromEntries(
-    [...block[1].matchAll(/--color-([\w-]+):\s*(#[\da-fA-F]+);/g)].map((m) => [
-      m[1],
-      m[2],
-    ]),
+    [
+      ...block[1].matchAll(/--color-([\w-]+):\s*(#[\da-fA-F]+|hsl\([^)]*\));/g),
+    ].map((m) => [m[1], m[2]]),
   );
   for (const color of ['primary', 'secondary']) {
     it(`${name} ${color} button label contrast is at least 4.5:1`, () => {
@@ -93,3 +107,20 @@ for (const block of brandCss.matchAll(
     });
   }
 }
+
+it('restores custom colors and repairs invalid color values', () => {
+  const preference = parseTheme(
+    JSON.stringify({
+      palette: 'custom',
+      mode: 'dark',
+      colors: {
+        light: { primary: '#123456', secondary: 'url(x)' },
+        dark: { primary: '#abcdef', secondary: '#112233' },
+      },
+    }),
+  );
+  expect(preference.colors?.light.primary).toBe('#123456');
+  expect(preference.colors?.light.secondary).toBe('#008879');
+  expect(preference.colors?.dark.primary).toBe('#abcdef');
+  expect(resolveTheme(preference, false)).toBe('night');
+});

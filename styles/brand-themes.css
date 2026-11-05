@@ -6,7 +6,7 @@
 @plugin 'daisyui/theme' {
   name: 'nord';
   default: true;
-  --color-primary: #142d4e;
+  --color-primary: hsl(244 100% 36%);
   --color-primary-content: #ffffff;
   --color-secondary: #008879;
   --color-secondary-content: #000000;
@@ -14,9 +14,9 @@
 @plugin 'daisyui/theme' {
   name: 'night';
   prefersdark: true;
-  --color-primary: #b6cff1;
+  --color-primary: hsl(190 100% 55%);
   --color-primary-content: #0b1625;
-  --color-secondary: #44cdb5;
+  --color-secondary: hsl(169.49 100% 53.53%);
   --color-secondary-content: #07231f;
 }
 @plugin 'daisyui/theme' {
@@ -46,4 +46,11 @@
   --color-primary-content: #261342;
   --color-secondary: #57d2b5;
   --color-secondary-content: #082a22;
+}
+
+[data-custom-palette] {
+  --color-primary: var(--custom-primary);
+  --color-primary-content: var(--custom-primary-content);
+  --color-secondary: var(--custom-secondary);
+  --color-secondary-content: var(--custom-secondary-content);
 }
