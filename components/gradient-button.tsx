@@ -30,14 +30,14 @@ export function GradientButton({
         className={cn(
           'relative transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] motion-reduce:transition-none',
           icon &&
-            'pe-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-enabled:group-hover:-translate-x-6',
+            'pe-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-enabled:group-hover:-translate-x-6 ltr:motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-enabled:group-hover:translate-x-6',
         )}
       >
         {children}
       </span>
       {icon && (
         <span
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 ltr:rotate-180"
           aria-hidden="true"
         >
           <span className="absolute top-1/2 left-4 inline-flex size-4 -translate-y-1/2 items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] [&>svg]:size-full motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-enabled:group-hover:-translate-x-12 motion-reduce:transition-none">

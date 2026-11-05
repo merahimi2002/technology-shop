@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 
 import { useSyncExternalStore } from 'react';
 import { MoonStar, SunMedium } from 'lucide-react';
@@ -18,13 +19,14 @@ export function useSystemDark() {
 }
 
 export function ThemeToggle() {
+  const t = useTranslations();
   const { preference, setMode } = useTheme();
   const dark = resolveMode(preference.mode, useSystemDark()) === 'dark';
   return (
     <span className="inline-flex min-h-11 shrink-0 items-center ps-0.5 pe-2">
       <label
         className="toggle toggle-lg theme-toggle-control border-0 bg-conic from-primary via-secondary to-primary before:bg-base-100 before:bg-none [&>svg]:size-full [&>svg]:p-1 [&>svg]:text-base-content has-focus-visible:outline-2 has-focus-visible:outline-secondary has-focus-visible:outline-offset-4"
-        title={dark ? 'تغییر به حالت روشن' : 'تغییر به حالت تیره'}
+        title={dark ? t('theme.switchToLight') : t('theme.switchToDark')}
       >
         <input
           type="checkbox"
@@ -32,7 +34,7 @@ export function ThemeToggle() {
           className="theme-controller"
           checked={dark}
           onChange={(event) => setMode(event.target.checked ? 'dark' : 'light')}
-          aria-label="حالت تیره"
+          aria-label={t('theme.modes.dark')}
         />
         <SunMedium size={18} strokeWidth={1.8} aria-hidden="true" />
         <MoonStar size={18} strokeWidth={1.8} aria-hidden="true" />

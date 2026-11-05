@@ -3,10 +3,10 @@ import { cn } from '@/lib/utils';
 
 export function ModalCloseButton({
   className,
-  label = 'بستن پنجره',
+  label,
 }: {
   className?: string;
-  label?: string;
+  label: string;
 }) {
   return (
     <form method="dialog">

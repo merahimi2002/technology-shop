@@ -21,3 +21,120 @@
     font-family: var(--font-sans);
   }
 }
+
+/* Interpolate daisyUI colors in place so locale/product motion stays live. */
+@property --color-base-100 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-base-200 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-base-300 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-base-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-primary-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-secondary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-secondary-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-accent-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-neutral {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-neutral-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-info {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-info-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-success {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-success-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-warning {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-warning-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-error {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --color-error-content {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-changing] {
+    transition-property:
+      --color-base-100, --color-base-200, --color-base-300,
+      --color-base-content, --color-primary, --color-primary-content,
+      --color-secondary, --color-secondary-content, --color-accent,
+      --color-accent-content, --color-neutral, --color-neutral-content,
+      --color-info, --color-info-content, --color-success,
+      --color-success-content, --color-warning, --color-warning-content,
+      --color-error, --color-error-content;
+    transition-duration: 1000ms;
+    transition-timing-function: ease;
+  }
+}

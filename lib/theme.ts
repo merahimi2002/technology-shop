@@ -1,8 +1,12 @@
 export const PALETTES = {
-  navy: { label: 'سرمه‌ای و سبزآبی', light: 'nord', dark: 'night' },
-  cobalt: { label: 'آبی کبالت و نارنجی', light: 'winter', dark: 'dim' },
-  violet: { label: 'بنفش و یشمی', light: 'cupcake', dark: 'dracula' },
-  custom: { label: 'رنگ دلخواه', light: 'nord', dark: 'night' },
+  navy: { labelKey: 'theme.palettes.navy', light: 'nord', dark: 'night' },
+  cobalt: { labelKey: 'theme.palettes.cobalt', light: 'winter', dark: 'dim' },
+  violet: {
+    labelKey: 'theme.palettes.violet',
+    light: 'cupcake',
+    dark: 'dracula',
+  },
+  custom: { labelKey: 'theme.palettes.custom', light: 'nord', dark: 'night' },
 } as const;
 
 export type Palette = keyof typeof PALETTES;

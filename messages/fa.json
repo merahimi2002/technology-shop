@@ -1,0 +1,141 @@
+{
+  "brand": {
+    "homeLabel": "تک‌شاپ، صفحه اصلی",
+    "name": "تک‌شاپ",
+    "dot": "."
+  },
+  "common": {
+    "skipToContent": "رفتن به محتوای اصلی",
+    "close": "بستن",
+    "keepExploring": "ادامه گشت‌وگذار",
+    "closeDialog": "بستن پنجره"
+  },
+  "header": {
+    "label": "هدر فروشگاه تک‌شاپ"
+  },
+  "navigation": {
+    "products": "محصولات",
+    "openMenu": "باز کردن منوی فروشگاه",
+    "label": "ناوبری اصلی",
+    "categories": "دسته‌بندی محصولات",
+    "allProducts": "همه محصولات",
+    "newArrivals": "تازه‌رسیده‌ها",
+    "newArrivalsEmpty": "محصولات جدید به‌زودی اینجا قرار می‌گیرند.",
+    "specialOffers": "پیشنهادهای ویژه",
+    "offersEmpty": "در حال حاضر پیشنهاد فعالی وجود ندارد.",
+    "closeMenu": "بستن منو",
+    "closeStoreMenu": "بستن منوی فروشگاه"
+  },
+  "search": {
+    "title": "جست‌وجوی محصولات",
+    "placeholder": "دنبال چی می‌گردی؟",
+    "submit": "جست‌وجو",
+    "empty": "هنوز محصولی برای نمایش وجود ندارد.",
+    "open": "باز کردن جست‌وجو",
+    "resultsTitle": "جست‌وجو — {query}",
+    "shortcut": "/"
+  },
+  "categories": {
+    "comingSoon": "محصولات این دسته به‌زودی اضافه می‌شوند.",
+    "mobile": "موبایل و تبلت",
+    "laptop": "لپ‌تاپ و کامپیوتر",
+    "audio": "صدا و هدفون",
+    "gaming": "گیمینگ",
+    "accessories": "لوازم جانبی"
+  },
+  "cart": {
+    "emptyLabel": "سبد خرید، بدون کالا",
+    "title": "سبد خرید",
+    "emptyTitle": "سبد خریدت هنوز خالیه",
+    "emptyDescription": "محصول‌های انتخابی‌ات اینجا قرار می‌گیرند."
+  },
+  "wishlist": {
+    "title": "علاقه‌مندی‌ها",
+    "empty": "هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌ای."
+  },
+  "account": {
+    "signIn": "ورود یا ثبت‌نام",
+    "title": "حساب کاربری",
+    "welcome": "به تک‌شاپ خوش اومدی",
+    "comingSoon": "ورود و ثبت‌نام به‌زودی در دسترس قرار می‌گیره."
+  },
+  "theme": {
+    "title": "انتخاب تم دلخواه",
+    "paletteLabel": "انتخاب رنگ‌بندی فروشگاه",
+    "modes": {
+      "light": "حالت روشن",
+      "dark": "حالت تیره"
+    },
+    "colors": {
+      "primary": "رنگ اصلی",
+      "secondary": "رنگ دوم"
+    },
+    "modeNames": {
+      "light": "روشن",
+      "dark": "تیره"
+    },
+    "resetColors": "بازنشانی رنگ‌ها",
+    "switchToLight": "تغییر به حالت روشن",
+    "switchToDark": "تغییر به حالت تیره",
+    "palettes": {
+      "navy": "سرمه‌ای و سبزآبی",
+      "cobalt": "آبی کبالت و نارنجی",
+      "violet": "بنفش و یشمی",
+      "custom": "رنگ دلخواه"
+    },
+    "colorLabels": {
+      "light": {
+        "primary": "رنگ اصلی روشن",
+        "secondary": "رنگ دوم روشن"
+      },
+      "dark": {
+        "primary": "رنگ اصلی تیره",
+        "secondary": "رنگ دوم تیره"
+      }
+    }
+  },
+  "hero": {
+    "carouselLabel": "اسلایدر محصولات",
+    "picks": "انتخاب تک‌شاپ",
+    "exploreProduct": "کشف محصول",
+    "tagline": "تکنولوژی، به سلیقهٔ تو.",
+    "chooseProduct": "انتخاب محصول",
+    "previewNotice": "این بخش معرفی محصول است؛ قیمت و موجودی پس از اتصال کاتالوگ فروشگاه نمایش داده می‌شود.",
+    "showProduct": "نمایش {product}",
+    "moveProduct": "جابه‌جایی {product}؛ با کشیدن یا کلیدهای جهت؛ Home برای بازگشت",
+    "categoryIntro": "انتخاب تک‌شاپ / {category}"
+  },
+  "products": {
+    "airpods": {
+      "title": "هدفون اپل ایرپاد مکس",
+      "label": "ایرپاد مکس",
+      "category": "دنیای صدا",
+      "description": "گاهی فقط باید پلی کنی و از همه‌چیز فاصله بگیری. با ایرپاد مکس، برای لحظه‌های خودت جا باز کن.",
+      "alt": "هدفون ایرپاد مکس میدنایت",
+      "caption": "میدنایت؛ در مرکز توجه.",
+      "name": "Apple AirPods Max"
+    },
+    "mouse": {
+      "title": "ماوس لاجیتک ام‌ایکس مستر ۳ اس",
+      "label": "ماوس MX Master 3S",
+      "category": "میز کار تو",
+      "description": "از اولین کلیک تا آخرین جزئیات؛ برای ساعت‌هایی که غرق ساختن می‌شوی، یک همراه روی میزت داشته باش.",
+      "alt": "ماوس لاجیتک MX Master 3S گرافیتی",
+      "caption": "گرافیتی؛ همراه ایده‌هایت.",
+      "name": "Logitech MX Master 3S"
+    },
+    "keyboard": {
+      "title": "کیبورد لاجیتک ام‌ایکس کیز اس",
+      "label": "کیبورد MX Keys S",
+      "category": "دنیای خلاقیت",
+      "description": "داستان بعدی، پروژه بعدی، ایده بعدی. همه از همین‌جا شروع می‌شوند؛ از میز تو و اولین کلمه.",
+      "alt": "کیبورد لاجیتک MX Keys S گرافیتی",
+      "caption": "جای ایده‌های تازه روی میز تو.",
+      "name": "Logitech MX Keys S"
+    }
+  },
+  "language": {
+    "switchToPersian": "تغییر زبان به فارسی",
+    "switchToEnglish": "تغییر زبان به انگلیسی"
+  }
+}

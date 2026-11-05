@@ -1,13 +1,13 @@
 import type { SVGProps } from 'react';
 
 type LogoProps = Omit<SVGProps<SVGSVGElement>, 'children'> & {
-  label?: string;
+  label: string;
   primaryColor?: string;
   secondaryColor?: string;
 };
 
 export function Logo({
-  label = 'Tech Shop',
+  label,
   primaryColor,
   secondaryColor,
   style,

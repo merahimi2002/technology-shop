@@ -1,5 +1,8 @@
 import fs from 'node:fs';
 import sharp from 'sharp';
+const brandName = JSON.parse(
+  fs.readFileSync(new URL('../messages/en.json', import.meta.url), 'utf8'),
+).brand.name;
 
 // Palette 01 is the approved default. Palettes 02 and 03 are alternate site themes.
 const palettes = [
@@ -24,7 +27,7 @@ const artwork = `<g fill="none" stroke="var(--logo-primary, hsl(244 100% 36%))" 
   <path d="M91 92v69"/>
   <path d="M191 116h-46c-14 0-22 6-22 16s9 14 21 16l9 2c13 3 16 11 12 22s-12 18-25 18h-21" stroke="var(--logo-secondary, #008879)"/>
 </g>`;
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label="Tech Shop — TS shopping basket">\n${artwork}\n</svg>\n`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label="${brandName}">\n${artwork}\n</svg>\n`;
 fs.writeFileSync('public/logo.svg', svg);
 const jsx = artwork
   .replaceAll('stroke-width=', 'strokeWidth=')
@@ -35,12 +38,12 @@ fs.writeFileSync(
   `import type { SVGProps } from 'react';
 
 type LogoProps = Omit<SVGProps<SVGSVGElement>, 'children'> & {
-  label?: string;
+  label: string;
   primaryColor?: string;
   secondaryColor?: string;
 };
 
-export function Logo({ label = 'Tech Shop', primaryColor, secondaryColor, style, ...props }: LogoProps) {
+export function Logo({ label, primaryColor, secondaryColor, style, ...props }: LogoProps) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label={label} style={{ ...style, ...(primaryColor ? { '--logo-primary': primaryColor } : {}), ...(secondaryColor ? { '--logo-secondary': secondaryColor } : {}) }} {...props}>
       ${jsx}

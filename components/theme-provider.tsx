@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
   type ReactNode,
 } from 'react';
 import {
@@ -62,6 +63,14 @@ function applyTheme(preference: ThemePreference) {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreference] = useState(DEFAULT_THEME);
   const [ready, setReady] = useState(false);
+  const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (transitionTimer.current) clearTimeout(transitionTimer.current);
+      delete document.documentElement.dataset.themeChanging;
+    },
+    [],
+  );
 
   useEffect(() => {
     const read = () => {
@@ -106,6 +115,29 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function changeMode(mode: ThemeMode) {
+    const root = document.documentElement;
+    if (transitionTimer.current) clearTimeout(transitionTimer.current);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      delete root.dataset.themeChanging;
+    } else {
+      root.dataset.themeChanging = 'true';
+      // Commit the transition rule before changing the daisyUI theme values.
+      void getComputedStyle(root).getPropertyValue('--color-base-100');
+      transitionTimer.current = setTimeout(() => {
+        delete root.dataset.themeChanging;
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute(
+            'content',
+            getComputedStyle(root).getPropertyValue('--color-base-100').trim(),
+          );
+        transitionTimer.current = null;
+      }, 1000);
+    }
+    update({ ...preference, mode });
+  }
+
   return (
     <ThemeContext.Provider
       value={{
@@ -113,7 +145,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setColors: (colors) =>
           update({ ...preference, palette: 'custom', colors }),
         setPalette: (palette) => update({ ...preference, palette }),
-        setMode: (mode) => update({ ...preference, mode }),
+        setMode: changeMode,
       }}
     >
       {children}

@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 
 import type { CSSProperties } from 'react';
 import { Check, RotateCcw } from 'lucide-react';
@@ -13,13 +14,14 @@ import {
 } from '@/lib/theme';
 
 export function ThemeSwitcher() {
+  const t = useTranslations();
   const { preference, setPalette, setColors } = useTheme();
   const mode = resolveMode(preference.mode, useSystemDark());
 
   return (
     <>
       <fieldset className="mt-4 grid grid-cols-2 gap-3">
-        <legend className="sr-only">انتخاب رنگ‌بندی فروشگاه</legend>
+        <legend className="sr-only">{t('theme.paletteLabel')}</legend>
         {Object.entries(PALETTES).map(([id, palette]) => (
           <label
             key={id}
@@ -46,11 +48,12 @@ export function ThemeSwitcher() {
               value={id}
               checked={preference.palette === id}
               onChange={() => setPalette(id as Palette)}
-              aria-label={palette.label}
+              aria-label={t(palette.labelKey)}
             />
             <div className="palette-preview bg-base-200" aria-hidden="true">
               <div className="flex items-center justify-between border-b border-base-300 bg-base-100 px-3 py-1">
                 <Logo
+                  label={t('brand.name')}
                   primaryColor="var(--color-primary)"
                   secondaryColor="var(--color-secondary)"
                   width={24}
@@ -68,7 +71,7 @@ export function ThemeSwitcher() {
               </div>
             </div>
             <div className="flex items-center justify-between gap-2 px-2 py-2">
-              <span className="text-xs font-medium">{palette.label}</span>
+              <span className="text-xs font-medium">{t(palette.labelKey)}</span>
               <span
                 className={`palette-check inline-flex w-[18px] h-[18px] shrink-0 items-center justify-center rounded-full ${preference.palette === id ? 'bg-secondary text-secondary-content' : 'border border-base-content/20'}`}
                 aria-hidden="true"
@@ -90,7 +93,9 @@ export function ThemeSwitcher() {
                 className="grid min-w-0 flex-1 grid-cols-[repeat(2,max-content)] justify-center gap-1 rounded-xl bg-base-200 p-2"
               >
                 <legend className="px-1 text-xs font-semibold">
-                  {displayMode === 'light' ? 'حالت روشن' : 'حالت تیره'}
+                  {displayMode === 'light'
+                    ? t('theme.modes.light')
+                    : t('theme.modes.dark')}
                 </legend>
                 {(['primary', 'secondary'] as const).map((key) => (
                   <label
@@ -99,7 +104,7 @@ export function ThemeSwitcher() {
                   >
                     <input
                       type="color"
-                      aria-label={`${key === 'primary' ? 'رنگ اصلی' : 'رنگ دوم'} ${displayMode === 'light' ? 'روشن' : 'تیره'}`}
+                      aria-label={t(`theme.colorLabels.${displayMode}.${key}`)}
                       className="size-10 cursor-pointer appearance-none overflow-hidden rounded-lg border-0 bg-transparent p-0 shadow-none [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-lg [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch]:shadow-none [&::-moz-color-swatch]:rounded-lg [&::-moz-color-swatch]:border-0 [&::-moz-color-swatch]:shadow-none"
                       value={
                         (preference.colors ?? DEFAULT_CUSTOM_COLORS)[
@@ -118,7 +123,9 @@ export function ThemeSwitcher() {
                         });
                       }}
                     />
-                    {key === 'primary' ? 'رنگ اصلی' : 'رنگ دوم'}
+                    {key === 'primary'
+                      ? t('theme.colors.primary')
+                      : t('theme.colors.secondary')}
                   </label>
                 ))}
               </fieldset>
@@ -126,8 +133,8 @@ export function ThemeSwitcher() {
             <button
               type="button"
               className="btn btn-ghost btn-circle h-8 min-h-8 w-8 border-0 bg-base-content/7 p-0 shadow-none from-primary via-secondary to-primary [@media(hover:hover)_and_(pointer:fine)]:hover:bg-conic [@media(hover:hover)_and_(pointer:fine)]:hover:text-primary-content"
-              aria-label="بازنشانی رنگ‌ها"
-              title="بازنشانی رنگ‌ها"
+              aria-label={t('theme.resetColors')}
+              title={t('theme.resetColors')}
               onClick={() => setColors(DEFAULT_CUSTOM_COLORS)}
             >
               <RotateCcw size={18} strokeWidth={1.7} aria-hidden="true" />

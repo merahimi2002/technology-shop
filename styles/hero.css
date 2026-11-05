@@ -156,3 +156,9 @@
     inset: 0 8px;
   }
 }
+
+/* Mirror the studio lighting so copy stays on the clear wall in both directions. */
+[dir='ltr'] .hero-photo,
+[dir='ltr'] .product-hero::before {
+  transform: scaleX(-1);
+}

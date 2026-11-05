@@ -59,7 +59,7 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 - Tailwind و daisyUI برای تم و اجزای استاندارد؛ Lucide و فونت فارسی Vazirmatn. ابزار shadcn فعلاً نصب مانده است.
 - Tailwind روش اصلی استایل‌نویسی مستقیم در JSX است؛ CSS خام فقط برای موارد خاص و پیچیده استفاده می‌شود. قرارداد کامل در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) است.
 - GSAP و useGSAP برای تعویض محصولات و drag، و SplitText برای Title/Subtitle فعال‌اند. هاور دکمه با transitionهای Tailwind اجرا می‌شود. ScrollTrigger و Lenis نصب‌اند ولی در هیروی فعلی استفاده نمی‌شوند؛ جزئیات در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) و [ARCHITECTURE.md#صفحه-اصلی-و-نمایش-محصول](ARCHITECTURE.md#صفحه-اصلی-و-نمایش-محصول) است.
-- next-intl برای فارسی/انگلیسی و RTL/LTR.
+- next-intl برای فارسی/انگلیسی و RTL/LTR؛ کاتالوگ‌های موضوعی در messages، کلیدهای بررسی‌شده با TypeScript، قالب‌های ICU و کنترل AST متن مستقیم در تست Vitest. قرارداد در [ARCHITECTURE.md#مرز-متن-قابل-ترجمه](ARCHITECTURE.md#مرز-متن-قابل-ترجمه) ثبت شده است.
 - TanStack Query، React Hook Form و Zod.
 - PostgreSQL با Prisma و pg؛ سرویس دیتابیس هنوز راه‌اندازی نشده.
 - NextAuth پایدار 4.24.15؛ نسخه ۵ هنوز beta است و نصب نشده.

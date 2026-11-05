@@ -25,7 +25,12 @@ export function useTextReveal(
 ) {
   useGSAP(
     (_context, contextSafe) => {
-      if (!active || !root.current) return;
+      if (
+        !active ||
+        !root.current ||
+        document.documentElement.dataset.localeMoving
+      )
+        return;
       const media = gsap.matchMedia();
       media.add('(prefers-reduced-motion: no-preference)', () => {
         const observer = new IntersectionObserver(
@@ -35,6 +40,8 @@ export function useTextReveal(
             if (!content) return;
             const rotate = mode === 'rotate';
             const special = mode === 'special';
+            const direction =
+              getComputedStyle(root.current!).direction === 'rtl' ? 1 : -1;
             SplitText.create(content, {
               type: special ? 'chars' : gradient ? 'words,lines' : 'words',
               tag: 'span',
@@ -76,7 +83,7 @@ export function useTextReveal(
                     split.chars,
                     {
                       y: 10,
-                      rotation: 25,
+                      rotation: 25 * direction,
                       opacity: 0,
                     },
                     {
@@ -96,7 +103,7 @@ export function useTextReveal(
                   rotate
                     ? {
                         rotationX: -65,
-                        rotation: -28,
+                        rotation: -28 * direction,
                         yPercent: 35,
                         transformOrigin: '50% 100%',
                         transformPerspective: 600,

@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 
 import {
   useEffect,
@@ -18,46 +19,48 @@ import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(useGSAP);
 
-const products = [
-  {
-    id: 'airpods',
-    name: 'Apple AirPods Max',
-    title: 'هدفون اپل ایرپاد مکس',
-    label: 'ایرپاد مکس',
-    category: 'دنیای صدا',
-    description:
-      'گاهی فقط باید پلی کنی و از همه‌چیز فاصله بگیری. با ایرپاد مکس، برای لحظه‌های خودت جا باز کن.',
-    image: '/products/airpods-max-midnight.png',
-    alt: 'هدفون ایرپاد مکس میدنایت',
-    caption: 'میدنایت؛ در مرکز توجه.',
-  },
-  {
-    id: 'mouse',
-    name: 'Logitech MX Master 3S',
-    title: 'ماوس لاجیتک ام‌ایکس مستر ۳ اس',
-    label: 'ماوس MX Master 3S',
-    category: 'میز کار تو',
-    description:
-      'از اولین کلیک تا آخرین جزئیات؛ برای ساعت‌هایی که غرق ساختن می‌شوی، یک همراه روی میزت داشته باش.',
-    image: '/products/mx-master-3s.png',
-    alt: 'ماوس لاجیتک MX Master 3S گرافیتی',
-    caption: 'گرافیتی؛ همراه ایده‌هایت.',
-  },
-  {
-    id: 'keyboard',
-    name: 'Logitech MX Keys S',
-    title: 'کیبورد لاجیتک ام‌ایکس کیز اس',
-    label: 'کیبورد MX Keys S',
-    category: 'دنیای خلاقیت',
-    description:
-      'داستان بعدی، پروژه بعدی، ایده بعدی. همه از همین‌جا شروع می‌شوند؛ از میز تو و اولین کلمه.',
-    image: '/products/mx-keys-s.png',
-    alt: 'کیبورد لاجیتک MX Keys S گرافیتی',
-    caption: 'جای ایده‌های تازه روی میز تو.',
-  },
-];
+function useProducts() {
+  const t = useTranslations('products');
+  return [
+    {
+      id: 'airpods',
+      name: t('airpods.name'),
+      title: t('airpods.title'),
+      label: t('airpods.label'),
+      category: t('airpods.category'),
+      description: t('airpods.description'),
+      image: '/products/airpods-max-midnight.png',
+      alt: t('airpods.alt'),
+      caption: t('airpods.caption'),
+    },
+    {
+      id: 'mouse',
+      name: t('mouse.name'),
+      title: t('mouse.title'),
+      label: t('mouse.label'),
+      category: t('mouse.category'),
+      description: t('mouse.description'),
+      image: '/products/mx-master-3s.png',
+      alt: t('mouse.alt'),
+      caption: t('mouse.caption'),
+    },
+    {
+      id: 'keyboard',
+      name: t('keyboard.name'),
+      title: t('keyboard.title'),
+      label: t('keyboard.label'),
+      category: t('keyboard.category'),
+      description: t('keyboard.description'),
+      image: '/products/mx-keys-s.png',
+      alt: t('keyboard.alt'),
+      caption: t('keyboard.caption'),
+    },
+  ];
+}
 
 export function ProductHero() {
+  const t = useTranslations();
+  const products = useProducts();
   const [selected, setSelected] = useState(0);
   const [outgoing, setOutgoing] = useState<number | null>(null);
   const product = products[selected];
@@ -247,7 +250,7 @@ export function ProductHero() {
       timer.kill();
       autoplay.current = null;
     };
-  }, [selected]);
+  }, [selected, products.length]);
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const syncPlayback = () => {
@@ -275,7 +278,12 @@ export function ProductHero() {
       media.add('(prefers-reduced-motion: no-preference)', () => {
         const incoming = `.hero-product[data-product="${selected}"]`;
         const stage = root.current?.querySelector('.hero-stage');
-        const travelX = Math.min((stage?.clientWidth ?? 400) * 0.45, 230);
+        const direction =
+          root.current && getComputedStyle(root.current).direction === 'ltr'
+            ? -1
+            : 1;
+        const travelX =
+          Math.min((stage?.clientWidth ?? 400) * 0.45, 230) * direction;
         const travelY = Math.min((stage?.clientHeight ?? 520) * 0.55, 280);
         gsap.set('.hero-product-crop', { x: 0, y: 0, rotation: 0 });
         gsap.set(contactShadow.current, {
@@ -309,7 +317,7 @@ export function ProductHero() {
             autoAlpha: 1,
           },
         );
-        const textX = Math.min(travelX * 0.32, 60);
+        const textX = Math.min(Math.abs(travelX) * 0.32, 60) * direction;
         const textY = Math.min(travelY * 0.18, 42);
         gsap.set(incomingText, { x: textX, y: -textY, autoAlpha: 0 });
         swap.to(
@@ -374,7 +382,7 @@ export function ProductHero() {
       ref={root}
       className="product-hero relative isolate w-full [margin:-172px_auto_54px] [padding:196px_0_0] rounded-[0_0_40px_40px] overflow-clip [@media(max-width:700px)]:w-full [@media(max-width:700px)]:-mt-[158px] [@media(max-width:700px)]:pt-45 [@media(min-width:701px)_and_(max-width:1023px)]:w-full [@media(min-width:701px)_and_(max-width:1023px)]:-mt-[158px] [@media(min-width:701px)_and_(max-width:1023px)]:pt-45"
       aria-labelledby="hero-title"
-      aria-roledescription="اسلایدر محصولات"
+      aria-roledescription={t('hero.carouselLabel')}
       onMouseEnter={() => setInteracting(true)}
       onMouseLeave={() => setInteracting(false)}
       onFocusCapture={() => setFocused(true)}
@@ -404,7 +412,7 @@ export function ProductHero() {
                 delay={0.52}
                 className="hero-intro mb-[27px] [@media(max-width:700px)]:mb-4 [@media(max-width:700px)]:text-xs"
               >
-                {`انتخاب تک‌شاپ / ${item.category}`}
+                {t('hero.categoryIntro', { category: item.category })}
               </Subtitle>
               <Title
                 data-animated-title
@@ -412,7 +420,7 @@ export function ProductHero() {
                 id={selected === index ? 'hero-title' : undefined}
                 active={selected === index}
                 delay={0.58}
-                className="max-w-[540px] text-right"
+                className="max-w-[540px] text-start"
               >
                 {item.title}
               </Title>
@@ -421,7 +429,7 @@ export function ProductHero() {
               </p>
               <div className="hero-actions mt-[30px] flex flex-col items-start gap-3 [@media(max-width:700px)]:mt-5">
                 <GradientButton icon={<ArrowLeft />} onClick={openDetails}>
-                  کشف محصول
+                  {t('hero.exploreProduct')}
                 </GradientButton>
               </div>
             </div>
@@ -452,7 +460,7 @@ export function ProductHero() {
               <div
                 className="hero-product-crop active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-secondary absolute inset-0 overflow-visible cursor-grab touch-none select-none outline-offset-[6px]"
                 role="group"
-                aria-label={`جابه‌جایی ${item.label}؛ با کشیدن یا کلیدهای جهت؛ Home برای بازگشت`}
+                aria-label={t('hero.moveProduct', { product: item.label })}
                 tabIndex={selected === index ? 0 : -1}
                 onPointerDown={startDrag}
                 onPointerMove={moveDrag}
@@ -477,17 +485,17 @@ export function ProductHero() {
         </div>
 
         <div className="hero-bottom col-start-2 flex justify-center items-center gap-4 mt-0 text-xs [&>_span]:hidden [@media(max-width:700px)]:col-start-1 [@media(max-width:700px)]:items-center [@media(max-width:700px)]:text-[10px] [@media(max-width:700px)]:mt-[-6px]">
-          <span>تکنولوژی، به سلیقهٔ تو.</span>
+          <span>{t('hero.tagline')}</span>
           <div
             className="hero-picker flex flex-wrap gap-0.5 [@media(max-width:700px)]:gap-0.5"
             role="group"
-            aria-label="انتخاب محصول"
+            aria-label={t('hero.chooseProduct')}
           >
             {products.map((item, index) => (
               <button
                 key={item.id}
                 className="btn btn-circle btn-ghost hero-dot group [&>span]:-translate-x-1/2 [&>span]:-translate-y-1/2 [&>span]:transition-[opacity,background-color] [&>span]:duration-180 [&>span]:ease-[ease] aria-pressed:[&>span]:bg-secondary aria-pressed:[&>span]:opacity-100 relative w-7 h-7 min-h-7 p-0 [&>_span]:absolute [&>_span]:top-[50%] [&>_span]:left-[50%] [&>_span]:w-[9px] [&>_span]:h-[9px] [&>_span]:rounded-full [&>_span]:bg-base-content [&>_span]:opacity-[0.35]"
-                aria-label={`نمایش ${item.label}`}
+                aria-label={t('hero.showProduct', { product: item.label })}
                 aria-pressed={selected === index}
                 onClick={(event) =>
                   selectProduct.current(index, event.detail === 0)
@@ -528,18 +536,20 @@ export function ProductHero() {
         onClose={() => setDetailsOpen(false)}
       >
         <div className="modal-box bg-base-100">
-          <ModalCloseButton className="absolute left-3 top-3" />
-          <p className="text-secondary">انتخاب تک‌شاپ</p>
+          <ModalCloseButton
+            label={t('common.closeDialog')}
+            className="absolute end-3 top-3"
+          />
+          <p className="text-secondary">{t('hero.picks')}</p>
           <h2 className="mt-3 text-2xl font-bold" dir="ltr">
             {product.name}
           </h2>
           <p className="mt-4 leading-8">
-            {product.description} این بخش معرفی محصول است؛ قیمت و موجودی پس از
-            اتصال کاتالوگ فروشگاه نمایش داده می‌شود.
+            {product.description} {t('hero.previewNotice')}
           </p>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button>بستن</button>
+          <button>{t('common.close')}</button>
         </form>
       </dialog>
     </section>

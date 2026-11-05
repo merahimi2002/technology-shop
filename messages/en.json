@@ -1,0 +1,141 @@
+{
+  "brand": {
+    "homeLabel": "Tech Shop home",
+    "name": "Tech Shop",
+    "dot": "."
+  },
+  "common": {
+    "skipToContent": "Skip to main content",
+    "close": "Close",
+    "keepExploring": "Keep exploring",
+    "closeDialog": "Close dialog"
+  },
+  "header": {
+    "label": "Tech Shop store header"
+  },
+  "navigation": {
+    "products": "Products",
+    "openMenu": "Open store menu",
+    "label": "Main navigation",
+    "categories": "Categories",
+    "allProducts": "All products",
+    "newArrivals": "New arrivals",
+    "newArrivalsEmpty": "New products are coming soon.",
+    "specialOffers": "Special offers",
+    "offersEmpty": "There are no active offers right now.",
+    "closeMenu": "Close menu",
+    "closeStoreMenu": "Close store menu"
+  },
+  "search": {
+    "title": "Search products",
+    "placeholder": "What are you looking for?",
+    "submit": "Search",
+    "empty": "There are no products to show yet.",
+    "open": "Open search",
+    "resultsTitle": "Search — {query}",
+    "shortcut": "/"
+  },
+  "categories": {
+    "comingSoon": "Products in this category are coming soon.",
+    "mobile": "Phones & Tablets",
+    "laptop": "Laptops & Computers",
+    "audio": "Audio & Headphones",
+    "gaming": "Gaming",
+    "accessories": "Accessories"
+  },
+  "cart": {
+    "emptyLabel": "Shopping bag, empty",
+    "title": "Shopping bag",
+    "emptyTitle": "Your shopping bag is empty",
+    "emptyDescription": "Your selected products will appear here."
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "empty": "Your wishlist is empty."
+  },
+  "account": {
+    "signIn": "Sign in or register",
+    "title": "Account",
+    "welcome": "Welcome to Tech Shop",
+    "comingSoon": "Sign in and registration are coming soon."
+  },
+  "theme": {
+    "title": "Choose your theme",
+    "paletteLabel": "Choose store colors",
+    "modes": {
+      "light": "Light mode",
+      "dark": "Dark mode"
+    },
+    "colors": {
+      "primary": "Primary color",
+      "secondary": "Secondary color"
+    },
+    "modeNames": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "resetColors": "Reset colors",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "palettes": {
+      "navy": "Navy & Teal",
+      "cobalt": "Cobalt & Orange",
+      "violet": "Violet & Jade",
+      "custom": "Custom colors"
+    },
+    "colorLabels": {
+      "light": {
+        "primary": "Light primary color",
+        "secondary": "Light secondary color"
+      },
+      "dark": {
+        "primary": "Dark primary color",
+        "secondary": "Dark secondary color"
+      }
+    }
+  },
+  "hero": {
+    "carouselLabel": "Product carousel",
+    "picks": "Tech Shop picks",
+    "exploreProduct": "Explore product",
+    "tagline": "Technology, your way.",
+    "chooseProduct": "Choose a product",
+    "previewNotice": "This is a product preview. Pricing and availability will appear when the store catalog is connected.",
+    "showProduct": "Show {product}",
+    "moveProduct": "Move {product}; drag or use arrow keys; Home to reset",
+    "categoryIntro": "Tech Shop picks / {category}"
+  },
+  "products": {
+    "airpods": {
+      "title": "Apple AirPods Max",
+      "label": "AirPods Max",
+      "category": "A world of sound",
+      "description": "Sometimes you just need to press play and switch off. Make room for your own moments with AirPods Max.",
+      "alt": "AirPods Max headphones in Midnight",
+      "caption": "Midnight. Made to stand out.",
+      "name": "Apple AirPods Max"
+    },
+    "mouse": {
+      "title": "Logitech MX Master 3S",
+      "label": "MX Master 3S mouse",
+      "category": "Your workspace",
+      "description": "From the first click to the finishing touches. Meet your desk companion for hours spent creating.",
+      "alt": "Logitech MX Master 3S mouse in Graphite",
+      "caption": "Graphite. Ready for your ideas.",
+      "name": "Logitech MX Master 3S"
+    },
+    "keyboard": {
+      "title": "Logitech MX Keys S",
+      "label": "MX Keys S keyboard",
+      "category": "A world of creativity",
+      "description": "Your next story, project or idea. It all starts here, at your desk, with the first word.",
+      "alt": "Logitech MX Keys S keyboard in Graphite",
+      "caption": "Make space for fresh ideas.",
+      "name": "Logitech MX Keys S"
+    }
+  },
+  "language": {
+    "switchToPersian": "Switch to Persian",
+    "switchToEnglish": "Switch to English"
+  }
+}
