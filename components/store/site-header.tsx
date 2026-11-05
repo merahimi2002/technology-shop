@@ -51,7 +51,11 @@ function SearchForm({
     if (query) onSearch(query);
   }
   return (
-    <form role="search" onSubmit={submit} className="header-search input">
+    <form
+      role="search"
+      onSubmit={submit}
+      className="header-search border border-base-content/8 bg-base-200/66 shadow-none focus-within:outline-2 focus-within:outline-secondary [&_input::placeholder]:text-base-content/48 [&_input:focus]:outline-none flex w-full h-12 gap-3 px-[16px_5px] rounded-[13px] outline-offset-[3px] [&_input]:min-w-0 [&_input]:w-full [&_input]:h-full [&_input]:text-[13px] [@media(max-width:1023px)]:h-11 input"
+    >
       <Search
         size={20}
         className="shrink-0 text-secondary"
@@ -71,7 +75,7 @@ function SearchForm({
         /
       </kbd>
       <button
-        className="search-submit btn btn-ghost btn-square"
+        className="search-submit min-h-9 h-9 w-9 rounded-[9px] btn btn-ghost btn-square"
         type="submit"
         aria-label="جست‌وجو"
       >
@@ -132,12 +136,18 @@ export function SiteHeader() {
 
   return (
     <>
-      <a href="#main-content" className="skip-link btn btn-primary">
+      <a
+        href="#main-content"
+        className="skip-link focus:top-3 fixed -top-[100px] start-6 z-[100] btn btn-primary"
+      >
         رفتن به محتوای اصلی
       </a>
-      <header className="store-header" aria-label="هدر فروشگاه تک‌شاپ">
-        <div className="glass-header">
-          <div className="navbar header-main">
+      <header
+        className="store-header sticky top-5 z-[30] w-[calc(100%_-_64px)] [margin:24px_auto_0] [@media(max-width:1023px)]:top-3 [@media(max-width:1023px)]:w-[calc(100%_-_40px)] [@media(max-width:1023px)]:mt-4"
+        aria-label="هدر فروشگاه تک‌شاپ"
+      >
+        <div className="glass-header rounded-[24px] [@media(max-width:1023px)]:rounded-[20px]">
+          <div className="navbar header-main gap-9 min-h-[98px] px-7 py-4 [@media(max-width:1023px)]:gap-2.5 [@media(max-width:1023px)]:min-h-[82px] [@media(max-width:1023px)]:px-4 [@media(max-width:1023px)]:py-3 [@media(max-width:390px)]:px-[10px] [@media(max-width:390px)]:gap-0.5">
             <button
               className="btn btn-ghost btn-square lg:hidden"
               type="button"
@@ -149,27 +159,27 @@ export function SiteHeader() {
             </button>
             <Link
               href="/"
-              className="brand-link"
+              className="brand-link flex items-center gap-0.5 shrink-0 no-underline [@media(max-width:1023px)]:me-auto [@media(max-width:1023px)]:[&_svg]:w-[49px] [@media(max-width:1023px)]:[&_svg]:h-[49px] [@media(max-width:390px)]:gap-0 [@media(max-width:390px)]:[&_svg]:w-[42px] [@media(max-width:390px)]:[&_svg]:h-[42px]"
               aria-label="تک‌شاپ، صفحه اصلی"
             >
               <Logo width={62} height={62} aria-hidden="true" />
-              <span className="brand-type">
+              <span className="brand-type flex flex-col gap-0.5 [&_strong]:text-[26px] [&_strong]:font-bold [&_strong]:leading-[1.2] [&_strong]:tracking-[-1px] [&_strong]:whitespace-nowrap [&>_span]:text-[9px] [&>_span]:font-semibold [&>_span]:tracking-[3px] [@media(max-width:1023px)]:[&_strong]:text-[23px] [@media(max-width:1023px)]:[&>_span]:text-[7px] [@media(max-width:1023px)]:[&>_span]:tracking-[2px] [@media(max-width:390px)]:[&_strong]:text-[21px]">
                 <strong>
-                  تک‌شاپ<span className="brand-dot">.</span>
+                  تک‌شاپ<span className="brand-dot text-secondary">.</span>
                 </strong>
                 <span lang="en" dir="ltr">
                   TECH SHOP
                 </span>
               </span>
             </Link>
-            <div className="desktop-search hidden lg:block">
+            <div className="desktop-search flex-1 max-w-140 mx-auto hidden lg:block">
               <SearchForm inputRef={searchInput} onSearch={search} />
             </div>
-            <div className="header-actions">
+            <div className="header-actions flex items-center gap-3 shrink-0 [@media(max-width:1023px)]:gap-1 [@media(max-width:390px)]:gap-0 [@media(max-width:639px)]:gap-0">
               <ThemeToggle />
               <button
                 type="button"
-                className="account-button btn btn-ghost hidden sm:inline-flex"
+                className="account-button min-h-11 h-11 px-[9px] text-[13px] font-medium btn btn-ghost hidden sm:inline-flex"
                 onClick={() => account.current?.showModal()}
                 aria-label="ورود یا ثبت‌نام"
               >
@@ -178,10 +188,13 @@ export function SiteHeader() {
                   ورود <span className="text-base-content/30">/</span> ثبت‌نام
                 </span>
               </button>
-              <span className="action-separator" aria-hidden="true" />
+              <span
+                className="action-separator bg-base-content/12 h-6 w-[1px] [@media(max-width:1023px)]:hidden"
+                aria-hidden="true"
+              />
               <button
                 type="button"
-                className="cart-button btn btn-ghost btn-square"
+                className="cart-button relative w-11 min-h-11 h-11 btn btn-ghost btn-square"
                 aria-label="سبد خرید، بدون کالا"
                 onClick={() => cart.current?.showModal()}
               >
@@ -189,11 +202,14 @@ export function SiteHeader() {
               </button>
             </div>
           </div>
-          <div className="mobile-search lg:hidden">
+          <div className="mobile-search px-4 pb-4 pt-0 lg:hidden">
             <SearchForm onSearch={search} />
           </div>
-          <div className="header-nav hidden lg:flex">
-            <nav aria-label="ناوبری اصلی" className="nav-links">
+          <div className="header-nav items-center justify-between gap-6 px-7 pb-2.5 pt-0 hidden lg:flex">
+            <nav
+              aria-label="ناوبری اصلی"
+              className="nav-links flex items-center gap-7 min-w-0"
+            >
               <details
                 ref={categoryMenu}
                 className="dropdown category-dropdown"
@@ -202,13 +218,13 @@ export function SiteHeader() {
                     event.currentTarget.open = false;
                 }}
               >
-                <summary className="btn btn-ghost category-trigger">
+                <summary className="btn btn-ghost category-trigger border-0 bg-transparent shadow-none [&::marker]:hidden [&::-webkit-details-marker]:hidden [&>svg:last-child]:ms-1 h-[38px] min-h-[38px] p-0 gap-[9px] text-[13px] font-semibold text-secondary">
                   <LayoutGrid size={18} />
                   <span>دسته‌بندی محصولات</span>
                   <ChevronDown size={15} />
                 </summary>
                 <ul
-                  className="dropdown-content menu category-menu"
+                  className="dropdown-content menu category-menu border border-base-300 [&_button>svg:first-child]:text-secondary min-w-70 mt-[17px] p-2.5 rounded-[16px] bg-base-100 [&_button]:min-h-12 [&_button]:gap-3.5 [&_button]:text-[13px]"
                   aria-label="دسته‌بندی محصولات"
                 >
                   {STORE_CATEGORIES.map((item) => {
@@ -232,9 +248,12 @@ export function SiteHeader() {
                   })}
                 </ul>
               </details>
-              <span className="nav-divider" aria-hidden="true" />
+              <span
+                className="nav-divider bg-base-content/12 h-[17px] w-[1px]"
+                aria-hidden="true"
+              />
               <button
-                className="nav-link"
+                className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
                 type="button"
                 onClick={() =>
                   showResults(
@@ -246,7 +265,7 @@ export function SiteHeader() {
                 همه محصولات
               </button>
               <button
-                className="nav-link"
+                className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
                 type="button"
                 onClick={() =>
                   showResults(
@@ -258,7 +277,7 @@ export function SiteHeader() {
                 تازه‌رسیده‌ها
               </button>
               <button
-                className="nav-link"
+                className="nav-link hover:text-secondary flex items-center gap-[7px] min-h-[38px] text-[13px] whitespace-nowrap cursor-pointer"
                 type="button"
                 onClick={() =>
                   showResults(
@@ -268,11 +287,14 @@ export function SiteHeader() {
                 }
               >
                 پیشنهادهای ویژه
-                <span className="offer-dot" aria-hidden="true" />
+                <span
+                  className="offer-dot h-[5px] w-[5px] rounded-full bg-secondary"
+                  aria-hidden="true"
+                />
               </button>
             </nav>
             <button
-              className="appearance-button btn btn-ghost btn-sm"
+              className="appearance-button text-base-content/66 px-[10px] gap-2 text-xs font-normal btn btn-ghost btn-sm"
               type="button"
               onClick={() => preferences.current?.showModal()}
               aria-label="انتخاب تم دلخواه"
@@ -290,7 +312,7 @@ export function SiteHeader() {
         className="modal mobile-menu-dialog"
         aria-labelledby="mobile-menu-title"
       >
-        <div className="modal-box mobile-sheet">
+        <div className="modal-box mobile-sheet absolute inset-y-0 start-0 m-0 w-[min(88vw,_360px)] max-h-[100dvh] h-[100dvh] p-6 rounded-none overscroll-contain">
           <div className="flex items-center justify-between">
             <h2 id="mobile-menu-title" className="text-xl font-bold">
               تک‌شاپ<span className="text-secondary">.</span>
@@ -367,7 +389,7 @@ export function SiteHeader() {
       <dialog ref={cart} className="modal" aria-labelledby="cart-title">
         <div className="modal-box">
           <DialogHeading id="cart-title" title="سبد خرید" />
-          <div className="empty-state">
+          <div className="empty-state [&_p]:text-base-content/65 flex items-center flex-col gap-3.5 [padding:36px_10px_20px] text-center [&_h3]:text-lg [&_h3]:font-semibold [&_p]:text-sm [&_p]:leading-[1.8]">
             <ShoppingBag
               size={42}
               strokeWidth={1.3}
@@ -385,7 +407,7 @@ export function SiteHeader() {
       <dialog ref={account} className="modal" aria-labelledby="account-title">
         <div className="modal-box">
           <DialogHeading id="account-title" title="حساب کاربری" />
-          <div className="empty-state">
+          <div className="empty-state [&_p]:text-base-content/65 flex items-center flex-col gap-3.5 [padding:36px_10px_20px] text-center [&_h3]:text-lg [&_h3]:font-semibold [&_p]:text-sm [&_p]:leading-[1.8]">
             <UserRound size={42} strokeWidth={1.3} className="text-secondary" />
             <h3>به تک‌شاپ خوش اومدی</h3>
             <p>ورود و ثبت‌نام به‌زودی در دسترس قرار می‌گیره.</p>
@@ -404,7 +426,7 @@ export function SiteHeader() {
             </h2>
             <CloseButton />
           </div>
-          <div className="empty-state">
+          <div className="empty-state [&_p]:text-base-content/65 flex items-center flex-col gap-3.5 [padding:36px_10px_20px] text-center [&_h3]:text-lg [&_h3]:font-semibold [&_p]:text-sm [&_p]:leading-[1.8]">
             <Search size={38} strokeWidth={1.3} className="text-secondary" />
             <p>{result.detail}</p>
           </div>

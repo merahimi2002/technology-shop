@@ -23,7 +23,7 @@ export function ThemeToggle() {
   return (
     <span className="inline-flex min-h-11 shrink-0 items-center px-1">
       <label
-        className="toggle theme-toggle-control"
+        className="toggle theme-toggle-control has-focus-visible:outline-2 has-focus-visible:outline-secondary has-focus-visible:outline-offset-4 "
         title={dark ? 'تغییر به حالت روشن' : 'تغییر به حالت تیره'}
       >
         <input

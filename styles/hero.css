@@ -1,0 +1,158 @@
+.hero-photo {
+  background: url('/products/hero-workspace.png') center / cover;
+}
+.product-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  mask-image: radial-gradient(
+    ellipse 85% 100% at 100% 45%,
+    black 42%,
+    rgb(0 0 0 / 88%) 57%,
+    transparent 92%
+  );
+  z-index: -1;
+  pointer-events: none;
+  background: conic-gradient(
+    from 180deg at 100% 50%,
+    color-mix(in srgb, var(--color-primary) 7%, var(--color-base-100)) 0deg,
+    color-mix(in srgb, var(--color-secondary) 9%, var(--color-base-100)) 80deg,
+    color-mix(in srgb, var(--color-base-100) 97%, transparent) 160deg,
+    color-mix(in srgb, var(--color-primary) 7%, var(--color-base-100)) 360deg
+  );
+}
+.hero-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-base-100) 96%, transparent),
+    transparent 25%
+  );
+}
+.hero-stage {
+  direction: ltr;
+}
+.hero-podium-light {
+  background:
+    radial-gradient(
+      ellipse at 32% 90%,
+      color-mix(in srgb, var(--color-primary) 40%, transparent),
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse at 70% 90%,
+      color-mix(in srgb, var(--color-secondary) 52%, transparent),
+      transparent 68%
+    );
+  filter: blur(14px);
+}
+.hero-podium-top {
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-base-100) 25%, transparent),
+    color-mix(in srgb, var(--color-secondary) 14%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-base-100) 60%, transparent);
+  backdrop-filter: blur(8px) saturate(1.2);
+  box-shadow:
+    0 -4px 20px color-mix(in srgb, var(--color-secondary) 38%, transparent),
+    inset 0 2px 1px color-mix(in srgb, var(--color-base-100) 90%, transparent);
+}
+.hero-podium-base {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-base-100) 28%, transparent),
+    color-mix(in srgb, var(--color-primary) 20%, transparent),
+    color-mix(in srgb, var(--color-secondary) 22%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-base-100) 30%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 12px 24px rgb(0 0 0 / 24%),
+    -20px 10px 28px color-mix(in srgb, var(--color-primary) 32%, transparent),
+    20px 10px 28px color-mix(in srgb, var(--color-secondary) 40%, transparent);
+}
+.hero-contact-shadow {
+  background: radial-gradient(ellipse, rgb(0 0 0 / 85%), transparent 72%);
+  filter: blur(7px);
+}
+.hero-product {
+  transform: scale(0.9);
+  transform-origin: 50% 100%;
+}
+.hero-product-crop {
+  transform: rotate(0deg);
+  filter: drop-shadow(0 22px 16px rgb(0 0 0 / 30%));
+}
+.hero-product[aria-hidden='true'] {
+  pointer-events: none;
+}
+.hero-product-crop img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.hero-product-crop img {
+  position: absolute;
+  width: auto;
+  max-width: none;
+  height: 160%;
+  left: 50%;
+  transform: translateX(-36%);
+  top: -38%;
+  clip-path: inset(0 36% 0 0);
+}
+.hero-product-mouse .hero-product-crop img,
+.hero-product-keyboard .hero-product-crop img {
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  object-fit: contain;
+  clip-path: none;
+  transform: none;
+}
+.hero-product-mouse .hero-product-crop {
+  inset: -12px 0;
+}
+.hero-product-keyboard .hero-product-crop {
+  transform: none;
+}
+.hero-product-keyboard .hero-product-crop img {
+  width: 116%;
+  height: auto;
+  left: -8%;
+  top: auto;
+  bottom: 0;
+  transform: translateY(30%);
+}
+@media (max-width: 700px) {
+  .product-hero::before {
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    mask-image: radial-gradient(
+      ellipse 100% 80% at 50% 0%,
+      black 62%,
+      rgb(0 0 0 / 85%) 73%,
+      transparent 100%
+    );
+    background: conic-gradient(
+      from 90deg at 50% 0%,
+      color-mix(in srgb, var(--color-primary) 7%, var(--color-base-100)) 0deg,
+      color-mix(in srgb, var(--color-secondary) 9%, var(--color-base-100)) 90deg,
+      var(--color-base-100) 180deg,
+      color-mix(in srgb, var(--color-primary) 7%, var(--color-base-100)) 360deg
+    );
+  }
+  .hero-product-mouse .hero-product-crop {
+    inset: 0 8px;
+  }
+}

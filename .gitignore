@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# local design inspection output
+/.taste-skill/
+
 # next.js
 /.next/
 /out/

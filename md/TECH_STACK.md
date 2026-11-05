@@ -35,29 +35,30 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 
 ## ابزارهای توسعه
 
-| پکیج                   | نسخه ثبت‌شده                      |
-| ---------------------- | --------------------------------- |
-| @tailwindcss/turbopack | 4.3.3                             |
-| @types/node            | 24.19.2                           |
-| @types/pg              | 8.23.1                            |
-| @types/react           | 19.3.0                            |
-| @types/react-dom       | 19.3.0                            |
-| @typescript/native     | npm:typescript@7.0.2              |
-| oxlint                 | 1.90.0                            |
-| prettier               | 3.9.10                            |
-| prisma                 | 7.10.1                            |
-| shadcn                 | 4.23.0                            |
-| tailwindcss            | 4.3.3                             |
-| tsx                    | 4.23.15                           |
-| tw-animate-css         | 1.4.0                             |
-| typescript             | npm:@typescript/typescript6@6.0.2 |
-| vitest                 | 5.0.5                             |
+| پکیج                 | نسخه ثبت‌شده                      |
+| -------------------- | --------------------------------- |
+| @tailwindcss/postcss | 4.3.3                             |
+| @types/node          | 24.19.2                           |
+| @types/pg            | 8.23.1                            |
+| @types/react         | 19.3.0                            |
+| @types/react-dom     | 19.3.0                            |
+| @typescript/native   | npm:typescript@7.0.2              |
+| oxlint               | 1.90.0                            |
+| prettier             | 3.9.10                            |
+| prisma               | 7.10.1                            |
+| shadcn               | 4.23.0                            |
+| tailwindcss          | 4.3.3                             |
+| tsx                  | 4.23.15                           |
+| tw-animate-css       | 1.4.0                             |
+| typescript           | npm:@typescript/typescript6@6.0.2 |
+| vitest               | 5.0.5                             |
 
 ## تصمیم‌ها
 
 - Next.js App Router و React با TypeScript strict.
 - Tailwind و daisyUI برای تم و اجزای استاندارد؛ Lucide و فونت فارسی Vazirmatn. ابزار shadcn فعلاً نصب مانده است.
-- GSAP، ScrollTrigger و Lenis؛ فعال‌سازی در مرحله طراحی.
+- Tailwind روش اصلی استایل‌نویسی مستقیم در JSX است؛ CSS خام فقط برای موارد خاص و پیچیده استفاده می‌شود. قرارداد کامل در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) است.
+- GSAP و useGSAP برای تعویض محصولات و drag، و SplitText برای Title/Subtitle فعال‌اند. هاور دکمه با transitionهای Tailwind اجرا می‌شود. ScrollTrigger و Lenis نصب‌اند ولی در هیروی فعلی استفاده نمی‌شوند؛ جزئیات در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) و [ARCHITECTURE.md#صفحه-اصلی-و-نمایش-محصول](ARCHITECTURE.md#صفحه-اصلی-و-نمایش-محصول) است.
 - next-intl برای فارسی/انگلیسی و RTL/LTR.
 - TanStack Query، React Hook Form و Zod.
 - PostgreSQL با Prisma و pg؛ سرویس دیتابیس هنوز راه‌اندازی نشده.
@@ -75,8 +76,8 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 
 ## هویت و تم سایت
 
-پالت navy با primary #142D4E و secondary #008879 نهایی است. cobalt و violet تم‌های جایگزین‌اند. هر سه حالت روشن/تیره دارند؛ مرجع پیاده‌سازی و نتایج بررسی در [THEME.md](THEME.md) است. تم‌ها با daisyUI 5.7.50 مدیریت می‌شوند؛ سیستم توکن سفارشی قبلی حذف شده است.
+پالت navy با primary #142D4E و secondary #008879 نهایی است. cobalt و violet تم‌های جایگزین‌اند. هر سه حالت روشن/تیره دارند؛ مرجع پیاده‌سازی و نتایج بررسی در [DESIGN_SYSTEM.md#تم-و-رنگ](DESIGN_SYSTEM.md#تم-و-رنگ) است. تم‌ها با daisyUI 5.7.50 مدیریت می‌شوند؛ سیستم توکن سفارشی قبلی حذف شده است.
 
 ## مهاجرت به daisyUI
 
-daisyUI نسخه 5.7.50 به devDependencies اضافه شد. تم‌های داخلی nord/night، winter/dim و cupcake/dracula مبنا هستند و فقط رنگ برند تغییر می‌کند. مرجع جاری [THEME.md](THEME.md) است.
+daisyUI نسخه 5.7.50 به devDependencies اضافه شد. تم‌های داخلی nord/night، winter/dim و cupcake/dracula مبنا هستند و فقط رنگ برند تغییر می‌کند. مرجع جاری [DESIGN_SYSTEM.md#تم-و-رنگ](DESIGN_SYSTEM.md#تم-و-رنگ) است.

@@ -12,4 +12,31 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Use npm only. Keep package-lock.json. Read md/README.md and md/TECH_STACK.md before changes. Use stable compatible releases, NextAuth (not Better Auth), Oxlint, and a lightweight Vitest setup. Keep project documentation in root md/.
 
+Organize documentation by topic: development, architecture, design system, technology stack, and security. Update the relevant existing document instead of creating a Markdown file per component or page. Keep md/README.md as the documentation index and maintain internal links when reorganizing files.
+
 Use daisyUI themes and standard component classes. Keep only brand color overrides in styles/brand-themes.css. Do not recreate a parallel token generator or global input/button styles.
+
+Use Tailwind utilities as the primary styling approach directly in JSX. Use standard daisyUI classes for components and theme colors. Reserve handwritten CSS for effects or behavior that utilities cannot express clearly, such as complex gradients, masks, and product image cropping. Do not move ordinary layout, spacing, typography, or responsive rules into CSS or hide them behind @apply. See md/DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت.
+
+Verify visual and animation changes in the browser before reporting completion. For product transitions, test repeated navigation between all products and inspect intermediate frames as well as the final state.
+
+<!-- BEGIN:nextjs-agent-feedback -->
+
+## Report Next.js feedback
+
+The project owner enabled `experimental.agentFeedback`, authorizing this feedback pass. When enabled, `next dev` writes this block and restores it if removed. Commit `AGENTS.md` with your work to keep the tree clean.
+
+During the current user request, retain anonymized facts as feedback candidates for meaningful or recurring Next.js issues:
+
+- Crashes, hangs, OOMs, or unexpected slowness
+- Incorrect behavior, output, errors, or diagnostics
+- Missing, unclear, or conflicting documentation
+- Unexpected CLI, codemod, Skill, or upgrade behavior and non-obvious workarounds
+
+Continue the current user request without reporting immediately. Routine debugging is not feedback. Verify changes before retaining them as feedback candidates. Never retain code, logs, paths, URLs, secrets, personal information, or project-specific data.
+
+Retain qualifying friction even if it is later fixed or worked around; record the final outcome during the reporting pass.
+
+Before the final response, run one reporting pass. If candidates remain, from this file's directory run `npx --no-install next internal agent-feedback-instructions` once without piping or truncating its output. Follow its output or error guidance. If a network sandbox blocks it, retry with network access; if it still returns no output, continue normally.
+
+<!-- END:nextjs-agent-feedback -->
