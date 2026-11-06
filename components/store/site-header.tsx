@@ -32,6 +32,7 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { STORE_CATEGORIES } from '@/lib/store-navigation';
+import { AccountPanel } from '@/components/store/account-panel';
 
 const actionButtonClass =
   'btn btn-ghost btn-circle h-8 min-h-8 w-8 border-0 bg-base-content/7 p-0 shadow-none from-primary via-secondary to-primary [@media(hover:hover)_and_(pointer:fine)]:hover:bg-conic [@media(hover:hover)_and_(pointer:fine)]:hover:text-primary-content';
@@ -110,6 +111,11 @@ export function SiteHeader() {
   });
 
   useEffect(() => {
+    if (
+      new URLSearchParams(window.location.search).get('account') === 'signin'
+    ) {
+      account.current?.showModal();
+    }
     function shortcuts(event: KeyboardEvent) {
       if (event.key === 'Escape' && categoryMenu.current)
         categoryMenu.current.open = false;
@@ -426,11 +432,7 @@ export function SiteHeader() {
       <dialog ref={account} className="modal" aria-labelledby="account-title">
         <div className="modal-box">
           <DialogHeading id="account-title" title={t('account.title')} />
-          <div className="empty-state [&_p]:text-base-content/65 flex items-center flex-col gap-3.5 [padding:36px_10px_20px] text-center [&_h3]:text-lg [&_h3]:font-semibold [&_p]:text-sm [&_p]:leading-[1.8]">
-            <UserRound size={42} strokeWidth={1.3} className="text-secondary" />
-            <h3>{t('account.welcome')}</h3>
-            <p>{t('account.comingSoon')}</p>
-          </div>
+          <AccountPanel />
         </div>
         <Backdrop />
       </dialog>

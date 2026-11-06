@@ -9,23 +9,32 @@ npm ci
 npm run dev
 ```
 
+پیش از اجرای سرور، env محلی را مطابق [اتصال دیتابیس](#اتصال-دیتابیس) تنظیم و `npm run db:generate` را اجرا کنید؛ generated/prisma در Git نیست و پس از clone باید تولید شود. نمونه env فقط برای راه‌اندازی است و نباید روی فایل خصوصی موجود بازنویسی شود.
+
 سرور توسعه معمولاً روی پورت 3000 اجرا می‌شود؛ اگر پورت در استفاده باشد، آدرس خروجی Next.js ملاک است. اطلاعات نسخه‌ها و تصمیم‌های وابستگی در [TECH_STACK.md](TECH_STACK.md) و وضعیت سرویس‌ها در [ARCHITECTURE.md](ARCHITECTURE.md) است.
 
 ## دستورهای روزمره
 
-| دستور                   | کاربرد                                   |
-| ----------------------- | ---------------------------------------- |
-| npm run dev             | سرور توسعه Next.js                       |
-| npm run build           | ساخت نسخه تولیدی                         |
-| npm start               | اجرای خروجی تولیدی پس از build           |
-| npm run lint            | Oxlint بدون پذیرش warning                |
-| npm run typecheck       | تولید typeهای Next.js و بررسی TypeScript |
-| npm test                | اجرای Vitest                             |
-| npm run test:watch      | اجرای تست در حالت watch                  |
-| npm run format          | قالب‌بندی پروژه با Prettier              |
-| npm run format:check    | بررسی قالب‌بندی بدون تغییر فایل          |
-| npm run check           | lint، typecheck، تست و بررسی قالب‌بندی   |
-| npm run assets:generate | تولید لوگو، favicon و پیش‌نمایش پالت‌ها  |
+| دستور                     | کاربرد                                   |
+| ------------------------- | ---------------------------------------- |
+| npm run dev               | سرور توسعه Next.js                       |
+| npm run build             | ساخت نسخه تولیدی                         |
+| npm start                 | اجرای خروجی تولیدی پس از build           |
+| npm run lint              | Oxlint بدون پذیرش warning                |
+| npm run typecheck         | تولید typeهای Next.js و بررسی TypeScript |
+| npm test                  | اجرای Vitest                             |
+| npm run test:watch        | اجرای تست در حالت watch                  |
+| npm run format            | قالب‌بندی پروژه با Prettier              |
+| npm run format:check      | بررسی قالب‌بندی بدون تغییر فایل          |
+| npm run check             | lint، typecheck، تست و بررسی قالب‌بندی   |
+| npm run assets:generate   | تولید لوگو، favicon و پیش‌نمایش پالت‌ها  |
+| npm run db:generate       | تولید Prisma Client از schema            |
+| npm run db:validate       | اعتبارسنجی schema دیتابیس                |
+| npm run db:check          | تست واقعی اتصال Prisma با SELECT 1       |
+| npm run db:migrate:status | وضعیت migrationهای دیتابیس               |
+| npm run db:migrate:deploy | اعمال migrationهای بازبینی‌شده           |
+| npm run auth:check        | آزمون اختیاری احراز هویت با حساب موقت    |
+| npm run owner:provision   | ساخت یا بررسی آفلاین حساب OWNER          |
 
 ## قواعد تغییرات
 
@@ -45,7 +54,7 @@ npm run check
 npm run build
 ```
 
-Vitest سبک با محیط Node، یک worker و بدون موازی‌سازی فایل‌ها تنظیم شده است. تست‌ها در tests قرار دارند و منطق تم، bootstrap، بازیابی تنظیمات و رنگ دلخواه و کنتراست برند و کامل‌بودن کاتالوگ‌های ترجمه را پوشش می‌دهند. آخرین اجرای ثبت‌شده در ۲۰۲۶/۱۱/۰۵، ۲۶ تست موفق داشت؛ تست تجاری ورود و خرید هنوز وجود ندارد.
+Vitest سبک با محیط Node، یک worker و بدون موازی‌سازی فایل‌ها تنظیم شده است. تست‌ها در tests قرار دارند و تم، bootstrap، رنگ و کنتراست، ترجمه‌ها، اعتبارسنجی و هش رمز، ثبت‌نام، callbackهای نشست و مجوز نقش‌ها را پوشش می‌دهند. آخرین اجرای ثبت‌شده در ۲۰۲۶/۱۱/۰۶، ۴۴ تست موفق داشت. آزمون یکپارچه ورود جداگانه با auth:check اجرا می‌شود؛ جریان خرید هنوز پیاده‌سازی و تست نشده است.
 
 برای تغییرات ظاهری و انیمیشن، بررسی واقعی مرورگر لازم است. حالت اولیه، حین حرکت، پایان حرکت، تعامل تکراری و مسیر اصلی دکمه بررسی شوند. در تعویض محصول چند بار بین هر سه محصول جابه‌جا شوید. برای تغییر responsive، عرض‌های مرتبط و اسکرول افقی بررسی شوند. بررسی مرورگر جای تست روی گوشی فیزیکی یا audit جامع دسترس‌پذیری را نمی‌گیرد.
 
@@ -53,7 +62,48 @@ Playwright، axe، jsdom و CI چندمرحله‌ای در وابستگی‌ه�
 
 ## دارایی‌ها و فایل‌های تولیدی
 
+### فایل‌های همراه کامیت
+
+schema، هر سه migration و migration_lock.toml، اسکریپت‌های بررسی و ساخت مالک، package-lock.json، نمونه env بدون اطلاعات واقعی و گواهی عمومی certs باید همراه پیاده‌سازی نسخه‌بندی شوند. env محلی، OWNER_EMAIL و OWNER_PASSWORD واقعی، generated/prisma، .next، node_modules و خروجی‌های .taste-skill وارد Git نشوند. کد Prisma تولیدی با db:generate بازسازی می‌شود؛ گواهی عمومی CA کلید خصوصی نیست. مستندات وضعیت فعلی در md/README.md نمایه شده‌اند و کارهای آینده در [TODO](TODO.md) و [ROADMAP](ROADMAP.md) ثبت می‌شوند.
+
 منبع هندسه لوگو scripts/generate-logo.mjs است؛ خروجی‌ها با assets:generate تولید می‌شوند. تصاویر مصرف‌شده سایت در public هستند و باید همراه تغییر مرتبط کامیت شوند. .next، node_modules، فایل‌های tsbuildinfo و خروجی محلی بررسی طراحی در .taste-skill نباید کامیت شوند. راهنمای دارایی و منشأ تصاویر در DESIGN_SYSTEM.md و ARCHITECTURE.md آمده است.
+
+## اتصال دیتابیس
+
+پروژه موجود Supabase با نام tech-shop در Frankfurt استفاده می‌شود؛ پروژه جدید نسازید. فایل `.env.example` را به `.env.local` کپی و رمز percent-encoded را فقط در فایل محلی وارد کنید. تمام فایل‌های env به‌جز نمونه بدون رمز در Git نادیده گرفته می‌شوند. متغیر اتصال نباید پیشوند NEXT_PUBLIC_ داشته باشد.
+
+`DATABASE_URL` برای برنامه و `DIRECT_URL` اختیاری برای Prisma CLI است؛ در نبود DIRECT_URL، CLI از DATABASE_URL استفاده می‌کند. اتصال فعلی Session pooler روی پورت 5432 است، چون مسیر مستقیم به IPv6 نیاز دارد. برای هر دو URL از `sslmode=verify-full` استفاده کنید. گواهی نامعتبر را با غیرفعال‌کردن TLS دور نزنید؛ در صورت نیاز CA رسمی را با `sslrootcert` مشخص کنید. Next.js، CLI و اسکریپت تست، env را با همان ترتیب استاندارد Next.js می‌خوانند.
+
+```bash
+npm run db:generate
+npm run db:validate
+npm run db:check
+npm run db:migrate:status
+```
+
+برای آزمون یکپارچه احراز هویت، سرور محلی با NEXTAUTH_URL مطابق همان مبدأ اجرا شود و سپس `npm run auth:check` اجرا شود. مبدأ پیش‌فرض آزمون `http://localhost:3100` است و با AUTH_TEST_URL قابل تغییر است؛ فقط localhost یا 127.0.0.1 پذیرفته می‌شود. آزمون یک کاربر CUSTOMER با ایمیل تصادفی example.invalid می‌سازد و در پایان همان کاربر و bucketهای اختصاصی‌اش را پاک می‌کند. secret، cookie یا رمز آزمایشی در خروجی چاپ نمی‌شود. این دستور opt-in است و عضو check روزمره نیست، چون دیتابیس واقعی را برای داده آزمایشی می‌نویسد. اجرای پشت‌سرهم همچنان زیر محدودیت سراسری ورود قرار می‌گیرد.
+
+`db:check` همان ماژول سروری برنامه را بارگذاری می‌کند و SELECT 1 واقعی را با Prisma/pg اجرا می‌کند؛ خطای خام در خروجی چاپ نمی‌شود. این اسکریپت با شرط react-server اجرا می‌شود تا مرز server-only در محیط Node قابل استفاده باشد. endpoint عمومی تشخیص دیتابیس وجود ندارد. build و typecheck پیش از اجرا client را تولید می‌کنند؛ تولید کد به رمز یا شبکه دیتابیس نیاز ندارد.
+
+گواهی عمومی `certs/supabase-prod-ca-2021.crt` از [مخزن دانلود رسمی Supabase](https://supabase-downloads.s3.ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt) دریافت شده است و secret نیست. URL برنامه آن را با sslrootcert بارگذاری می‌کند؛ مسیر باید روی میزبان موجود باشد. تنظیم CLI مسیر را مطلق و گزینه‌های TLS را به sslcert و sslaccept=strict تبدیل می‌کند تا schema engine نیز CA و نام میزبان را بررسی کند. CA با fingerprint SHA-256 برابر `80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA` تا ۲۰۳۱/۰۴/۲۶ معتبر است؛ پیش از انقضا یا تعویض گواهی سرور بازبینی شود.
+
+schema اکنون ۱۲ مدل اولیه فروشگاه و NextAuth دارد. هر سه migration در ۲۰۲۶/۱۱/۰۶ با تأیید مالک روی پروژه موجود Supabase اعمال شدند. Prisma migrate status وضعیت up to date و migrate diff از دیتابیس به schema وضعیت No difference detected را گزارش کرد. index یکتایی OWNER و trigger حفاظت آن در دیتابیس وجود دارند و trigger فعال است. schemaهای auth و storage متعلق به Supabase هستند و تغییر نکرده‌اند. db push/reset روی این پروژه اجرا نشود؛ migrate dev باید دیتابیس توسعه و shadow مستقل داشته باشد.
+
+برای NextAuth، NEXTAUTH_SECRET تصادفی با دست‌کم ۳۲ نویسه و NEXTAUTH_URL برابر مبدأ کامل برنامه در env خصوصی لازم‌اند. secret محلی بدون چاپ تولید شده است؛ در استقرار عمومی آن را از secret manager بگیرید و NEXTAUTH_URL را به دامنه HTTPS تغییر دهید. در اجرای آزمایشی روی پورت دیگر، متغیر را فقط برای همان فرایند override کنید تا کنترل Origin ثبت‌نام درست بماند.
+
+بررسی نهایی ۲۰۲۶/۱۱/۰۶: npm run check با ۴۴ تست و بیلد Webpack موفق بودند. دستور npm run auth:check با سرور تولیدی محلی و Supabase واقعی، رد مهمان، Origin نامعتبر، رمز ۷ نویسه، پذیرش رمز ۸ نویسه، هش رمز، نادیده‌گرفتن نقش OWNER ورودی، جلوگیری از بازنویسی رمز و نقش با ثبت‌نام تکراری، رد رمز اشتباه، ورود صحیح، حفظ نشست، دسترسی محافظت‌شده، خروج، ابطال با sessionVersion و محدودیت تلاش ورود را تأیید کرد. در مرورگر هم ثبت‌نام، خطای رمز اشتباه، ورود، ماندگاری نشست پس از reload و خروج تأیید شدند. حساب‌ها و شمارنده‌های اختصاصی آزمون پاک شدند و شمارش حساب‌های آزمایشی باقی‌مانده صفر بود.
+
+محدودیت بیلد قبلاً تأییدشده: npm run build در Turbopack با خطای داخلی خروج worker پردازش CSS پیش از برقراری اتصال شکست خورد و خارج از sandbox نیز تکرار شد. بیلد تازه با npm run build -- --webpack موفق بود؛ موتور پیش‌فرض تغییر نکرد. خطای TLS اتصال با CA رسمی برطرف شده است و تست Prisma / PostgreSQL موفق است.
+
+## بررسی نقش مالک
+
+حساب OWNER در ۲۰۲۶/۱۱/۰۶ با اطلاعات خصوصی env محلی ساخته شد؛ دقیقاً یک مالک، فعال‌بودن حساب، تطابق hash و ورود/خروج واقعی با نقش نشست OWNER روی پورت‌های ۳۰۰۰ و ۳۱۰۰ تأیید شدند. هیچ ایمیل یا رمزی در خروجی یا مستندات ثبت نشده است.
+
+برای provisioning خارج از برنامه، OWNER_EMAIL و OWNER_PASSWORD را فقط در env محلی تنظیم و `npm run owner:provision -- --check` و سپس `npm run owner:provision` اجرا کنید. اسکریپت مالک دوم یا بازنویسی رمز را مجاز نمی‌کند. اگر ایمیل از قبل حساب دارد، باید رمز همان حساب تطابق داشته باشد و حساب فعال باشد؛ ارتقای آن sessionVersion را افزایش می‌دهد. اجرای مجدد برای همان مالک صرفاً اعتبارسنجی است. پس از تغییر schema و تولید مجدد Prisma، سرور توسعه را راه‌اندازی مجدد کنید تا client ذخیره‌شده در global با schema قبلی باقی نماند.
+
+در ۲۰۲۶/۱۱/۰۶ دو migration `20261106123211_add_owner_role` و `20261106123212_protect_single_owner` آماده شدند؛ migration اولیه قبلی بازنویسی نشد. همه migrationها روی PostgreSQL موقت محلی با PGlite 0.5.15 اعمال شدند. ساخت یک OWNER و دو ADMIN موفق، ساخت/ارتقای مالک دوم با 23505 رد، حذف/تنزل/تغییر ایمیل و رمز/غیرفعال‌سازی مالک با 42501 رد، افزایش sessionVersion مالک و حذف CUSTOMER موفق بودند. این آزمایش روی Supabase اجرا نشده است.
+
+npm run check با ۴۴ تست موفق، تلاش ثبت‌نام با نقش ADMIN و OWNER، تازه‌سازی نقش قدیمی OWNER از DB و قواعد مجوز تغییر نقش را پوشش داد. ابزار تست موقت فقط در .taste-skill نصب شد؛ وابستگی پایه پروژه تغییر نکرد. migrationهای مالک اکنون روی Supabase اعمال و وجود index و فعال‌بودن trigger تأیید شده‌اند. حساب OWNER واقعی اکنون با اطلاعات env خصوصی و خارج از مسیر عمومی ساخته شده است.
 
 ## امنیت وابستگی‌ها
 

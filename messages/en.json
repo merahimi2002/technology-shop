@@ -57,7 +57,22 @@
     "signIn": "Sign in or register",
     "title": "Account",
     "welcome": "Welcome to Tech Shop",
-    "comingSoon": "Sign in and registration are coming soon."
+    "loading": "Please wait…",
+    "signOut": "Sign out",
+    "name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "passwordHelp": "Use 8 to 128 characters. Your password is case-sensitive.",
+    "register": "Create account",
+    "login": "Sign in",
+    "switchToRegister": "Create a new account",
+    "switchToSignIn": "I already have an account",
+    "signInIntro": "Sign in to your Tech Shop account.",
+    "registerIntro": "Create your Tech Shop account with your email and a password.",
+    "invalid": "Check your details and try again. After repeated attempts, wait 15 minutes.",
+    "unavailable": "We could not connect. Please try again.",
+    "registered": "You can now sign in. If this email already has an account, use its existing password.",
+    "limited": "Too many attempts. Please wait 15 minutes."
   },
   "theme": {
     "title": "Choose your theme",
