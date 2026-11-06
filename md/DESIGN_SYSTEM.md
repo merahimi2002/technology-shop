@@ -79,6 +79,8 @@ import { Subtitle } from '@/components/subtitle';
 
 مسیر: components/gradient-button.tsx. بر پایه btn btn-primary از daisyUI و utilityهای Tailwind است؛ قانون CSS خام دکمه هیرو حذف شده است.
 
+برای گرادیانت conic، موقعیت شروع روی دکمه و لایه before با `from-0%` صریح است. در خروجی production مقدار پیش‌فرض صفرِ property نوع length-percentage می‌تواند به `0px` محاسبه شود که در conic-gradient نامعتبر است؛ درصد صریح باید حفظ شود. بررسی ۲۰۲۶/۱۱/۰۶ در مرورگر بیلد Webpack، background-image معتبر را برای هر سه دکمه و لایه before تأیید کرد.
+
 | ویژگی            | مقدار فعلی                                                                        |
 | ---------------- | --------------------------------------------------------------------------------- |
 | گرادیانت پیش‌فرض | conic با primary / secondary / primary                                            |
