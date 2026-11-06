@@ -1,7 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The database CA path comes from DATABASE_URL and cannot be traced statically.
+  outputFileTracingIncludes: {
+    '/*': ['./certs/supabase-prod-ca-2021.crt'],
+  },
   experimental: {
     agentFeedback: true,
   },

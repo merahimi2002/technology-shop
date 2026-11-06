@@ -13,6 +13,24 @@ npm run dev
 
 سرور توسعه معمولاً روی پورت 3000 اجرا می‌شود؛ اگر پورت در استفاده باشد، آدرس خروجی Next.js ملاک است. اطلاعات نسخه‌ها و تصمیم‌های وابستگی در [TECH_STACK.md](TECH_STACK.md) و وضعیت سرویس‌ها در [ARCHITECTURE.md](ARCHITECTURE.md) است.
 
+## استقرار روی Vercel
+
+مخزن GitHub را در Vercel با Add New → Project وارد کنید. Framework را Next.js، Root Directory را ریشه مخزن، Node.js را 24.x، Install Command را `npm ci` و Build Command را `npm run build -- --webpack` بگذارید. Output Directory پیش‌فرض Next.js باقی بماند. Webpack فعلاً مسیر بیلد تأییدشده این پروژه است.
+
+در Environment Variables محیط Production، این مقادیر را به‌صورت خصوصی تنظیم کنید:
+
+| متغیر             | مقدار                                                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`    | اتصال pooler موجود با رمز percent-encoded، `sslmode=verify-full` و `sslrootcert=certs/supabase-prod-ca-2021.crt`؛ مسیر نسبی Linux باشد، نه مسیر ویندوز |
+| `NEXTAUTH_SECRET` | secret تصادفی مخصوص production با دست‌کم ۳۲ نویسه                                                                                                      |
+| `NEXTAUTH_URL`    | مبدأ HTTPS دامنه نهایی برنامه، بدون مسیر اضافی                                                                                                         |
+
+گواهی عمومی با `outputFileTracingIncludes` در `next.config.ts` به trace خروجی سرور اضافه می‌شود، چون مسیر آن از env خوانده می‌شود و قابل کشف ایستا نیست. هیچ‌یک از متغیرهای بالا پیشوند NEXT_PUBLIC_ ندارند. فایل env محلی و متغیرهای OWNER را آپلود نکنید؛ حساب مالک قبلاً در دیتابیس ساخته شده است. `DIRECT_URL` برای runtime لازم نیست و migration یا ساخت مالک را به Build Command اضافه نکنید.
+
+پس از تعیین دامنه، `NEXTAUTH_URL` را با آن تطبیق دهید؛ تغییر env نیاز به Redeploy دارد. برای Preview از دیتابیس آزمایشی و secret مستقل استفاده کنید؛ اتصال Preview به دیتابیس اصلی را خودکار فعال نکنید. پس از استقرار، صفحه اصلی، تغییر زبان و تم، ورود، نشست و خروج را روی دامنه HTTPS بررسی کنید. بیلد محلی موفق جای بررسی اتصال دیتابیس در runtime Vercel را نمی‌گیرد.
+
+مراجع رسمی: [Node.js در Vercel](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions) و [مدیریت متغیرهای محیطی](https://vercel.com/docs/environment-variables/managing-environment-variables).
+
 ## دستورهای روزمره
 
 | دستور                     | کاربرد                                   |
