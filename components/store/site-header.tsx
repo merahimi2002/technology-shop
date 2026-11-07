@@ -35,7 +35,7 @@ import { STORE_CATEGORIES } from '@/lib/store-navigation';
 import { AccountPanel } from '@/components/store/account-panel';
 
 const actionButtonClass =
-  'btn btn-ghost btn-circle h-8 min-h-8 w-8 border-0 bg-base-content/7 p-0 shadow-none from-primary via-secondary to-primary [@media(hover:hover)_and_(pointer:fine)]:hover:bg-conic [@media(hover:hover)_and_(pointer:fine)]:hover:text-primary-content';
+  'btn btn-ghost btn-circle h-8 min-h-8 w-8 border-0 bg-base-content/7 p-0 shadow-none [@media(hover:hover)_and_(pointer:fine)]:hover:bg-[conic-gradient(from_90deg,var(--color-primary)_0%,var(--color-secondary)_50%,var(--color-primary)_100%)] [@media(hover:hover)_and_(pointer:fine)]:hover:text-primary-content';
 
 const icons = {
   phone: Smartphone,

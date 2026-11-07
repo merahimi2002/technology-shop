@@ -25,7 +25,7 @@ export function ThemeToggle() {
   return (
     <span className="inline-flex min-h-11 shrink-0 items-center ps-0.5 pe-2">
       <label
-        className="toggle toggle-lg theme-toggle-control border-0 bg-conic from-primary via-secondary to-primary before:bg-base-100 before:bg-none [&>svg]:size-full [&>svg]:p-1 [&>svg]:text-base-content has-focus-visible:outline-2 has-focus-visible:outline-secondary has-focus-visible:outline-offset-4"
+        className="toggle toggle-lg theme-toggle-control border-0 bg-[conic-gradient(from_90deg,var(--color-primary)_0%,var(--color-secondary)_50%,var(--color-primary)_100%)] before:bg-base-100 before:bg-none [&>svg]:size-full [&>svg]:p-1 [&>svg]:text-base-content has-focus-visible:outline-2 has-focus-visible:outline-secondary has-focus-visible:outline-offset-4"
         title={dark ? t('theme.switchToLight') : t('theme.switchToDark')}
       >
         <input
