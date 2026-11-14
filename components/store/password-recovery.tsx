@@ -1,5 +1,6 @@
 'use client';
 
+import { RequiredFieldLabel } from './required-field-label';
 import { useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { KeyRound } from 'lucide-react';
@@ -105,11 +106,13 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
               key={field}
               className="flex flex-col gap-1.5 text-sm font-semibold"
             >
-              {t(
-                field === 'password'
-                  ? 'passwordChange.newPassword'
-                  : 'confirmPassword',
-              )}
+              <RequiredFieldLabel>
+                {t(
+                  field === 'password'
+                    ? 'passwordChange.newPassword'
+                    : 'confirmPassword',
+                )}
+              </RequiredFieldLabel>
               <input
                 name={field}
                 type="password"
@@ -123,7 +126,7 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
           ))
         ) : (
           <label className="flex flex-col gap-1.5 text-sm font-semibold">
-            {t('email')}
+            <RequiredFieldLabel>{t('email')}</RequiredFieldLabel>
             <input
               name="email"
               type="email"

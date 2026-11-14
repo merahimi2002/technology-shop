@@ -1,4 +1,6 @@
+import { encodeAvatar } from '@/lib/auth/encode-avatar';
 import { getCurrentUser } from '@/lib/auth/session';
+import { MAX_AVATAR_BASE64_LENGTH } from '@/lib/auth/avatar';
 import { readAuthJson } from '@/lib/auth/json-request';
 import { profileSchema } from '@/lib/auth/validation';
 import { getDb } from '@/lib/db';
@@ -23,17 +25,22 @@ function profileResponse(
 
 export async function PATCH(request: Request) {
   try {
-    const body = await readAuthJson(request);
-    if (body instanceof Response) return body;
     const user = await getCurrentUser();
     if (!user) return profileResponse({ error: 'UNAUTHORIZED' }, 401);
+    const body = await readAuthJson(request, MAX_AVATAR_BASE64_LENGTH);
+    if (body instanceof Response) return body;
 
     const result = profileSchema.safeParse(body.input);
     if (!result.success)
       return profileResponse({ error: 'INVALID_INPUT' }, 400);
+    const { name, avatar } = result.data;
+    const image =
+      typeof avatar === 'string' ? await encodeAvatar(avatar) : avatar;
+    if (typeof avatar === 'string' && !image)
+      return profileResponse({ error: 'INVALID_AVATAR' }, 400);
     const updated = await getDb().user.updateMany({
       where: { id: user.id, disabledAt: null },
-      data: result.data,
+      data: { name, image },
     });
     if (!updated.count)
       return profileResponse({ error: 'ACCOUNT_CHANGED' }, 409);

@@ -1,6 +1,8 @@
 import 'server-only';
 
-export async function readAuthJson(request: Request) {
+const MAX_AUTH_JSON_BYTES = 8192;
+
+export async function readAuthJson(request: Request, avatarAllowance = 0) {
   const origin = process.env.NEXTAUTH_URL;
   if (!origin || request.headers.get('origin') !== new URL(origin).origin) {
     return Response.json({ error: 'FORBIDDEN' }, { status: 403 });
@@ -17,7 +19,7 @@ export async function readAuthJson(request: Request) {
     const { value, done } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > 8192) {
+    if (size > MAX_AUTH_JSON_BYTES + avatarAllowance) {
       await reader.cancel();
       return Response.json({ error: 'INVALID_INPUT' }, { status: 413 });
     }
@@ -29,5 +31,15 @@ export async function readAuthJson(request: Request) {
   } catch {
     return Response.json({ error: 'INVALID_INPUT' }, { status: 400 });
   }
+  const avatarLength =
+    avatarAllowance &&
+    input &&
+    typeof input === 'object' &&
+    'avatar' in input &&
+    typeof input.avatar === 'string'
+      ? Math.min(avatarAllowance, input.avatar.length)
+      : 0;
+  if (size - avatarLength > MAX_AUTH_JSON_BYTES)
+    return Response.json({ error: 'INVALID_INPUT' }, { status: 413 });
   return { input };
 }

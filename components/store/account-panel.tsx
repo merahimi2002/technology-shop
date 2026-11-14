@@ -1,5 +1,6 @@
 'use client';
 
+import { RequiredFieldLabel } from './required-field-label';
 import {
   useLayoutEffect,
   useRef,
@@ -34,6 +35,8 @@ import { Subtitle } from '@/components/subtitle';
 import { Title } from '@/components/title';
 import { Logo } from '@/components/logo';
 import { ProfileEditor } from '@/components/store/profile-editor';
+import { AccountAvatar } from '@/components/store/account-avatar';
+import { RegisterAvatarField } from '@/components/store/register-avatar-field';
 import { revealAccountFields } from '@/lib/account-field-motion';
 import { PasswordEditor } from '@/components/store/password-editor';
 import { PasswordRecovery } from '@/components/store/password-recovery';
@@ -82,6 +85,7 @@ export function AccountPanel({
   const [profileSaved, setProfileSaved] = useState(false);
   const [profileError, setProfileError] = useState(false);
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
+  const [photoPreview, setPhotoPreview] = useState<HTMLDivElement | null>(null);
   const [field, setField] = useState<AccountField | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<AccountField, FieldFeedback>>
@@ -93,6 +97,7 @@ export function AccountPanel({
     | 'invalid'
     | 'unavailable'
     | 'registered'
+    | 'profile.invalidAvatar'
     | 'limited'
     | 'passwordChanged'
     | null
@@ -225,12 +230,25 @@ export function AccountPanel({
     try {
       const { email, password } = result.data;
       if (mode === 'register') {
+        const avatar = fields.get('avatar') || undefined;
         const response = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: fields.get('name'), email, password }),
+          body: JSON.stringify({
+            name: fields.get('name'),
+            email,
+            password,
+            avatar,
+          }),
         });
         if (!response.ok) {
+          if (
+            response.status === 400 &&
+            (await response.json()).error === 'INVALID_AVATAR'
+          ) {
+            setMessage('profile.invalidAvatar');
+            return;
+          }
           setMessage(
             response.status === 429
               ? 'limited'
@@ -466,35 +484,55 @@ export function AccountPanel({
         )}
         <div
           ref={formContent}
-          className={`relative z-30 flex flex-1 flex-col justify-center isolate overflow-hidden rounded-b-[24px] [@media(max-width:1023px)]:rounded-b-[20px] px-5 py-6 motion-safe:transition-[margin-inline-start,margin-inline-end,border-radius] motion-safe:duration-[270ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] sm:px-11 sm:py-8 md:px-9 lg:px-15 ${showTabs ? activeTint + ' min-h-[35rem] backdrop-blur-[3px]' : 'rounded-t-[inherit] bg-white/8 min-h-[calc(35rem+2.75rem-1px)]'} ${showTabs && (activeSheet === 'signin' ? 'ms-0 me-2 rounded-ss-none rounded-se-[24px] [@media(max-width:1023px)]:rounded-se-[20px]' : 'ms-2 me-0 rounded-ss-[24px] [@media(max-width:1023px)]:rounded-ss-[20px] rounded-se-none')}`}
+          className={`relative z-30 flex flex-1 flex-col justify-center isolate overflow-hidden rounded-b-[24px] [@media(max-width:1023px)]:rounded-b-[20px] px-5 py-6 motion-safe:transition-[margin-inline-start,margin-inline-end,border-radius] motion-safe:duration-[270ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] sm:px-11 sm:py-8 md:px-9 lg:px-15 [--account-panel-min:33.5rem] sm:[--account-panel-min:36.5rem] ${showTabs ? activeTint + ' min-h-(--account-panel-min) backdrop-blur-[3px]' : 'rounded-t-[inherit] bg-white/8 min-h-[calc(var(--account-panel-min)+2.75rem-1px)]'} ${showTabs && (activeSheet === 'signin' ? 'ms-0 me-2 rounded-ss-none rounded-se-[24px] [@media(max-width:1023px)]:rounded-se-[20px]' : 'ms-2 me-0 rounded-ss-[24px] [@media(max-width:1023px)]:rounded-ss-[20px] rounded-se-none')}`}
         >
-          <Subtitle
-            icon={
-              mode === 'register' && !session?.user ? (
-                <UserPlus />
-              ) : session?.user ? (
-                editingProfile ? (
-                  <Pencil />
-                ) : (
-                  <UserRound />
-                )
-              ) : (
-                <LogIn />
-              )
-            }
-            className="mb-1"
-          >
-            {t(
-              session?.user
-                ? 'accountSubtitle'
-                : mode === 'register'
-                  ? 'registerSubtitle'
-                  : 'loginSubtitle',
-            )}
-          </Subtitle>
-          <Title as="h1" delay={titleDelay}>
-            {heading}
-          </Title>
+          <div dir="rtl" className="flex items-center justify-between gap-3">
+            <div
+              dir={locale === 'fa' ? 'rtl' : 'ltr'}
+              className="flex min-w-0 flex-1 items-center gap-3 text-start"
+            >
+              {session?.user && !editingProfile && (
+                <div className="avatar size-16 shrink-0 text-xl sm:size-24">
+                  <AccountAvatar
+                    key={session.user.image}
+                    name={session.user.name}
+                    image={session.user.image}
+                    size={96}
+                  />
+                </div>
+              )}
+              <div className="min-w-0">
+                <Subtitle
+                  icon={
+                    mode === 'register' && !session?.user ? (
+                      <UserPlus />
+                    ) : session?.user ? (
+                      editingProfile ? (
+                        <Pencil />
+                      ) : (
+                        <UserRound />
+                      )
+                    ) : (
+                      <LogIn />
+                    )
+                  }
+                  className="mb-1"
+                >
+                  {t(
+                    session?.user
+                      ? 'accountSubtitle'
+                      : mode === 'register'
+                        ? 'registerSubtitle'
+                        : 'loginSubtitle',
+                  )}
+                </Subtitle>
+                <Title as="h1" delay={titleDelay}>
+                  {heading}
+                </Title>
+              </div>
+            </div>
+            <div ref={setPhotoPreview} className="shrink-0 empty:hidden" />
+          </div>
           {!showTabs ? (
             <div
               className="mt-4 grid min-h-16 place-items-center text-primary"
@@ -511,6 +549,8 @@ export function AccountPanel({
               <ProfileEditor
                 name={session.user.name ?? ''}
                 email={session.user.email ?? ''}
+                image={session.user.image}
+                previewTarget={photoPreview}
                 busy={busy}
                 onCancel={() => switchSheet('signin')}
                 onSavingChange={setBusy}
@@ -643,7 +683,9 @@ export function AccountPanel({
                       data-account-reveal
                       className="flex flex-col gap-1.5 text-sm font-semibold"
                     >
-                      <label htmlFor="account-name">{t('name')}</label>
+                      <label htmlFor="account-name">
+                        <RequiredFieldLabel>{t('name')}</RequiredFieldLabel>
+                      </label>
                       <div className="relative">
                         <UserRound
                           aria-hidden="true"
@@ -667,7 +709,9 @@ export function AccountPanel({
                     data-account-reveal
                     className="flex flex-col gap-1.5 text-sm font-semibold"
                   >
-                    <label htmlFor="account-email">{t('email')}</label>
+                    <label htmlFor="account-email">
+                      <RequiredFieldLabel>{t('email')}</RequiredFieldLabel>
+                    </label>
                     <div className="relative">
                       <Mail
                         aria-hidden="true"
@@ -694,7 +738,7 @@ export function AccountPanel({
                         htmlFor="account-password"
                         className="text-sm font-semibold"
                       >
-                        {t('password')}
+                        <RequiredFieldLabel>{t('password')}</RequiredFieldLabel>
                       </label>
                       <div className="relative">
                         <LockKeyhole
@@ -743,7 +787,9 @@ export function AccountPanel({
                       className="flex flex-col gap-1.5 text-sm font-semibold"
                     >
                       <label htmlFor="account-confirmPassword">
-                        {t('confirmPassword')}
+                        <RequiredFieldLabel>
+                          {t('confirmPassword')}
+                        </RequiredFieldLabel>
                       </label>
                       <div className="relative">
                         <LockKeyhole
@@ -783,6 +829,12 @@ export function AccountPanel({
                       </div>
                       {fieldError('confirmPassword')}
                     </div>
+                  )}
+                  {mode === 'register' && (
+                    <RegisterAvatarField
+                      previewTarget={photoPreview}
+                      busy={busy}
+                    />
                   )}
                   {message && (
                     <p

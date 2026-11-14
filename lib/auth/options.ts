@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
@@ -75,7 +76,9 @@ export function getAuthOptions(): NextAuthOptions {
           return {};
         token.name = current.name;
         token.email = current.email;
-        token.picture = current.image;
+        token.picture = current.image?.startsWith('data:image/webp;base64,')
+          ? `/api/account/avatar?v=${createHash('sha256').update(current.image).digest('hex')}`
+          : current.image;
         token.role = current.role;
         return token;
       },

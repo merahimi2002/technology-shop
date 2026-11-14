@@ -31,6 +31,7 @@ import {
   Usb,
 } from 'lucide-react';
 import { ModalCloseButton } from '@/components/modal-close-button';
+import { AccountAvatar } from '@/components/store/account-avatar';
 import { AccountRoleBadge } from '@/components/store/account-role-badge';
 import { canAccessAdmin } from '@/lib/auth/admin-access';
 import { GradientButton } from '@/components/gradient-button';
@@ -356,7 +357,16 @@ export function SiteHeader() {
                     account.current?.showModal();
                   }}
                 >
-                  <UserRound size={18} strokeWidth={1.7} aria-hidden="true" />
+                  {accountUser ? (
+                    <AccountAvatar
+                      key={accountUser.image}
+                      image={accountUser.image}
+                      name={accountUser.name}
+                      size={32}
+                    />
+                  ) : (
+                    <UserRound size={18} strokeWidth={1.7} aria-hidden="true" />
+                  )}
                 </button>
               ) : (
                 <Link
@@ -469,13 +479,13 @@ export function SiteHeader() {
               title={t('account.title')}
             />
             <div className="mt-5 flex items-center gap-3">
-              <div
-                className="avatar avatar-placeholder shrink-0"
-                aria-hidden="true"
-              >
-                <div className="w-14 rounded-full bg-secondary text-secondary-content">
-                  <UserRound size={26} strokeWidth={1.7} />
-                </div>
+              <div className="avatar size-14 shrink-0 text-xl">
+                <AccountAvatar
+                  key={accountUser.image}
+                  image={accountUser.image}
+                  name={accountUser.name}
+                  size={56}
+                />
               </div>
               <div className="min-w-0 flex-1 text-start">
                 <p

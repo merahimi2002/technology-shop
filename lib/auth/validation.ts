@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MAX_AVATAR_BASE64_LENGTH } from './avatar';
 
 export const emailSchema = z
   .string()
@@ -20,7 +21,15 @@ export const registerSchema = loginSchema.extend({
   password: newPasswordSchema,
 });
 
-export const profileSchema = z.strictObject({ name: nameSchema });
+const avatarSchema = z.base64().max(MAX_AVATAR_BASE64_LENGTH);
+export const registerRequestSchema = registerSchema.extend({
+  avatar: avatarSchema.optional(),
+});
+
+export const profileSchema = z.strictObject({
+  name: nameSchema,
+  avatar: avatarSchema.nullish(),
+});
 
 export const recoveryRequestSchema = z.strictObject({
   email: emailSchema,

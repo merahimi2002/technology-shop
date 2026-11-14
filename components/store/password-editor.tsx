@@ -1,5 +1,6 @@
 'use client';
 
+import { RequiredFieldLabel } from './required-field-label';
 import { useRef, useState, type FormEvent } from 'react';
 import { Check, Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -173,11 +174,13 @@ export function PasswordEditor({
                   className="flex flex-col gap-1.5 text-sm"
                 >
                   <label htmlFor={`profile-${field}`} className="font-semibold">
-                    {t(
-                      field === 'confirmPassword'
-                        ? 'confirmPassword'
-                        : `passwordChange.${field}`,
-                    )}
+                    <RequiredFieldLabel>
+                      {t(
+                        field === 'confirmPassword'
+                          ? 'confirmPassword'
+                          : `passwordChange.${field}`,
+                      )}
+                    </RequiredFieldLabel>
                   </label>
                   <div className="relative">
                     <input
