@@ -107,7 +107,7 @@
     "errorScene": "Error",
     "warningScene": "Warning",
     "successScene": "Success",
-    "register": "Create account",
+    "register": "Create",
     "login": "Sign in",
     "switchToRegister": "Create a new account",
     "switchToSignIn": "I already have an account",
