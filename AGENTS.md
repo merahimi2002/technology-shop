@@ -16,7 +16,13 @@ Organize documentation by topic: development, architecture, design system, techn
 
 Use daisyUI themes and standard component classes. Keep only brand color overrides in styles/brand-themes.css. Do not recreate a parallel token generator or global input/button styles.
 
-Use Tailwind utilities as the primary styling approach directly in JSX. Use standard daisyUI classes for components and theme colors. Reserve handwritten CSS for effects or behavior that utilities cannot express clearly, such as complex gradients, masks, and product image cropping. Do not move ordinary layout, spacing, typography, or responsive rules into CSS or hide them behind @apply. See md/DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت.
+Use Tailwind utilities as the primary styling approach directly in JSX. Use standard daisyUI classes for components and theme colors. Reserve handwritten CSS for effects or behavior that utilities cannot express clearly, such as complex gradients, masks, and product image cropping. Do not move ordinary layout, spacing, typography, or responsive rules into CSS or hide them behind @apply.
+
+For all UI changes, follow the [design system rules](md/DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت):
+
+- Follow the page locale by default. Persian uses RTL and right alignment. English uses LTR and left alignment. Use logical Tailwind utilities so layout follows the locale. Keep email addresses readable left to right in both languages.
+- Support light and dark modes with semantic daisyUI theme colors. Verify visual changes in the browser in both languages and both modes.
+- Reuse shared project components and standard daisyUI components first. When a needed component is not covered, use shadcn components that follow the project's direction and daisyUI theme colors.
 
 Verify visual and animation changes in the browser before reporting completion. For product transitions, test repeated navigation between all products and inspect intermediate frames as well as the final state.
 

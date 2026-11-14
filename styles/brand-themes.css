@@ -10,6 +10,8 @@
   --color-primary-content: #ffffff;
   --color-secondary: #008879;
   --color-secondary-content: #000000;
+  --color-warning: #8a5300;
+  --color-warning-content: #ffffff;
 }
 @plugin 'daisyui/theme' {
   name: 'night';
@@ -25,6 +27,8 @@
   --color-primary-content: #ffffff;
   --color-secondary: #d85a1e;
   --color-secondary-content: #000000;
+  --color-warning: #8a5300;
+  --color-warning-content: #ffffff;
 }
 @plugin 'daisyui/theme' {
   name: 'dim';
@@ -39,6 +43,8 @@
   --color-primary-content: #ffffff;
   --color-secondary: #008c78;
   --color-secondary-content: #000000;
+  --color-warning: #8a5300;
+  --color-warning-content: #ffffff;
 }
 @plugin 'daisyui/theme' {
   name: 'dracula';

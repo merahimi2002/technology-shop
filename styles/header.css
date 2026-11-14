@@ -15,6 +15,24 @@
     inset 0 1px 0 color-mix(in srgb, white 35%, transparent);
   backdrop-filter: blur(18px) saturate(1.25);
 }
+.account-frame {
+  background: linear-gradient(
+    115deg,
+    color-mix(in srgb, var(--color-secondary) 16%, transparent),
+    transparent 65%,
+    color-mix(in srgb, var(--color-primary) 7%, transparent)
+  );
+}
+.glass-folder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.65;
+  background: color-mix(in srgb, var(--color-base-100) 16%, transparent);
+}
 .brand-type > span {
   font-family: Arial, sans-serif;
   color: color-mix(in srgb, var(--color-base-content) 50%, transparent);

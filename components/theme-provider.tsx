@@ -8,6 +8,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
 import {
   DEFAULT_THEME,
   DEFAULT_CUSTOM_COLORS,
@@ -15,6 +16,7 @@ import {
   resolveMode,
   type CustomColors,
   THEME_STORAGE_KEY,
+  THEME_BOOTSTRAP,
   parseTheme,
   resolveTheme,
   type Palette,
@@ -61,6 +63,18 @@ function applyTheme(preference: ThemePreference) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  const bootstrapInserted = useRef(false);
+  useServerInsertedHTML(() => {
+    if (bootstrapInserted.current) return null;
+    bootstrapInserted.current = true;
+    return (
+      <script
+        id="store-theme-bootstrap"
+        dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
+      />
+    );
+  });
+
   const [preference, setPreference] = useState(DEFAULT_THEME);
   const [ready, setReady] = useState(false);
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

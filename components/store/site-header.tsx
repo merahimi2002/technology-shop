@@ -2,6 +2,7 @@
 import { useTranslations } from 'next-intl';
 
 import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
 import { useLocale } from 'next-intl';
 import {
   useEffect,
@@ -17,7 +18,9 @@ import {
   Headphones,
   Heart,
   Laptop,
+  LayoutDashboard,
   LayoutGrid,
+  LogOut,
   Menu,
   Search,
   ShoppingBag,
@@ -27,12 +30,15 @@ import {
   Usb,
 } from 'lucide-react';
 import { ModalCloseButton } from '@/components/modal-close-button';
+import { AccountRoleBadge } from '@/components/store/account-role-badge';
+import { canAccessAdmin } from '@/lib/auth/admin-access';
+import { GradientButton } from '@/components/gradient-button';
 import { Logo } from '@/components/logo';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { STORE_CATEGORIES } from '@/lib/store-navigation';
-import { AccountPanel } from '@/components/store/account-panel';
+import { useRouter } from 'next/navigation';
 
 const actionButtonClass =
   'btn btn-ghost btn-circle h-8 min-h-8 w-8 border-0 bg-base-content/7 p-0 shadow-none [@media(hover:hover)_and_(pointer:fine)]:hover:bg-[conic-gradient(from_90deg,var(--color-primary)_0%,var(--color-secondary)_50%,var(--color-primary)_100%)] [@media(hover:hover)_and_(pointer:fine)]:hover:text-primary-content';
@@ -97,10 +103,18 @@ function SearchForm({
 export function SiteHeader() {
   const locale = useLocale();
   const t = useTranslations();
+  const { data: session, status } = useSession();
+  const accountUser = status === 'authenticated' ? session?.user : undefined;
+  const showAdminLink = accountUser ? canAccessAdmin(accountUser.role) : false;
+  const compactAccountAction = showAdminLink ? 'px-1.5 text-xs' : '';
+  const accountHref = `/${locale}/account`;
+  const account = useRef<HTMLDialogElement>(null);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutFailed, setSignOutFailed] = useState(false);
   const mobileMenu = useRef<HTMLDialogElement>(null);
   const preferences = useRef<HTMLDialogElement>(null);
   const cart = useRef<HTMLDialogElement>(null);
-  const account = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
   const results = useRef<HTMLDialogElement>(null);
   const searchDialog = useRef<HTMLDialogElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
@@ -111,10 +125,13 @@ export function SiteHeader() {
   });
 
   useEffect(() => {
-    if (
-      new URLSearchParams(window.location.search).get('account') === 'signin'
-    ) {
-      account.current?.showModal();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('account') === 'signin') {
+      const callbackUrl = params.get('callbackUrl');
+      const query = callbackUrl
+        ? `?${new URLSearchParams({ callbackUrl })}`
+        : '';
+      router.replace(`/${locale}/account${query}`);
     }
     function shortcuts(event: KeyboardEvent) {
       if (event.key === 'Escape' && categoryMenu.current)
@@ -137,7 +154,7 @@ export function SiteHeader() {
     }
     document.addEventListener('keydown', shortcuts);
     return () => document.removeEventListener('keydown', shortcuts);
-  }, []);
+  }, [locale, router]);
 
   function showResults(title: string, detail: string) {
     setResult({ title, detail });
@@ -150,6 +167,19 @@ export function SiteHeader() {
     showResults(t('search.resultsTitle', { query }), t('search.empty'));
   const category = (label: string) =>
     showResults(label, t('categories.comingSoon'));
+
+  async function logout() {
+    setSigningOut(true);
+    setSignOutFailed(false);
+    try {
+      await signOut({ redirect: false });
+      account.current?.close();
+    } catch {
+      setSignOutFailed(true);
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   return (
     <>
@@ -312,15 +342,32 @@ export function SiteHeader() {
               >
                 <Heart size={18} strokeWidth={1.7} />
               </button>
-              <button
-                type="button"
-                className={`account-button ${actionButtonClass}`}
-                onClick={() => account.current?.showModal()}
-                aria-label={t('account.signIn')}
-                title={t('account.signIn')}
-              >
-                <UserRound size={18} strokeWidth={1.7} />
-              </button>
+              {status === 'loading' || accountUser ? (
+                <button
+                  type="button"
+                  className={`${actionButtonClass}${accountUser ? ' avatar avatar-online' : ''}`}
+                  aria-label={t('account.title')}
+                  title={t('account.title')}
+                  aria-haspopup={accountUser ? 'dialog' : undefined}
+                  aria-controls={accountUser ? 'store-account' : undefined}
+                  disabled={status === 'loading'}
+                  onClick={() => {
+                    setSignOutFailed(false);
+                    account.current?.showModal();
+                  }}
+                >
+                  <UserRound size={18} strokeWidth={1.7} aria-hidden="true" />
+                </button>
+              ) : (
+                <Link
+                  href={accountHref}
+                  className={actionButtonClass}
+                  aria-label={t('account.signIn')}
+                  title={t('account.signIn')}
+                >
+                  <UserRound size={18} strokeWidth={1.7} aria-hidden="true" />
+                </Link>
+              )}
               <button
                 type="button"
                 className={actionButtonClass}
@@ -409,6 +456,111 @@ export function SiteHeader() {
         </div>
         <Backdrop />
       </dialog>
+      {accountUser && (
+        <dialog
+          id="store-account"
+          ref={account}
+          className="modal"
+          aria-labelledby="store-account-title"
+        >
+          <div className="modal-box max-w-sm max-[360px]:px-3">
+            <DialogHeading
+              id="store-account-title"
+              title={t('account.title')}
+            />
+            <div className="mt-5 flex items-center gap-3">
+              <div
+                className="avatar avatar-placeholder shrink-0"
+                aria-hidden="true"
+              >
+                <div className="w-14 rounded-full bg-secondary text-secondary-content">
+                  <UserRound size={26} strokeWidth={1.7} />
+                </div>
+              </div>
+              <div className="min-w-0 flex-1 text-start">
+                <p
+                  className="truncate font-semibold"
+                  title={accountUser.name || undefined}
+                >
+                  <bdi>{accountUser.name || t('account.accountSubtitle')}</bdi>
+                </p>
+                {accountUser.email && (
+                  <p
+                    className="mt-1 truncate text-sm text-base-content/70"
+                    title={accountUser.email}
+                  >
+                    <bdi dir="ltr">{accountUser.email}</bdi>
+                  </p>
+                )}
+              </div>
+              <div className="shrink-0">
+                <AccountRoleBadge role={accountUser.role} />
+              </div>
+            </div>
+            <div
+              className={`modal-action flex-wrap justify-start ${showAdminLink ? 'gap-1' : 'gap-2'}`}
+            >
+              {showAdminLink && (
+                <Link
+                  href={`/${locale}/admin`}
+                  className="btn btn-soft btn-primary gap-1 rounded-full px-1.5 text-xs"
+                  aria-label={t('account.adminPanel')}
+                  onNavigate={() => account.current?.close()}
+                >
+                  <LayoutDashboard
+                    aria-hidden="true"
+                    className="size-3 shrink-0"
+                  />
+                  <span className="max-[360px]:hidden">
+                    {t('account.adminPanel')}
+                  </span>
+                  <span className="min-[361px]:hidden">
+                    {t('account.adminPanelShort')}
+                  </span>
+                </Link>
+              )}
+              <GradientButton
+                className={compactAccountAction}
+                aria-label={t('account.openPage')}
+                disabled={signingOut}
+                onClick={() => {
+                  account.current?.close();
+                  router.push(accountHref);
+                }}
+              >
+                <span className="inline-flex items-center gap-1">
+                  <UserRound aria-hidden="true" className="size-3 shrink-0" />
+                  {t(showAdminLink ? 'account.title' : 'account.openPage')}
+                </span>
+              </GradientButton>
+              <button
+                type="button"
+                className={`btn btn-soft btn-error gap-1 rounded-full ${compactAccountAction}`}
+                disabled={signingOut}
+                onClick={logout}
+              >
+                <LogOut
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rtl:rotate-180"
+                />
+                {signingOut
+                  ? t('account.loading')
+                  : t(
+                      showAdminLink
+                        ? 'account.signOutShort'
+                        : 'account.signOut',
+                    )}
+              </button>
+            </div>
+            {signOutFailed && (
+              <p role="alert" className="mt-3 text-sm text-error">
+                {t('account.unavailable')}
+              </p>
+            )}
+          </div>
+          <Backdrop />
+        </dialog>
+      )}
       <dialog ref={cart} className="modal" aria-labelledby="cart-title">
         <div className="modal-box">
           <DialogHeading id="cart-title" title={t('cart.title')} />
@@ -426,13 +578,6 @@ export function SiteHeader() {
               </button>
             </form>
           </div>
-        </div>
-        <Backdrop />
-      </dialog>
-      <dialog ref={account} className="modal" aria-labelledby="account-title">
-        <div className="modal-box">
-          <DialogHeading id="account-title" title={t('account.title')} />
-          <AccountPanel />
         </div>
         <Backdrop />
       </dialog>

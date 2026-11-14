@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
 import { SiteHeader } from '@/components/store/site-header';
-import { THEME_BOOTSTRAP } from '@/lib/theme';
 import '../globals.css';
 import { LocaleProvider } from '@/components/locale-provider';
 import { notFound } from 'next/navigation';
@@ -35,13 +33,6 @@ export default async function RootLayout({
       data-theme="nord"
       suppressHydrationWarning
     >
-      <head>
-        <Script
-          id="store-theme-bootstrap"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
-        />
-      </head>
       <body className="flex min-h-dvh flex-col bg-base-200 text-base-content ltr:[font-family:Arial,sans-serif]">
         <ThemeProvider>
           <LocaleProvider>
