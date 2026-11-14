@@ -27,6 +27,7 @@ export function ProfileEditor({
   const [draftEmail, setDraftEmail] = useState(email);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [nameError, setNameError] = useState('');
   const changingEmail =
     canChangeEmail && draftEmail.trim().toLowerCase() !== email;
 
@@ -34,6 +35,8 @@ export function ProfileEditor({
     event.preventDefault();
     if (busy) return;
     const fields = new FormData(event.currentTarget);
+    setNameError('');
+    setError('');
     const input = profileSchema.safeParse({
       name: fields.get('name'),
       ...(changingEmail && {
@@ -42,11 +45,24 @@ export function ProfileEditor({
       }),
     });
     if (!input.success) {
-      setError(t('profile.invalid'));
+      const nameIssue = input.error.issues.find(
+        (issue) => issue.path[0] === 'name',
+      );
+      if (nameIssue) {
+        setNameError(
+          nameIssue.code === 'too_big'
+            ? t('validation.tooLong', { max: Number(nameIssue.maximum) })
+            : t('validation.required.name'),
+        );
+        event.currentTarget
+          .querySelector<HTMLInputElement>('[name="name"]')
+          ?.focus();
+      } else {
+        setError(t('profile.invalid'));
+      }
       return;
     }
 
-    setError('');
     setBusy(true);
     onSavingChange(true);
     try {
@@ -92,7 +108,7 @@ export function ProfileEditor({
   }
 
   return (
-    <form onSubmit={save} aria-busy={busy}>
+    <form noValidate onSubmit={save} aria-busy={busy}>
       <fieldset disabled={busy} className="flex flex-col gap-4">
         <label
           data-account-reveal
@@ -105,8 +121,20 @@ export function ProfileEditor({
             autoComplete="name"
             maxLength={80}
             required
-            className="input h-9 w-full rounded-full! text-sm font-normal"
+            aria-invalid={!!nameError}
+            aria-describedby={nameError ? 'profile-name-error' : undefined}
+            onChange={() => setNameError('')}
+            className="input h-9 w-full rounded-full! text-sm font-normal aria-invalid:border-error"
           />
+          {nameError && (
+            <span
+              id="profile-name-error"
+              role="alert"
+              className="font-normal text-error"
+            >
+              {nameError}
+            </span>
+          )}
         </label>
         <label
           data-account-reveal
@@ -123,7 +151,7 @@ export function ProfileEditor({
             maxLength={254}
             required={canChangeEmail}
             readOnly={!canChangeEmail}
-            className="input h-9 w-full rounded-full! text-left text-sm font-normal read-only:bg-base-200"
+            className="input h-9 w-full rounded-full! text-left text-sm font-normal read-only:cursor-not-allowed read-only:bg-base-200 read-only:opacity-55"
           />
           {!canChangeEmail && (
             <span className="text-xs font-normal text-base-content/70">
