@@ -54,6 +54,18 @@
     "empty": "Your wishlist is empty."
   },
   "account": {
+    "profile": {
+      "edit": "Edit profile",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "saved": "Your profile was updated.",
+      "currentPassword": "Current password",
+      "wrongPassword": "Enter the correct current password to change your email.",
+      "ownerEmail": "The owner email can only be changed during account maintenance.",
+      "emailInUse": "This email is already in use.",
+      "invalid": "Check your profile details and try again.",
+      "accountChanged": "Reload the page to get the latest account details, then try again."
+    },
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "visualSignIn": "Your Tech Shop account",

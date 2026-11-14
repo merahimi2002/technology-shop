@@ -16,18 +16,18 @@ async function consume(key: string, maximum: number, seconds: number) {
 }
 
 export async function allowAuthAttempt(
-  email: string,
-  action: 'login' | 'register',
+  identifier: string,
+  action: 'login' | 'register' | 'profile',
 ) {
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret || secret.length < 32 || secret.startsWith('REPLACE-'))
     throw new Error('A strong NEXTAUTH_SECRET is required.');
   // The global cap also bounds work when an attacker rotates email addresses.
   if (!(await consume('auth:global', 60, 60))) return false;
-  const digest = createHmac('sha256', secret).update(email).digest('hex');
+  const digest = createHmac('sha256', secret).update(identifier).digest('hex');
   const allowed = await consume(
     `${action}:${digest}`,
-    action === 'login' ? 10 : 3,
+    action === 'register' ? 3 : 10,
     900,
   );
   // Bound expired bucket storage without relying on a local process timer.

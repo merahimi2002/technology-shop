@@ -8,14 +8,21 @@ export const emailSchema = z
   .email()
   .max(254);
 const passwordSchema = z.string().min(1, { abort: true }).max(128);
+const nameSchema = z.string().trim().min(1).max(80);
 
 export const loginSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
 });
 export const registerSchema = loginSchema.extend({
-  name: z.string().trim().min(1).max(80),
+  name: nameSchema,
   password: passwordSchema.min(8),
+});
+
+export const profileSchema = z.object({
+  name: nameSchema,
+  email: emailSchema.optional(),
+  currentPassword: passwordSchema.optional(),
 });
 
 export const registerFormSchema = registerSchema

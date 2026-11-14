@@ -20,6 +20,7 @@ import {
   LogIn,
   LogOut,
   Mail,
+  Pencil,
   Shield,
   UserPlus,
   UserRound,
@@ -32,6 +33,7 @@ import { GradientButton } from '@/components/gradient-button';
 import { Subtitle } from '@/components/subtitle';
 import { Title } from '@/components/title';
 import { Logo } from '@/components/logo';
+import { ProfileEditor } from '@/components/store/profile-editor';
 import { useLocale, useTranslations } from 'next-intl';
 import { getSignInReturnPath } from '@/lib/auth/return-path';
 import { loginSchema, registerFormSchema } from '@/lib/auth/validation';
@@ -67,7 +69,9 @@ export function AccountPanel() {
   const locale = useLocale();
   const t = useTranslations('account');
   const brand = useTranslations('brand');
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
   const [field, setField] = useState<AccountField | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
@@ -490,6 +494,25 @@ export function AccountPanel() {
                 className="loading loading-spinner loading-md motion-reduce:animate-none"
               />
             </div>
+          ) : session?.user && editingProfile ? (
+            <div className="mt-5">
+              <ProfileEditor
+                key={session.user.id}
+                name={session.user.name ?? ''}
+                email={session.user.email ?? ''}
+                canChangeEmail={session.user.role !== 'OWNER'}
+                onCancel={() => setEditingProfile(false)}
+                onSave={async () => {
+                  const refreshed = await update({});
+                  if (!refreshed?.user) {
+                    window.location.reload();
+                    return;
+                  }
+                  setEditingProfile(false);
+                  setProfileSaved(true);
+                }}
+              />
+            </div>
           ) : session?.user ? (
             <div className="mt-5 flex flex-col gap-4">
               {session.user.name && (
@@ -522,7 +545,25 @@ export function AccountPanel() {
                   {t(message)}
                 </p>
               )}
+              {profileSaved && (
+                <p role="status" className="text-sm text-success">
+                  {t('profile.saved')}
+                </p>
+              )}
               <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="btn btn-soft btn-primary rounded-full"
+                  disabled={busy}
+                  onClick={() => {
+                    setMessage(null);
+                    setProfileSaved(false);
+                    setEditingProfile(true);
+                  }}
+                >
+                  <Pencil className="size-4" aria-hidden="true" />
+                  {t('profile.edit')}
+                </button>
                 {canAccessAdmin(session.user.role) && (
                   <Link
                     href={`/${locale}/admin`}
