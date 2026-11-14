@@ -17,7 +17,7 @@ async function consume(key: string, maximum: number, seconds: number) {
 
 export async function allowAuthAttempt(
   identifier: string,
-  action: 'login' | 'register' | 'password',
+  action: 'login' | 'register' | 'password' | 'recovery' | 'reset',
 ) {
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret || secret.length < 32 || secret.startsWith('REPLACE-'))

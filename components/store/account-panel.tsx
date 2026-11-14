@@ -36,6 +36,7 @@ import { Logo } from '@/components/logo';
 import { ProfileEditor } from '@/components/store/profile-editor';
 import { revealAccountFields } from '@/lib/account-field-motion';
 import { PasswordEditor } from '@/components/store/password-editor';
+import { PasswordRecovery } from '@/components/store/password-recovery';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { getSignInReturnPath } from '@/lib/auth/return-path';
@@ -811,6 +812,7 @@ export function AccountPanel() {
                   </GradientButton>
                 </fieldset>
               </form>
+              {mode === 'signin' && <PasswordRecovery />}
             </>
           )}
         </div>

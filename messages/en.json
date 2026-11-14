@@ -54,6 +54,16 @@
     "empty": "Your wishlist is empty."
   },
   "account": {
+    "recovery": {
+      "title": "Forgot password?",
+      "send": "Send reset link",
+      "sent": "If this email belongs to an account eligible for recovery, we’ll send it a reset link.",
+      "reset": "Set a new password",
+      "invalidLink": "This reset link is invalid, expired, or already used.",
+      "invalidPassword": "Use between 8 and 128 characters for your new password.",
+      "emailSubject": "Reset your Tech Shop password",
+      "emailBody": "Open this link within 30 minutes to set a new password:\n{link}\n\nIf you didn’t ask for a password reset, ignore this email."
+    },
     "passwordChanged": "Password changed. Sign in with your new password.",
     "passwordChange": {
       "title": "Change password",

@@ -22,6 +22,21 @@ export const registerSchema = loginSchema.extend({
 
 export const profileSchema = z.strictObject({ name: nameSchema });
 
+export const recoveryRequestSchema = z.strictObject({
+  email: emailSchema,
+  locale: z.enum(['fa', 'en']),
+});
+
+export const resetPasswordSchema = z
+  .strictObject({
+    token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+    password: newPasswordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine(({ password, confirmPassword }) => password === confirmPassword, {
+    path: ['confirmPassword'],
+  });
+
 const passwordFields = z.strictObject({
   currentPassword: passwordSchema,
   newPassword: newPasswordSchema,
