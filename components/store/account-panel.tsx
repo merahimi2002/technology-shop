@@ -516,7 +516,6 @@ export function AccountPanel() {
                 key={session.user.id}
                 name={session.user.name ?? ''}
                 email={session.user.email ?? ''}
-                canChangeEmail={session.user.role !== 'OWNER'}
                 onCancel={() => switchSheet('signin')}
                 onSavingChange={setBusy}
                 onSave={async () => {

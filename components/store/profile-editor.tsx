@@ -3,13 +3,11 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
-import { GradientButton } from '@/components/gradient-button';
 import { profileSchema } from '@/lib/auth/validation';
 
 type ProfileEditorProps = {
   name: string;
   email: string;
-  canChangeEmail: boolean;
   onCancel: () => void;
   onSavingChange: (busy: boolean) => void;
   onSave: () => Promise<void>;
@@ -18,18 +16,14 @@ type ProfileEditorProps = {
 export function ProfileEditor({
   name,
   email,
-  canChangeEmail,
   onCancel,
   onSavingChange,
   onSave,
 }: ProfileEditorProps) {
   const t = useTranslations('account');
-  const [draftEmail, setDraftEmail] = useState(email);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [nameError, setNameError] = useState('');
-  const changingEmail =
-    canChangeEmail && draftEmail.trim().toLowerCase() !== email;
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,10 +33,6 @@ export function ProfileEditor({
     setError('');
     const input = profileSchema.safeParse({
       name: fields.get('name'),
-      ...(changingEmail && {
-        email: draftEmail,
-        currentPassword: fields.get('currentPassword'),
-      }),
     });
     if (!input.success) {
       const nameIssue = input.error.issues.find(
@@ -78,22 +68,11 @@ export function ProfileEditor({
 
       const { error: code } = await response.json();
       switch (code) {
-        case 'EMAIL_IN_USE':
-          setError(t('profile.emailInUse'));
-          break;
-        case 'PASSWORD_REQUIRED':
-        case 'WRONG_PASSWORD':
-          setError(t('profile.wrongPassword'));
-          break;
-        case 'RATE_LIMITED':
-          setError(t('limited'));
-          break;
         case 'INVALID_INPUT':
           setError(t('profile.invalid'));
           break;
         case 'ACCOUNT_CHANGED':
         case 'UNAUTHORIZED':
-        case 'FORBIDDEN':
           setError(t('profile.accountChanged'));
           break;
         default:
@@ -143,53 +122,32 @@ export function ProfileEditor({
           {t('email')}
           <input
             name="email"
-            value={draftEmail}
-            onChange={(event) => setDraftEmail(event.currentTarget.value)}
+            value={email}
             type="email"
             dir="ltr"
             autoComplete="email"
-            maxLength={254}
-            required={canChangeEmail}
-            readOnly={!canChangeEmail}
+            readOnly
             className="input h-9 w-full rounded-full! text-left text-sm font-normal read-only:cursor-not-allowed read-only:bg-base-200 read-only:opacity-55"
           />
-          {!canChangeEmail && (
-            <span className="text-xs font-normal text-base-content/70">
-              {t('profile.ownerEmail')}
-            </span>
-          )}
         </label>
-        {changingEmail && (
-          <label className="flex flex-col gap-1.5 text-sm font-semibold">
-            {t('profile.currentPassword')}
-            <input
-              name="currentPassword"
-              type="password"
-              dir="ltr"
-              autoComplete="current-password"
-              maxLength={128}
-              required
-              className="input h-9 w-full rounded-full! text-sm font-normal"
-            />
-          </label>
-        )}
         {error && (
           <p role="alert" className="text-sm text-error">
             {error}
           </p>
         )}
         <div className="flex flex-wrap gap-2">
-          <GradientButton
+          <button
             data-account-reveal
             type="submit"
-            icon={busy ? undefined : <Check />}
+            className="btn btn-success rounded-full"
           >
+            {!busy && <Check aria-hidden="true" className="size-4" />}
             {busy ? t('loading') : t('profile.save')}
-          </GradientButton>
+          </button>
           <button
             type="button"
             onClick={onCancel}
-            className="btn btn-ghost rounded-full"
+            className="btn btn-soft btn-error rounded-full"
           >
             {t('profile.cancel')}
           </button>

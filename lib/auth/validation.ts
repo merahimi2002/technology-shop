@@ -19,11 +19,7 @@ export const registerSchema = loginSchema.extend({
   password: passwordSchema.min(8),
 });
 
-export const profileSchema = z.object({
-  name: nameSchema,
-  email: emailSchema.optional(),
-  currentPassword: passwordSchema.optional(),
-});
+export const profileSchema = z.strictObject({ name: nameSchema });
 
 export const registerFormSchema = registerSchema
   .extend({ confirmPassword: passwordSchema })
