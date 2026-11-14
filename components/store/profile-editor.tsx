@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { profileSchema } from '@/lib/auth/validation';
 
 type ProfileEditorProps = {
@@ -149,6 +149,7 @@ export function ProfileEditor({
             onClick={onCancel}
             className="btn btn-soft btn-error rounded-full"
           >
+            <X aria-hidden="true" className="size-4" />
             {t('profile.cancel')}
           </button>
         </div>
