@@ -9,13 +9,13 @@ import {
 } from 'react';
 import type { ZodIssue } from 'zod';
 import { flushSync } from 'react-dom';
-import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import {
   Check,
   CircleAlert,
   Eye,
   EyeOff,
+  LayoutDashboard,
   LockKeyhole,
   LogIn,
   LogOut,
@@ -567,21 +567,21 @@ export function AccountPanel() {
               )}
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {canAccessAdmin(session.user.role) && (
-                  <Link
+                  <GradientButton
                     href={`/${locale}/admin`}
-                    className="btn btn-soft btn-primary w-fit rounded-full"
+                    className="w-fit"
+                    icon={<LayoutDashboard />}
                   >
                     {t('adminPanel')}
-                  </Link>
+                  </GradientButton>
                 )}
-                <GradientButton
-                  className="w-fit"
+                <button
+                  className="btn btn-error h-10 w-fit rounded-full"
                   type="button"
                   disabled={busy}
                   aria-busy={busy}
                   aria-label={busy ? t('loading') : undefined}
                   onClick={logout}
-                  icon={busy ? undefined : <LogOut />}
                 >
                   {busy ? (
                     <span
@@ -589,9 +589,12 @@ export function AccountPanel() {
                       className="loading loading-spinner loading-sm motion-reduce:animate-none"
                     />
                   ) : (
-                    t('signOut')
+                    <>
+                      <LogOut aria-hidden="true" className="size-4" />
+                      {t('signOut')}
+                    </>
                   )}
-                </GradientButton>
+                </button>
               </div>
             </div>
           ) : (
