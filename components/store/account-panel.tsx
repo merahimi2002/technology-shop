@@ -34,6 +34,7 @@ import { Subtitle } from '@/components/subtitle';
 import { Title } from '@/components/title';
 import { Logo } from '@/components/logo';
 import { ProfileEditor } from '@/components/store/profile-editor';
+import { revealAccountFields } from '@/lib/account-field-motion';
 import { PasswordEditor } from '@/components/store/password-editor';
 import { useLocale, useTranslations } from 'next-intl';
 import { getSignInReturnPath } from '@/lib/auth/return-path';
@@ -56,8 +57,6 @@ const fieldIconColors = {
 const sceneBadgeClass = `badge badge-soft grid size-8 -translate-y-5 place-items-center rounded-full p-0 md:size-12 md:-translate-y-7 ${sceneFade}`;
 // Let the form enter while the shared title is settling.
 const fieldsStart = 440;
-const fieldStagger = 160;
-const revealDuration = 460;
 const sheetTiming = { duration: 270, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' };
 const tabShapes = {
   signin:
@@ -105,40 +104,12 @@ export function AccountPanel() {
   }, [mode, session?.user, status]);
 
   useLayoutEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const elements = Array.from(
-      formContent.current?.querySelectorAll('[data-account-reveal]') ?? [],
+    const start = hasSwitchedSheet.current ? sheetTiming.duration : fieldsStart;
+    const animations = revealAccountFields(
+      formContent.current,
+      '[data-account-reveal]',
+      start,
     );
-    const animations = elements.map((element, index) => {
-      const isSubmit = element.matches('button[type=submit]');
-      const start = hasSwitchedSheet.current
-        ? sheetTiming.duration
-        : fieldsStart;
-      const delay = start + index * fieldStagger + (isSubmit ? 100 : 0);
-
-      return element.animate(
-        [
-          {
-            clipPath: 'inset(0 -12px 100% -12px round 4px)',
-            opacity: 0,
-            transform: 'translateY(14px)',
-          },
-          {
-            clipPath: 'inset(-12px -12px -12px -12px round 4px)',
-            opacity: 1,
-            transform: 'translateY(0)',
-          },
-        ],
-        {
-          duration: revealDuration,
-          delay,
-          fill: 'backwards',
-          easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-        },
-      );
-    });
-
     return () => animations.forEach((animation) => animation.cancel());
   }, [mode, editingProfile, session?.user, status]);
 

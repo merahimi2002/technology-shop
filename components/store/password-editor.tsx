@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { ModalCloseButton } from '@/components/modal-close-button';
 import { GradientButton } from '@/components/gradient-button';
 import { changePasswordSchema } from '@/lib/auth/validation';
+import { revealAccountFields } from '@/lib/account-field-motion';
 
 const fields = ['currentPassword', 'newPassword', 'confirmPassword'] as const;
 type PasswordField = (typeof fields)[number];
@@ -25,6 +26,7 @@ export function PasswordEditor({
   const common = useTranslations('common');
   const dialog = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const revealAnimations = useRef<Animation[]>([]);
   const editedFields = useRef(new Set<PasswordField>());
   const [visible, setVisible] = useState<
     Partial<Record<PasswordField, boolean>>
@@ -119,7 +121,14 @@ export function PasswordEditor({
         aria-haspopup="dialog"
         aria-controls="password-change-dialog"
         disabled={busy}
-        onClick={() => dialog.current?.showModal()}
+        onClick={() => {
+          dialog.current?.showModal();
+          revealAnimations.current = revealAccountFields(
+            formRef.current,
+            '[data-password-reveal]',
+            270,
+          );
+        }}
       >
         {t('passwordChange.title')}
       </GradientButton>
@@ -132,6 +141,8 @@ export function PasswordEditor({
           if (busy) event.preventDefault();
         }}
         onClose={() => {
+          revealAnimations.current.forEach((animation) => animation.cancel());
+          revealAnimations.current = [];
           formRef.current?.reset();
           editedFields.current.clear();
           setVisible({});
@@ -152,7 +163,11 @@ export function PasswordEditor({
                 {t('passwordChange.signInAgain')}
               </p>
               {fields.map((field) => (
-                <div key={field} className="flex flex-col gap-1.5 text-sm">
+                <div
+                  key={field}
+                  data-password-reveal
+                  className="flex flex-col gap-1.5 text-sm"
+                >
                   <label htmlFor={`profile-${field}`} className="font-semibold">
                     {t(
                       field === 'confirmPassword'
@@ -221,6 +236,7 @@ export function PasswordEditor({
                 </p>
               )}
               <button
+                data-password-reveal
                 type="submit"
                 className="btn btn-success w-fit rounded-full"
               >
