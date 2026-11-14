@@ -531,7 +531,10 @@ export function AccountPanel() {
           ) : session?.user ? (
             <div className="mt-5 flex flex-col gap-4">
               {session.user.name && (
-                <p className="flex items-center gap-2 text-lg font-normal">
+                <p
+                  data-account-reveal
+                  className="flex items-center gap-2 text-lg font-normal"
+                >
                   <UserRound
                     aria-hidden="true"
                     className="size-4 shrink-0 text-primary"
@@ -539,7 +542,10 @@ export function AccountPanel() {
                   <bdi className="min-w-0 break-words">{session.user.name}</bdi>
                 </p>
               )}
-              <p className="flex items-center gap-2 text-left rtl:text-right">
+              <p
+                data-account-reveal
+                className="flex items-center gap-2 text-left rtl:text-right"
+              >
                 <Mail
                   aria-hidden="true"
                   className="size-4 shrink-0 text-primary"
@@ -548,7 +554,7 @@ export function AccountPanel() {
                   {session.user.email}
                 </bdi>
               </p>
-              <p className="flex items-center gap-2">
+              <p data-account-reveal className="flex items-center gap-2">
                 <Shield
                   aria-hidden="true"
                   className="size-4 shrink-0 text-primary"
@@ -568,6 +574,7 @@ export function AccountPanel() {
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {canAccessAdmin(session.user.role) && (
                   <GradientButton
+                    data-account-reveal
                     href={`/${locale}/admin`}
                     className="w-fit"
                     icon={<LayoutDashboard />}
@@ -576,6 +583,7 @@ export function AccountPanel() {
                   </GradientButton>
                 )}
                 <button
+                  data-account-reveal
                   className="btn btn-error h-10 w-fit rounded-full"
                   type="button"
                   disabled={busy}
