@@ -5,6 +5,7 @@ import { Check, Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ModalCloseButton } from '@/components/modal-close-button';
 import { GradientButton } from '@/components/gradient-button';
+import { Title } from '@/components/title';
 import { changePasswordSchema } from '@/lib/auth/validation';
 import { revealAccountFields } from '@/lib/account-field-motion';
 
@@ -26,6 +27,7 @@ export function PasswordEditor({
   const common = useTranslations('common');
   const dialog = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
   const revealAnimations = useRef<Animation[]>([]);
   const editedFields = useRef(new Set<PasswordField>());
   const [visible, setVisible] = useState<
@@ -123,6 +125,7 @@ export function PasswordEditor({
         disabled={busy}
         onClick={() => {
           dialog.current?.showModal();
+          setOpen(true);
           revealAnimations.current = revealAccountFields(
             formRef.current,
             '[data-password-reveal]',
@@ -141,6 +144,7 @@ export function PasswordEditor({
           if (busy) event.preventDefault();
         }}
         onClose={() => {
+          setOpen(false);
           revealAnimations.current.forEach((animation) => animation.cancel());
           revealAnimations.current = [];
           formRef.current?.reset();
@@ -152,9 +156,9 @@ export function PasswordEditor({
       >
         <div className="modal-box">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 id="password-change-title" className="text-lg font-bold">
+            <Title id="password-change-title" active={open}>
               {t('passwordChange.title')}
-            </h2>
+            </Title>
             <ModalCloseButton label={common('close')} disabled={busy} />
           </div>
           <form ref={formRef} noValidate onSubmit={save} aria-busy={busy}>

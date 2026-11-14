@@ -11,6 +11,7 @@ type ProfileEditorProps = {
   busy: boolean;
   onCancel: () => void;
   onSavingChange: (busy: boolean) => void;
+  onErrorChange: (hasError: boolean) => void;
   onSave: () => Promise<void>;
 };
 
@@ -20,6 +21,7 @@ export function ProfileEditor({
   busy,
   onCancel,
   onSavingChange,
+  onErrorChange,
   onSave,
 }: ProfileEditorProps) {
   const t = useTranslations('account');
@@ -32,10 +34,12 @@ export function ProfileEditor({
     const fields = new FormData(event.currentTarget);
     setNameError('');
     setError('');
+    onErrorChange(false);
     const input = profileSchema.safeParse({
       name: fields.get('name'),
     });
     if (!input.success) {
+      onErrorChange(true);
       const nameIssue = input.error.issues.find(
         (issue) => issue.path[0] === 'name',
       );
@@ -67,6 +71,7 @@ export function ProfileEditor({
       }
 
       const { error: code } = await response.json();
+      onErrorChange(true);
       switch (code) {
         case 'INVALID_INPUT':
           setError(t('profile.invalid'));
@@ -79,6 +84,7 @@ export function ProfileEditor({
           setError(t('unavailable'));
       }
     } catch {
+      onErrorChange(true);
       setError(t('unavailable'));
     } finally {
       onSavingChange(false);
@@ -101,7 +107,11 @@ export function ProfileEditor({
             required
             aria-invalid={!!nameError}
             aria-describedby={nameError ? 'profile-name-error' : undefined}
-            onChange={() => setNameError('')}
+            onChange={() => {
+              setNameError('');
+              setError('');
+              onErrorChange(false);
+            }}
             className="input h-9 w-full rounded-full! text-sm font-normal aria-invalid:border-error"
           />
           {nameError && (

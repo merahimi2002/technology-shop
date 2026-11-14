@@ -72,6 +72,7 @@ export function AccountPanel() {
   const { data: session, status, update } = useSession();
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileError, setProfileError] = useState(false);
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
   const [field, setField] = useState<AccountField | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
@@ -137,6 +138,7 @@ export function AccountPanel() {
       setConfirmationVisible(false);
       setMessage(null);
       setProfileSaved(false);
+      setProfileError(false);
       afterSwitch?.();
     });
 
@@ -393,14 +395,17 @@ export function AccountPanel() {
   const success = message === 'registered' || message === 'passwordChanged';
   const scene = busy
     ? 'busy'
-    : validation.some((item) => item?.severity === 'error') ||
+    : (editingProfile && profileError) ||
+        validation.some((item) => item?.severity === 'error') ||
         (message && !success)
       ? 'error'
-      : session?.user || success
+      : (session?.user && !editingProfile) || success
         ? 'success'
         : validation.some((item) => item?.severity === 'warning')
           ? 'warning'
-          : (field ?? mode);
+          : editingProfile && hasAccount
+            ? 'edit'
+            : (field ?? mode);
   const feedbackStyles = {
     error: { messageKey: 'errorScene', color: 'text-error' },
     warning: { messageKey: 'warningScene', color: 'text-warning' },
@@ -496,6 +501,7 @@ export function AccountPanel() {
                 busy={busy}
                 onCancel={() => switchSheet('signin')}
                 onSavingChange={setBusy}
+                onErrorChange={setProfileError}
                 onSave={async () => {
                   const refreshed = await update({});
                   if (!refreshed?.user) {
