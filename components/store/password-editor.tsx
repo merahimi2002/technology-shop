@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { LockKeyhole } from 'lucide-react';
+import { useRef, useState, type FormEvent } from 'react';
+import { Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { ModalCloseButton } from '@/components/modal-close-button';
 import { changePasswordSchema } from '@/lib/auth/validation';
 
 const fields = ['currentPassword', 'newPassword', 'confirmPassword'] as const;
@@ -20,6 +21,12 @@ export function PasswordEditor({
   onChanged,
 }: PasswordEditorProps) {
   const t = useTranslations('account');
+  const common = useTranslations('common');
+  const dialog = useRef<HTMLDialogElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [visible, setVisible] = useState<
+    Partial<Record<PasswordField, boolean>>
+  >({});
   const [errors, setErrors] = useState<Partial<Record<PasswordField, string>>>(
     {},
   );
@@ -75,7 +82,7 @@ export function PasswordEditor({
         body: JSON.stringify(input.data),
       });
       if (response.ok) {
-        form.reset();
+        dialog.current?.close();
         await onChanged();
       } else if (response.status === 422) {
         setErrors({ currentPassword: t('passwordChange.wrongCurrent') });
@@ -94,78 +101,130 @@ export function PasswordEditor({
   }
 
   return (
-    <details
-      className="collapse collapse-arrow border border-base-content/15 bg-base-100/30"
-      data-account-reveal
-    >
-      <summary className="collapse-title flex items-center gap-2 text-sm font-semibold">
-        <LockKeyhole aria-hidden="true" className="size-4 text-primary" />
+    <>
+      <button
+        type="button"
+        data-account-reveal
+        className="btn btn-soft btn-primary w-fit rounded-full"
+        aria-haspopup="dialog"
+        aria-controls="password-change-dialog"
+        disabled={busy}
+        onClick={() => dialog.current?.showModal()}
+      >
+        <LockKeyhole aria-hidden="true" className="size-4" />
         {t('passwordChange.title')}
-      </summary>
-      <div className="collapse-content">
-        <form noValidate onSubmit={save} aria-busy={busy}>
-          <fieldset disabled={busy} className="flex flex-col gap-3">
-            <p className="text-xs text-base-content/75">
-              {t('passwordChange.signInAgain')}
-            </p>
-            {fields.map((field) => (
-              <div key={field} className="flex flex-col gap-1.5 text-sm">
-                <label htmlFor={`profile-${field}`} className="font-semibold">
-                  {t(
-                    field === 'confirmPassword'
-                      ? 'confirmPassword'
-                      : `passwordChange.${field}`,
-                  )}
-                </label>
-                <input
-                  id={`profile-${field}`}
-                  name={field}
-                  type="password"
-                  dir="ltr"
-                  autoComplete={
-                    field === 'currentPassword'
-                      ? 'current-password'
-                      : 'new-password'
-                  }
-                  required
-                  maxLength={128}
-                  aria-invalid={!!errors[field]}
-                  aria-describedby={
-                    errors[field] ? `profile-${field}-error` : undefined
-                  }
-                  onChange={() =>
-                    setErrors((previous) => ({
-                      ...previous,
-                      [field]: undefined,
-                    }))
-                  }
-                  className="input h-9 w-full rounded-full! aria-invalid:border-error"
-                />
-                {errors[field] && (
-                  <p
-                    id={`profile-${field}-error`}
-                    role="alert"
-                    className="text-error"
-                  >
-                    {errors[field]}
-                  </p>
-                )}
-              </div>
-            ))}
-            {message && (
-              <p role="alert" className="text-sm text-error">
-                {message}
+      </button>
+      <dialog
+        ref={dialog}
+        id="password-change-dialog"
+        className="modal"
+        aria-labelledby="password-change-title"
+        onCancel={(event) => {
+          if (busy) event.preventDefault();
+        }}
+        onClose={() => {
+          formRef.current?.reset();
+          setVisible({});
+          setErrors({});
+          setMessage('');
+        }}
+      >
+        <div className="modal-box">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 id="password-change-title" className="text-lg font-bold">
+              {t('passwordChange.title')}
+            </h2>
+            <ModalCloseButton label={common('close')} disabled={busy} />
+          </div>
+          <form ref={formRef} noValidate onSubmit={save} aria-busy={busy}>
+            <fieldset disabled={busy} className="flex flex-col gap-3">
+              <p className="text-xs text-base-content/75">
+                {t('passwordChange.signInAgain')}
               </p>
-            )}
-            <button
-              type="submit"
-              className="btn btn-success w-fit rounded-full"
-            >
-              {busy ? t('loading') : t('passwordChange.title')}
-            </button>
-          </fieldset>
+              {fields.map((field) => (
+                <div key={field} className="flex flex-col gap-1.5 text-sm">
+                  <label htmlFor={`profile-${field}`} className="font-semibold">
+                    {t(
+                      field === 'confirmPassword'
+                        ? 'confirmPassword'
+                        : `passwordChange.${field}`,
+                    )}
+                  </label>
+                  <div className="relative">
+                    <input
+                      id={`profile-${field}`}
+                      name={field}
+                      type={visible[field] ? 'text' : 'password'}
+                      dir="ltr"
+                      autoComplete={
+                        field === 'currentPassword'
+                          ? 'current-password'
+                          : 'new-password'
+                      }
+                      required
+                      maxLength={128}
+                      aria-invalid={!!errors[field]}
+                      aria-describedby={
+                        errors[field] ? `profile-${field}-error` : undefined
+                      }
+                      onChange={() =>
+                        setErrors((previous) => ({
+                          ...previous,
+                          [field]: undefined,
+                        }))
+                      }
+                      className="input h-9 w-full rounded-full! pr-10 rtl:pl-10 rtl:pr-3 aria-invalid:border-error"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-circle btn-xs absolute end-1.5 bottom-1.5"
+                      aria-controls={`profile-${field}`}
+                      aria-label={t(
+                        visible[field] ? 'hidePassword' : 'showPassword',
+                      )}
+                      onClick={() =>
+                        setVisible((previous) => ({
+                          ...previous,
+                          [field]: !previous[field],
+                        }))
+                      }
+                    >
+                      {visible[field] ? (
+                        <EyeOff size={17} aria-hidden="true" />
+                      ) : (
+                        <Eye size={17} aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
+                  {errors[field] && (
+                    <p
+                      id={`profile-${field}-error`}
+                      role="alert"
+                      className="text-error"
+                    >
+                      {errors[field]}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {message && (
+                <p role="alert" className="text-sm text-error">
+                  {message}
+                </p>
+              )}
+              <button
+                type="submit"
+                className="btn btn-success w-fit rounded-full"
+              >
+                {busy ? t('loading') : t('passwordChange.title')}
+              </button>
+            </fieldset>
+          </form>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button disabled={busy} aria-label={common('close')} tabIndex={-1} />
         </form>
-      </div>
-    </details>
+      </dialog>
+    </>
   );
 }
