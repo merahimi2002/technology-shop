@@ -107,7 +107,7 @@ export function SiteHeader() {
   const { data: session, status } = useSession();
   const accountUser = status === 'authenticated' ? session?.user : undefined;
   const showAdminLink = accountUser ? canAccessAdmin(accountUser.role) : false;
-  const compactAccountAction = showAdminLink ? 'px-1.5 text-xs' : '';
+  const compactAccountAction = accountUser?.role === 'ADMIN';
   const accountHref = `/${locale}/account`;
   const account = useRef<HTMLDialogElement>(null);
   const [signingOut, setSigningOut] = useState(false);
@@ -499,18 +499,18 @@ export function SiteHeader() {
               </div>
             </div>
             <div
-              className={`modal-action flex-wrap justify-start ${showAdminLink ? 'gap-1' : 'gap-2'}`}
+              className={`modal-action flex-wrap justify-start ${compactAccountAction ? 'gap-1' : 'gap-2'}`}
             >
               {showAdminLink && (
                 <Link
                   href={`/${locale}/admin`}
-                  className="btn btn-soft btn-primary gap-1 rounded-full px-1.5 text-xs"
+                  className={`btn btn-soft btn-primary rounded-full ${compactAccountAction ? 'gap-1 px-1.5 text-xs' : 'gap-2'}`}
                   aria-label={t('account.adminPanel')}
                   onNavigate={() => account.current?.close()}
                 >
                   <LayoutDashboard
                     aria-hidden="true"
-                    className="size-3 shrink-0"
+                    className={`shrink-0 ${compactAccountAction ? 'size-3' : 'size-4'}`}
                   />
                   <span className="max-[360px]:hidden">
                     {t('account.adminPanel')}
@@ -521,27 +521,32 @@ export function SiteHeader() {
                 </Link>
               )}
               <GradientButton
-                className={compactAccountAction}
+                className={compactAccountAction ? 'px-1.5 text-xs' : undefined}
                 disabled={signingOut}
                 onClick={() => {
                   account.current?.close();
                   router.push(`${accountHref}?tab=edit`);
                 }}
               >
-                <span className="inline-flex items-center gap-1">
-                  <Pencil aria-hidden="true" className="size-3 shrink-0" />
+                <span
+                  className={`inline-flex items-center ${compactAccountAction ? 'gap-1' : 'gap-2'}`}
+                >
+                  <Pencil
+                    aria-hidden="true"
+                    className={`shrink-0 ${compactAccountAction ? 'size-3' : 'size-4'}`}
+                  />
                   {t('account.profile.editShort')}
                 </span>
               </GradientButton>
               <button
                 type="button"
-                className={`btn btn-soft btn-error gap-1 rounded-full ${compactAccountAction}`}
+                className={`btn btn-soft btn-error rounded-full ${compactAccountAction ? 'gap-1 px-1.5 text-xs' : 'gap-2'}`}
                 disabled={signingOut}
                 onClick={logout}
               >
                 <LogOut
                   aria-hidden="true"
-                  className="size-3 shrink-0 rtl:rotate-180"
+                  className={`shrink-0 rtl:rotate-180 ${compactAccountAction ? 'size-3' : 'size-4'}`}
                 />
                 {signingOut
                   ? t('account.loading')
