@@ -27,6 +27,7 @@ import {
   Smartphone,
   Palette,
   UserRound,
+  Pencil,
   Usb,
 } from 'lucide-react';
 import { ModalCloseButton } from '@/components/modal-close-button';
@@ -521,16 +522,15 @@ export function SiteHeader() {
               )}
               <GradientButton
                 className={compactAccountAction}
-                aria-label={t('account.openPage')}
                 disabled={signingOut}
                 onClick={() => {
                   account.current?.close();
-                  router.push(accountHref);
+                  router.push(`${accountHref}?tab=edit`);
                 }}
               >
                 <span className="inline-flex items-center gap-1">
-                  <UserRound aria-hidden="true" className="size-3 shrink-0" />
-                  {t(showAdminLink ? 'account.title' : 'account.openPage')}
+                  <Pencil aria-hidden="true" className="size-3 shrink-0" />
+                  {t('account.profile.editShort')}
                 </span>
               </GradientButton>
               <button

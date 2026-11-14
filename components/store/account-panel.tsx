@@ -37,6 +37,7 @@ import { ProfileEditor } from '@/components/store/profile-editor';
 import { revealAccountFields } from '@/lib/account-field-motion';
 import { PasswordEditor } from '@/components/store/password-editor';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { getSignInReturnPath } from '@/lib/auth/return-path';
 import { loginSchema, registerFormSchema } from '@/lib/auth/validation';
 
@@ -70,7 +71,9 @@ export function AccountPanel() {
   const t = useTranslations('account');
   const brand = useTranslations('brand');
   const { data: session, status, update } = useSession();
-  const [editingProfile, setEditingProfile] = useState(false);
+  const editRequested = useSearchParams().get('tab') === 'edit';
+  const [editSelected, setEditingProfile] = useState(false);
+  const editingProfile = editSelected || editRequested;
   const [profileSaved, setProfileSaved] = useState(false);
   const [profileError, setProfileError] = useState(false);
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
@@ -139,6 +142,11 @@ export function AccountPanel() {
       setMessage(null);
       setProfileSaved(false);
       setProfileError(false);
+      if (next === 'signin' && editRequested) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tab');
+        window.history.replaceState(null, '', url);
+      }
       afterSwitch?.();
     });
 
