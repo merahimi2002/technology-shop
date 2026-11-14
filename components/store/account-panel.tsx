@@ -34,6 +34,7 @@ import { Subtitle } from '@/components/subtitle';
 import { Title } from '@/components/title';
 import { Logo } from '@/components/logo';
 import { ProfileEditor } from '@/components/store/profile-editor';
+import { PasswordEditor } from '@/components/store/password-editor';
 import { useLocale, useTranslations } from 'next-intl';
 import { getSignInReturnPath } from '@/lib/auth/return-path';
 import { loginSchema, registerFormSchema } from '@/lib/auth/validation';
@@ -81,7 +82,12 @@ export function AccountPanel() {
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<
-    'invalid' | 'unavailable' | 'registered' | 'limited' | null
+    | 'invalid'
+    | 'unavailable'
+    | 'registered'
+    | 'limited'
+    | 'passwordChanged'
+    | null
   >(null);
   const formContent = useRef<HTMLDivElement>(null);
   const folder = useRef<HTMLDivElement>(null);
@@ -413,12 +419,13 @@ export function AccountPanel() {
   const hasAccount = Boolean(session?.user);
   const showTabs = status !== 'loading' || hasAccount;
   const validation = Object.values(fieldErrors);
+  const success = message === 'registered' || message === 'passwordChanged';
   const scene = busy
     ? 'busy'
     : validation.some((item) => item?.severity === 'error') ||
-        (message && message !== 'registered')
+        (message && !success)
       ? 'error'
-      : session?.user || message === 'registered'
+      : session?.user || success
         ? 'success'
         : validation.some((item) => item?.severity === 'warning')
           ? 'warning'
@@ -511,11 +518,11 @@ export function AccountPanel() {
               />
             </div>
           ) : session?.user && editingProfile ? (
-            <div className="mt-5">
+            <div key={session.user.id} className="mt-5 flex flex-col gap-4">
               <ProfileEditor
-                key={session.user.id}
                 name={session.user.name ?? ''}
                 email={session.user.email ?? ''}
+                busy={busy}
                 onCancel={() => switchSheet('signin')}
                 onSavingChange={setBusy}
                 onSave={async () => {
@@ -527,6 +534,22 @@ export function AccountPanel() {
                   switchSheet('signin', () => setProfileSaved(true));
                 }}
               />
+              {session.user.role === 'OWNER' ? (
+                <p data-account-reveal className="text-sm text-base-content/75">
+                  {t('passwordChange.owner')}
+                </p>
+              ) : (
+                <PasswordEditor
+                  busy={busy}
+                  onSavingChange={setBusy}
+                  onChanged={async () => {
+                    await signOut({ redirect: false });
+                    setEditingProfile(false);
+                    setMode('signin');
+                    setMessage('passwordChanged');
+                  }}
+                />
+              )}
             </div>
           ) : session?.user ? (
             <div className="mt-5 flex flex-col gap-4">
@@ -763,10 +786,8 @@ export function AccountPanel() {
                   )}
                   {message && (
                     <p
-                      role={message === 'registered' ? 'status' : 'alert'}
-                      className={
-                        message === 'registered' ? 'text-success' : 'text-error'
-                      }
+                      role={success ? 'status' : 'alert'}
+                      className={success ? 'text-success' : 'text-error'}
                     >
                       {t(message)}
                     </p>

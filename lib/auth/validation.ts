@@ -8,6 +8,7 @@ export const emailSchema = z
   .email()
   .max(254);
 const passwordSchema = z.string().min(1, { abort: true }).max(128);
+const newPasswordSchema = passwordSchema.min(8);
 const nameSchema = z.string().trim().min(1).max(80);
 
 export const loginSchema = z.object({
@@ -16,10 +17,29 @@ export const loginSchema = z.object({
 });
 export const registerSchema = loginSchema.extend({
   name: nameSchema,
-  password: passwordSchema.min(8),
+  password: newPasswordSchema,
 });
 
 export const profileSchema = z.strictObject({ name: nameSchema });
+
+export const changePasswordSchema = z
+  .strictObject({
+    currentPassword: passwordSchema,
+    newPassword: newPasswordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine(
+    ({ newPassword, confirmPassword }) => newPassword === confirmPassword,
+    {
+      path: ['confirmPassword'],
+    },
+  )
+  .refine(
+    ({ currentPassword, newPassword }) => currentPassword !== newPassword,
+    {
+      path: ['newPassword'],
+    },
+  );
 
 export const registerFormSchema = registerSchema
   .extend({ confirmPassword: passwordSchema })

@@ -54,6 +54,18 @@
     "empty": "Your wishlist is empty."
   },
   "account": {
+    "passwordChanged": "Password changed. Sign in with your new password.",
+    "passwordChange": {
+      "title": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "currentRequired": "Enter your current password.",
+      "newRequired": "Enter a new password.",
+      "different": "Choose a password different from your current password.",
+      "wrongCurrent": "Your current password is incorrect.",
+      "signInAgain": "Changing your password signs you out on all devices.",
+      "owner": "The owner password can be changed during account maintenance."
+    },
     "profile": {
       "edit": "Edit profile",
       "save": "Save changes",

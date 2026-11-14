@@ -8,6 +8,7 @@ import { profileSchema } from '@/lib/auth/validation';
 type ProfileEditorProps = {
   name: string;
   email: string;
+  busy: boolean;
   onCancel: () => void;
   onSavingChange: (busy: boolean) => void;
   onSave: () => Promise<void>;
@@ -16,12 +17,12 @@ type ProfileEditorProps = {
 export function ProfileEditor({
   name,
   email,
+  busy,
   onCancel,
   onSavingChange,
   onSave,
 }: ProfileEditorProps) {
   const t = useTranslations('account');
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [nameError, setNameError] = useState('');
 
@@ -53,7 +54,6 @@ export function ProfileEditor({
       return;
     }
 
-    setBusy(true);
     onSavingChange(true);
     try {
       const response = await fetch('/api/account', {
@@ -81,7 +81,6 @@ export function ProfileEditor({
     } catch {
       setError(t('unavailable'));
     } finally {
-      setBusy(false);
       onSavingChange(false);
     }
   }
