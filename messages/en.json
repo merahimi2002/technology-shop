@@ -68,7 +68,7 @@
     },
     "profile": {
       "edit": "Edit profile",
-      "save": "Save changes",
+      "save": "Save",
       "cancel": "Cancel",
       "saved": "Your profile was updated.",
       "invalid": "Check your profile details and try again.",

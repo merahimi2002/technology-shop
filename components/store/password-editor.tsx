@@ -1,9 +1,10 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
-import { Eye, EyeOff, LockKeyhole } from 'lucide-react';
+import { Check, Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ModalCloseButton } from '@/components/modal-close-button';
+import { GradientButton } from '@/components/gradient-button';
 import { changePasswordSchema } from '@/lib/auth/validation';
 
 const fields = ['currentPassword', 'newPassword', 'confirmPassword'] as const;
@@ -24,6 +25,7 @@ export function PasswordEditor({
   const common = useTranslations('common');
   const dialog = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const editedFields = useRef(new Set<PasswordField>());
   const [visible, setVisible] = useState<
     Partial<Record<PasswordField, boolean>>
   >({});
@@ -32,39 +34,46 @@ export function PasswordEditor({
   );
   const [message, setMessage] = useState('');
 
+  function validate(form: HTMLFormElement) {
+    const input = changePasswordSchema.safeParse(
+      Object.fromEntries(new FormData(form)),
+    );
+    const nextErrors: typeof errors = {};
+    for (const issue of input.error?.issues ?? []) {
+      const field = fields.find((name) => name === issue.path[0]);
+      if (!field || !editedFields.current.has(field) || nextErrors[field])
+        continue;
+      nextErrors[field] =
+        issue.code === 'too_big'
+          ? t('validation.tooLong', { max: Number(issue.maximum) })
+          : issue.code === 'custom'
+            ? t(
+                field === 'confirmPassword'
+                  ? 'validation.passwordMismatch'
+                  : 'passwordChange.different',
+              )
+            : issue.code === 'too_small' && issue.minimum === 8
+              ? t('validation.passwordTooShort')
+              : t(
+                  field === 'currentPassword'
+                    ? 'passwordChange.currentRequired'
+                    : field === 'newPassword'
+                      ? 'passwordChange.newRequired'
+                      : 'validation.required.confirmPassword',
+                );
+    }
+    setErrors(nextErrors);
+    return { input, nextErrors };
+  }
+
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
     const form = event.currentTarget;
-    const input = changePasswordSchema.safeParse(
-      Object.fromEntries(new FormData(form)),
-    );
+    fields.forEach((field) => editedFields.current.add(field));
+    const { input, nextErrors } = validate(form);
     setMessage('');
     if (!input.success) {
-      const nextErrors: typeof errors = {};
-      for (const issue of input.error.issues) {
-        const field = fields.find((name) => name === issue.path[0]);
-        if (!field || nextErrors[field]) continue;
-        nextErrors[field] =
-          issue.code === 'too_big'
-            ? t('validation.tooLong', { max: Number(issue.maximum) })
-            : issue.code === 'custom'
-              ? t(
-                  field === 'confirmPassword'
-                    ? 'validation.passwordMismatch'
-                    : 'passwordChange.different',
-                )
-              : issue.code === 'too_small' && issue.minimum === 8
-                ? t('validation.passwordTooShort')
-                : t(
-                    field === 'currentPassword'
-                      ? 'passwordChange.currentRequired'
-                      : field === 'newPassword'
-                        ? 'passwordChange.newRequired'
-                        : 'validation.required.confirmPassword',
-                  );
-      }
-      setErrors(nextErrors);
       form
         .querySelector<HTMLInputElement>(
           `[name="${fields.find((field) => nextErrors[field])}"]`,
@@ -102,18 +111,18 @@ export function PasswordEditor({
 
   return (
     <>
-      <button
+      <GradientButton
         type="button"
         data-account-reveal
-        className="btn btn-soft btn-primary w-fit rounded-full"
+        className="w-fit self-center"
+        icon={<LockKeyhole />}
         aria-haspopup="dialog"
         aria-controls="password-change-dialog"
         disabled={busy}
         onClick={() => dialog.current?.showModal()}
       >
-        <LockKeyhole aria-hidden="true" className="size-4" />
         {t('passwordChange.title')}
-      </button>
+      </GradientButton>
       <dialog
         ref={dialog}
         id="password-change-dialog"
@@ -124,6 +133,7 @@ export function PasswordEditor({
         }}
         onClose={() => {
           formRef.current?.reset();
+          editedFields.current.clear();
           setVisible({});
           setErrors({});
           setMessage('');
@@ -167,12 +177,10 @@ export function PasswordEditor({
                       aria-describedby={
                         errors[field] ? `profile-${field}-error` : undefined
                       }
-                      onChange={() =>
-                        setErrors((previous) => ({
-                          ...previous,
-                          [field]: undefined,
-                        }))
-                      }
+                      onChange={({ currentTarget }) => {
+                        editedFields.current.add(field);
+                        if (currentTarget.form) validate(currentTarget.form);
+                      }}
                       className="input h-9 w-full rounded-full! pr-10 rtl:pl-10 rtl:pr-3 aria-invalid:border-error"
                     />
                     <button
@@ -216,7 +224,8 @@ export function PasswordEditor({
                 type="submit"
                 className="btn btn-success w-fit rounded-full"
               >
-                {busy ? t('loading') : t('passwordChange.title')}
+                {!busy && <Check aria-hidden="true" className="size-4" />}
+                {busy ? t('loading') : t('profile.save')}
               </button>
             </fieldset>
           </form>

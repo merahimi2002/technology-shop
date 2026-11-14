@@ -22,22 +22,33 @@ export const registerSchema = loginSchema.extend({
 
 export const profileSchema = z.strictObject({ name: nameSchema });
 
-export const changePasswordSchema = z
-  .strictObject({
-    currentPassword: passwordSchema,
-    newPassword: newPasswordSchema,
-    confirmPassword: passwordSchema,
-  })
+const passwordFields = z.strictObject({
+  currentPassword: passwordSchema,
+  newPassword: newPasswordSchema,
+  confirmPassword: passwordSchema,
+});
+const confirmationFields = z.object({
+  newPassword: newPasswordSchema,
+  confirmPassword: passwordSchema,
+});
+const replacementFields = z.object({
+  currentPassword: passwordSchema,
+  newPassword: newPasswordSchema,
+});
+
+export const changePasswordSchema = passwordFields
   .refine(
     ({ newPassword, confirmPassword }) => newPassword === confirmPassword,
     {
       path: ['confirmPassword'],
+      when: ({ value }) => confirmationFields.safeParse(value).success,
     },
   )
   .refine(
     ({ currentPassword, newPassword }) => currentPassword !== newPassword,
     {
       path: ['newPassword'],
+      when: ({ value }) => replacementFields.safeParse(value).success,
     },
   );
 

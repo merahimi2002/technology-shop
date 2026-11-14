@@ -534,6 +534,7 @@ export function AccountPanel() {
                   switchSheet('signin', () => setProfileSaved(true));
                 }}
               />
+              <hr className="m-0 border-base-content/20" />
               {session.user.role === 'OWNER' ? (
                 <p data-account-reveal className="text-sm text-base-content/75">
                   {t('passwordChange.owner')}
