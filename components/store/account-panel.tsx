@@ -522,6 +522,15 @@ export function AccountPanel() {
                   onSavingChange={setBusy}
                   onChanged={async () => {
                     await signOut({ redirect: false });
+                    const accountPath = `/${locale}/account`;
+                    const query = new URLSearchParams({
+                      callbackUrl: accountPath,
+                    });
+                    window.history.replaceState(
+                      null,
+                      '',
+                      `${accountPath}?${query}`,
+                    );
                     setEditingProfile(false);
                     setMode('signin');
                     setMessage('passwordChanged');
