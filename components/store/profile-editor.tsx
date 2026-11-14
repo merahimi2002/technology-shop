@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
+import { Check } from 'lucide-react';
+import { GradientButton } from '@/components/gradient-button';
 import { profileSchema } from '@/lib/auth/validation';
 
 type ProfileEditorProps = {
@@ -9,6 +11,7 @@ type ProfileEditorProps = {
   email: string;
   canChangeEmail: boolean;
   onCancel: () => void;
+  onSavingChange: (busy: boolean) => void;
   onSave: () => Promise<void>;
 };
 
@@ -17,6 +20,7 @@ export function ProfileEditor({
   email,
   canChangeEmail,
   onCancel,
+  onSavingChange,
   onSave,
 }: ProfileEditorProps) {
   const t = useTranslations('account');
@@ -44,6 +48,7 @@ export function ProfileEditor({
 
     setError('');
     setBusy(true);
+    onSavingChange(true);
     try {
       const response = await fetch('/api/account', {
         method: 'PATCH',
@@ -82,16 +87,17 @@ export function ProfileEditor({
       setError(t('unavailable'));
     } finally {
       setBusy(false);
+      onSavingChange(false);
     }
   }
 
   return (
     <form onSubmit={save} aria-busy={busy}>
       <fieldset disabled={busy} className="flex flex-col gap-4">
-        <legend className="mb-4 text-lg font-semibold">
-          {t('profile.edit')}
-        </legend>
-        <label className="flex flex-col gap-1.5 text-sm font-semibold">
+        <label
+          data-account-reveal
+          className="flex flex-col gap-1.5 text-sm font-semibold"
+        >
           {t('name')}
           <input
             name="name"
@@ -102,7 +108,10 @@ export function ProfileEditor({
             className="input h-9 w-full rounded-full! text-sm font-normal"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-sm font-semibold">
+        <label
+          data-account-reveal
+          className="flex flex-col gap-1.5 text-sm font-semibold"
+        >
           {t('email')}
           <input
             name="email"
@@ -142,9 +151,13 @@ export function ProfileEditor({
           </p>
         )}
         <div className="flex flex-wrap gap-2">
-          <button type="submit" className="btn btn-primary rounded-full">
+          <GradientButton
+            data-account-reveal
+            type="submit"
+            icon={busy ? undefined : <Check />}
+          >
             {busy ? t('loading') : t('profile.save')}
-          </button>
+          </GradientButton>
           <button
             type="button"
             onClick={onCancel}

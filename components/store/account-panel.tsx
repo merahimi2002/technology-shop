@@ -134,10 +134,16 @@ export function AccountPanel() {
     });
 
     return () => animations.forEach((animation) => animation.cancel());
-  }, [mode, session?.user, status]);
+  }, [mode, editingProfile, session?.user, status]);
 
-  function switchSheet(next: typeof mode) {
-    if (busy || next === mode) return;
+  const activeSheet = session?.user
+    ? editingProfile
+      ? 'register'
+      : 'signin'
+    : mode;
+
+  function switchSheet(next: typeof mode, afterSwitch?: () => void) {
+    if (next === activeSheet) return;
     const frame = folder.current;
     const surface = tabSurface.current;
     const previousHeight = frame?.getBoundingClientRect().height;
@@ -146,12 +152,15 @@ export function AccountPanel() {
     sheetAnimations.current.forEach((animation) => animation.cancel());
     sheetAnimations.current = [];
     flushSync(() => {
-      setMode(next);
+      if (session?.user) setEditingProfile(next === 'register');
+      else setMode(next);
       setField(null);
       setFieldErrors({});
       setVisible(false);
       setConfirmationVisible(false);
       setMessage(null);
+      setProfileSaved(false);
+      afterSwitch?.();
     });
 
     if (
@@ -398,10 +407,11 @@ export function AccountPanel() {
   }
 
   const heading = session?.user
-    ? t('title')
+    ? t(editingProfile ? 'profile.edit' : 'title')
     : t(mode === 'signin' ? 'loginHeading' : 'registerHeading');
   const activeTint = 'bg-white/30 dark:bg-black/45';
-  const showTabs = status !== 'loading' && !session?.user;
+  const hasAccount = Boolean(session?.user);
+  const showTabs = status !== 'loading' || hasAccount;
   const validation = Object.values(fieldErrors);
   const scene = busy
     ? 'busy'
@@ -440,32 +450,38 @@ export function AccountPanel() {
               <button
                 key={option}
                 type="button"
-                aria-pressed={mode === option}
+                aria-pressed={activeSheet === option}
                 disabled={busy}
                 className="btn relative z-10 h-11 min-w-0 rounded-none border-0 bg-transparent px-4 font-medium text-base-content/75 shadow-none hover:bg-transparent hover:text-base-content focus-visible:outline-offset-[-3px] aria-pressed:font-bold aria-pressed:backdrop-blur-[3px] aria-pressed:text-black aria-pressed:hover:text-black dark:aria-pressed:text-white dark:aria-pressed:hover:text-white"
                 onClick={() => switchSheet(option)}
               >
-                {t(option === 'signin' ? 'login' : 'registerTab')}
+                {session?.user
+                  ? t(option === 'signin' ? 'title' : 'profile.edit')
+                  : t(option === 'signin' ? 'login' : 'registerTab')}
               </button>
             ))}
             <span
               aria-hidden="true"
               ref={tabSurface}
               className={`pointer-events-none absolute inset-0 z-[2] ${activeTint} rtl:-scale-x-100`}
-              style={{ clipPath: tabShapes[mode] }}
+              style={{ clipPath: tabShapes[activeSheet] }}
             />
           </div>
         )}
         <div
           ref={formContent}
-          className={`relative z-30 flex flex-1 flex-col justify-center isolate overflow-hidden rounded-b-[24px] [@media(max-width:1023px)]:rounded-b-[20px] px-5 py-6 motion-safe:transition-[margin-inline-start,margin-inline-end,border-radius] motion-safe:duration-[270ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] sm:px-11 sm:py-8 md:px-9 lg:px-15 ${showTabs ? activeTint + ' min-h-[35rem] backdrop-blur-[3px]' : 'rounded-t-[inherit] bg-white/8 md:min-h-[calc(35rem+2.75rem-1px)]'} ${status === 'loading' ? 'max-md:min-h-[calc(35rem+2.75rem-1px)]' : ''} ${showTabs && (mode === 'signin' ? 'ms-0 me-2 rounded-ss-none rounded-se-[24px] [@media(max-width:1023px)]:rounded-se-[20px]' : 'ms-2 me-0 rounded-ss-[24px] [@media(max-width:1023px)]:rounded-ss-[20px] rounded-se-none')}`}
+          className={`relative z-30 flex flex-1 flex-col justify-center isolate overflow-hidden rounded-b-[24px] [@media(max-width:1023px)]:rounded-b-[20px] px-5 py-6 motion-safe:transition-[margin-inline-start,margin-inline-end,border-radius] motion-safe:duration-[270ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] sm:px-11 sm:py-8 md:px-9 lg:px-15 ${showTabs ? activeTint + ' min-h-[35rem] backdrop-blur-[3px]' : 'rounded-t-[inherit] bg-white/8 min-h-[calc(35rem+2.75rem-1px)]'} ${showTabs && (activeSheet === 'signin' ? 'ms-0 me-2 rounded-ss-none rounded-se-[24px] [@media(max-width:1023px)]:rounded-se-[20px]' : 'ms-2 me-0 rounded-ss-[24px] [@media(max-width:1023px)]:rounded-ss-[20px] rounded-se-none')}`}
         >
           <Subtitle
             icon={
               mode === 'register' && !session?.user ? (
                 <UserPlus />
               ) : session?.user ? (
-                <UserRound />
+                editingProfile ? (
+                  <Pencil />
+                ) : (
+                  <UserRound />
+                )
               ) : (
                 <LogIn />
               )
@@ -483,7 +499,7 @@ export function AccountPanel() {
           <Title as="h1" delay={titleDelay}>
             {heading}
           </Title>
-          {status === 'loading' ? (
+          {!showTabs ? (
             <div
               className="mt-4 grid min-h-16 place-items-center text-primary"
               role="status"
@@ -501,15 +517,15 @@ export function AccountPanel() {
                 name={session.user.name ?? ''}
                 email={session.user.email ?? ''}
                 canChangeEmail={session.user.role !== 'OWNER'}
-                onCancel={() => setEditingProfile(false)}
+                onCancel={() => switchSheet('signin')}
+                onSavingChange={setBusy}
                 onSave={async () => {
                   const refreshed = await update({});
                   if (!refreshed?.user) {
                     window.location.reload();
                     return;
                   }
-                  setEditingProfile(false);
-                  setProfileSaved(true);
+                  switchSheet('signin', () => setProfileSaved(true));
                 }}
               />
             </div>
@@ -551,19 +567,6 @@ export function AccountPanel() {
                 </p>
               )}
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  className="btn btn-soft btn-primary rounded-full"
-                  disabled={busy}
-                  onClick={() => {
-                    setMessage(null);
-                    setProfileSaved(false);
-                    setEditingProfile(true);
-                  }}
-                >
-                  <Pencil className="size-4" aria-hidden="true" />
-                  {t('profile.edit')}
-                </button>
                 {canAccessAdmin(session.user.role) && (
                   <Link
                     href={`/${locale}/admin`}
