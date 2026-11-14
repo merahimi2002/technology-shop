@@ -145,6 +145,7 @@ export function ProfileEditor({
             {busy ? t('loading') : t('profile.save')}
           </button>
           <button
+            data-account-reveal
             type="button"
             onClick={onCancel}
             className="btn btn-soft btn-error rounded-full"
