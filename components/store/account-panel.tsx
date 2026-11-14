@@ -67,7 +67,11 @@ const tabShapes = {
     'polygon(0 100%, 44% 100%, 45.5% 98%, 46.5% 93%, 47.2% 85%, 52.8% 15%, 53.5% 7%, 54.5% 2%, 56% 0, 100% 0, 100% 100%, 0 100%)',
 };
 
-export function AccountPanel() {
+export function AccountPanel({
+  recoveryEnabled,
+}: {
+  recoveryEnabled: boolean;
+}) {
   const locale = useLocale();
   const t = useTranslations('account');
   const brand = useTranslations('brand');
@@ -812,7 +816,7 @@ export function AccountPanel() {
                   </GradientButton>
                 </fieldset>
               </form>
-              {mode === 'signin' && <PasswordRecovery />}
+              {mode === 'signin' && recoveryEnabled && <PasswordRecovery />}
             </>
           )}
         </div>
