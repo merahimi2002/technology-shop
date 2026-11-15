@@ -912,8 +912,6 @@ export function AccountPanel({
               </span>
               <Logo
                 label={brand('name')}
-                primaryColor="currentColor"
-                secondaryColor="currentColor"
                 className={`size-9 md:size-16 ${sceneFade} ${feedback ? 'opacity-0' : 'opacity-0 md:opacity-100'}`}
               />
             </div>

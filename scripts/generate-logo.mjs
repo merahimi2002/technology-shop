@@ -1,41 +1,99 @@
 import fs from 'node:fs';
 import sharp from 'sharp';
+import { terrain } from '../lib/particle-terrain.ts';
+
 const brandName = JSON.parse(
   fs.readFileSync(new URL('../messages/en.json', import.meta.url), 'utf8'),
 ).brand.name;
 
-// Palette 01 is the approved default. Palettes 02 and 03 are alternate site themes.
-const palettes = [
-  {
-    id: '01',
-    name: 'Navy / Teal',
-    primary: 'hsl(244 100% 36%)',
-    secondary: '#008879',
-  },
-  {
-    id: '02',
-    name: 'Cobalt / Orange',
-    primary: '#2146D9',
-    secondary: '#D85A1E',
-  },
-  { id: '03', name: 'Violet / Jade', primary: '#5030A0', secondary: '#008C78' },
-];
-const artwork = `<g fill="none" stroke="var(--logo-primary, hsl(244 100% 36%))" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M65 91 99 44m76 47-34-47" stroke="var(--logo-secondary, #008879)"/>
-  <path d="M44 95l18 77q4 18 22 18h72q18 0 22-18l18-77"/>
-  <path d="M37 91h166" stroke-width="12"/>
-  <path d="M91 92v69"/>
-  <path d="M191 116h-46c-14 0-22 6-22 16s9 14 21 16l9 2c13 3 16 11 12 22s-12 18-25 18h-21" stroke="var(--logo-secondary, #008879)"/>
-</g>`;
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label="${brandName}">\n${artwork}\n</svg>\n`;
-fs.writeFileSync('public/logo.svg', svg);
-const jsx = artwork
-  .replaceAll('stroke-width=', 'strokeWidth=')
-  .replaceAll('stroke-linejoin=', 'strokeLinejoin=')
-  .replaceAll('stroke-linecap=', 'strokeLinecap=');
+const palettes = {
+  navy: ['#5731ed', '#0fc58e'],
+  cobalt: ['#2146d9', '#d85a1e'],
+  violet: ['#5030a0', '#008c78'],
+};
+
+const circuit = fs.readFileSync(
+  new URL('../public/circuit-traces.svg', import.meta.url),
+  'utf8',
+);
+const [, circuitGradient, circuitTraces] = circuit.match(
+  /<defs>([\s\S]*?)<\/defs>([\s\S]*?)<\/svg>/,
+);
+const body =
+  'M29 40L119 30Q127 29 125 38L116 78Q113 87 104 89L47 96Q39 97 36 88Z';
+const waves = Array.from({ length: 8 }, () => []);
+for (const { x, y, phase, amplitude, size, light } of terrain) {
+  const left = 18 + 130 * x;
+  const top = 49 + 56 * y + 25 * Math.sin(phase) * amplitude;
+  // Omit particles outside the cart's bounding box before clipping to the silhouette.
+  if (left < 29 || left > 126 || top < 29 || top > 98) continue;
+  const side = Math.round(size * 4.3);
+  waves[light].push(
+    'M' +
+      Math.round(left * 10 - side / 2) +
+      ' ' +
+      Math.round(top * 10 - side / 2) +
+      'h' +
+      side +
+      'v' +
+      side +
+      'h-' +
+      side +
+      'Z',
+  );
+}
+
+function artwork(primary, secondary) {
+  return `<defs>
+    <linearGradient id="cart-brand" x2="1" y1=".04" y2=".83">
+      <stop stop-color="${primary}"/><stop offset="1" stop-color="${secondary}"/>
+    </linearGradient>
+    ${circuitGradient.trim().replace('id="metal"', 'id="cart-metal"')}
+    <clipPath id="cart-body"><path d="${body}"/></clipPath>
+  </defs>
+  <path d="M29 40L24 24H10M45 97L40 108H108" fill="none" stroke="url(#cart-brand)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g clip-path="url(#cart-body)">
+    <path d="${body}" fill="url(#cart-brand)" opacity=".17"/>
+    <g transform="translate(30 32) scale(.179 .124)" opacity=".94">
+      ${circuitTraces.trim().replaceAll('url(#metal)', 'url(#cart-metal)').replaceAll('#26353b', '#96aaca')}
+    </g>
+    <g transform="scale(.1)" fill="#3045a5" opacity=".8">
+      ${waves.map((paths, light) => `<path d="${paths.join('')}" opacity="${(0.27 + light * 0.078).toFixed(3)}"/>`).join('\n')}
+    </g>
+  </g>
+  <path d="${body}" fill="none" stroke="url(#cart-brand)" stroke-width="5.5" stroke-linejoin="round"/>
+  <path d="M47 54L70 52M59 54L63 76M101 49L87 51Q80 52 81 57T89 62L92 62Q100 61 101 66T94 72L81 74" fill="none" stroke="#283975" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="49" cy="116" r="7" fill="url(#cart-brand)"/>
+  <circle cx="101" cy="116" r="7" fill="url(#cart-brand)"/>`;
+}
+
+const svgStart =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140"';
+fs.writeFileSync(
+  'public/logo.svg',
+  `${svgStart} role="img" aria-label="${brandName}">${artwork(...palettes.navy)}</svg>\n`,
+);
+
+const jsx = artwork(
+  `var(--logo-primary, var(--brand-logo-primary, ${palettes.navy[0]}))`,
+  `var(--logo-secondary, var(--brand-logo-secondary, ${palettes.navy[1]}))`,
+)
+  .replace(
+    /(stroke|stop|clip)-([a-z])/g,
+    (_, name, letter) => name + letter.toUpperCase(),
+  )
+  .replace(/id="(cart-[^"]+)"/g, (_, name) => `id={\`${name}-\${id}\`}`)
+  .replace(/"url\(#(cart-[^)]+)\)"/g, (_, name) => `{\`url(#${name}-\${id})\`}`)
+  .replace('fill="#3045a5"', 'className="fill-[#3045a5] dark:fill-[#eaffff]"')
+  .replace(
+    'stroke="#283975"',
+    'className="stroke-[#283975] dark:stroke-[#effdff]"',
+  );
+
 fs.writeFileSync(
   'components/logo.tsx',
-  `import type { SVGProps } from 'react';
+  `// Generated by scripts/generate-logo.mjs.
+import { useId, type SVGProps } from 'react';
 
 type LogoProps = Omit<SVGProps<SVGSVGElement>, 'children'> & {
   label: string;
@@ -44,26 +102,25 @@ type LogoProps = Omit<SVGProps<SVGSVGElement>, 'children'> & {
 };
 
 export function Logo({ label, primaryColor, secondaryColor, style, ...props }: LogoProps) {
+  const id = useId();
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-label={label} style={{ ...style, ...(primaryColor ? { '--logo-primary': primaryColor } : {}), ...(secondaryColor ? { '--logo-secondary': secondaryColor } : {}) }} {...props}>
+    ${svgStart} role="img" aria-label={label} style={{ ...style, ...(primaryColor ? { '--logo-primary': primaryColor } : {}), ...(secondaryColor ? { '--logo-secondary': secondaryColor } : {}) }} {...props}>
       ${jsx}
     </svg>
   );
 }
 `,
 );
-const colorize = (palette) =>
-  artwork
-    .replaceAll('var(--logo-primary, hsl(244 100% 36%))', palette.primary)
-    .replaceAll('var(--logo-secondary, #008879)', palette.secondary);
-fs.mkdirSync('public/favicons', { recursive: true });
-for (const [index, name] of ['navy', 'cobalt', 'violet'].entries()) {
-  fs.writeFileSync(
-    `public/favicons/${name}.svg`,
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 20 200 200"><rect x="20" y="20" width="200" height="200" rx="34" fill="#F6F5EF"/>${colorize(palettes[index])}</svg>`,
-  );
+
+function favicon(palette) {
+  return `${svgStart}><rect width="140" height="140" rx="23" fill="#F6F5EF"/>${artwork(...palette)}</svg>\n`;
 }
-const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 20 200 200"><rect x="20" y="20" width="200" height="200" rx="34" fill="#F6F5EF"/>${colorize(palettes[0])}</svg>`;
+
+fs.mkdirSync('public/favicons', { recursive: true });
+for (const [name, palette] of Object.entries(palettes)) {
+  fs.writeFileSync(`public/favicons/${name}.svg`, favicon(palette));
+}
+const icon = favicon(palettes.navy);
 fs.writeFileSync('app/icon.svg', icon);
 const sizes = [16, 32, 48];
 const pngs = await Promise.all(
@@ -86,4 +143,4 @@ pngs.forEach((png, i) => {
   offset += png.length;
 });
 fs.writeFileSync('app/favicon.ico', Buffer.concat([header, ...pngs]));
-console.log('Generated two-color logo and SVG/ICO favicons.');
+console.log('Generated gradient cart logo and SVG/ICO favicons.');

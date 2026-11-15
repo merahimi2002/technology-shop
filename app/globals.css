@@ -13,10 +13,6 @@
 }
 
 @layer base {
-  :root {
-    --logo-primary: var(--color-primary);
-    --logo-secondary: var(--color-secondary);
-  }
   body {
     font-family: var(--font-sans);
   }

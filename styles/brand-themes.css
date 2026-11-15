@@ -54,6 +54,16 @@
   --color-secondary-content: #082a22;
 }
 
+:where([data-theme]) {
+  --brand-logo-primary: var(--color-primary);
+  --brand-logo-secondary: var(--color-secondary);
+}
+
+:where([data-theme='nord'], [data-theme='night']):not([data-custom-palette]) {
+  --brand-logo-primary: #5731ed;
+  --brand-logo-secondary: #0fc58e;
+}
+
 [data-custom-palette] {
   --color-primary: var(--custom-primary);
   --color-primary-content: var(--custom-primary-content);

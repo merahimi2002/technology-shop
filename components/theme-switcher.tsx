@@ -52,13 +52,7 @@ export function ThemeSwitcher() {
             />
             <div className="palette-preview bg-base-200" aria-hidden="true">
               <div className="flex items-center justify-between border-b border-base-300 bg-base-100 px-3 py-1">
-                <Logo
-                  label={t('brand.name')}
-                  primaryColor="var(--color-primary)"
-                  secondaryColor="var(--color-secondary)"
-                  width={24}
-                  height={24}
-                />
+                <Logo label={t('brand.name')} width={24} height={24} />
                 <span className="h-1 w-10 rounded-full bg-base-content/15" />
               </div>
               <div className="space-y-1.5 p-2">
