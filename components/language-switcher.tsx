@@ -12,7 +12,9 @@ export function LanguageSwitcher() {
   const t = useTranslations('language');
   const changing = useRef(false);
   const pathname = usePathname();
-  const target = locale === 'en' ? '/' : '/en';
+  const pagePath = pathname.replace(/^\/(fa|en)(?=\/|$)/, '');
+  const target =
+    locale === 'en' ? (pagePath ? `/fa${pagePath}` : '/') : `/en${pagePath}`;
   async function changeLanguage(event: MouseEvent<HTMLAnchorElement>) {
     if (
       event.button !== 0 ||
@@ -30,25 +32,14 @@ export function LanguageSwitcher() {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     try {
       const finished = prepareLocaleMotion(reduced);
-      flushSync(() => window.history.pushState(null, '', target));
+      const { search, hash } = window.location;
+      flushSync(() =>
+        window.history.pushState(null, '', `${target}${search}${hash}`),
+      );
       await finished;
     } finally {
       changing.current = false;
     }
-  }
-  if (pathname === '/fa/account' || pathname === '/en/account') {
-    return (
-      <a
-        href={locale === 'en' ? '/fa/account' : '/en/account'}
-        hrefLang={locale === 'en' ? 'fa' : 'en'}
-        className="btn btn-ghost btn-circle h-8 min-h-8 w-8 p-1"
-        aria-label={
-          locale === 'en' ? t('switchToPersian') : t('switchToEnglish')
-        }
-      >
-        <LanguageFlag locale={locale === 'en' ? 'fa' : 'en'} />
-      </a>
-    );
   }
   return (
     <a

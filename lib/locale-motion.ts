@@ -1,7 +1,7 @@
 'use client';
 
 const selector =
-  '.hero-copy-slot, .hero-stage, .hero-bottom, .brand-link, .header-nav, .header-actions';
+  '.hero-copy-slot, .hero-stage, .hero-bottom, .brand-link, .header-nav, .header-actions, [data-locale-motion]';
 let pending:
   | {
       positions: { node: HTMLElement; rect: DOMRect }[];

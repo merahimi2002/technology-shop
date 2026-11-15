@@ -461,7 +461,10 @@ export function AccountPanel({
         word={feedback ? t(feedback.messageKey) : ''}
         className={`pointer-events-none -z-10 rounded-[inherit] motion-safe:transition-[color] ${sceneTiming} ${feedback?.color ?? 'text-black dark:text-white'}`}
       />
-      <div className="relative flex min-h-0 min-w-0 flex-col rounded-[inherit] glass-folder z-0 pb-2 md:rounded-e-none">
+      <div
+        data-locale-motion
+        className="relative flex min-h-0 min-w-0 flex-col rounded-[inherit] glass-folder z-0 pb-2 md:rounded-e-none"
+      >
         <CircuitBackdrop className="z-[1] rounded-[inherit] opacity-55 [mask-image:linear-gradient(to_left,black,black_35%,transparent)]" />
 
         {showTabs && (
@@ -886,6 +889,7 @@ export function AccountPanel({
       <div
         aria-hidden="true"
         data-scene={scene}
+        data-locale-motion
         className="pointer-events-none relative z-20 text-base-content md:min-h-36"
       >
         <div className="min-h-0 overflow-hidden md:absolute md:inset-0">

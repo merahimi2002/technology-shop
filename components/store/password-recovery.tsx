@@ -153,7 +153,9 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
   if (reset)
     return (
       <section className="rounded-box border border-base-content/15 bg-base-200 p-5 sm:p-8">
-        <Title as="h1">{t('recovery.reset')}</Title>
+        <Title as="h1" data-locale-motion className="w-fit">
+          {t('recovery.reset')}
+        </Title>
         {content}
       </section>
     );

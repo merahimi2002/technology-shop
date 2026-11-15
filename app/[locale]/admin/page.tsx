@@ -2,8 +2,7 @@ import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { canAccessAdmin } from '@/lib/auth/admin-access';
 import { getCurrentUser } from '@/lib/auth/session';
-import fa from '@/messages/fa.json';
-import en from '@/messages/en.json';
+import { AdminIntro } from './admin-intro';
 
 async function AdminPanel({ params }: PageProps<'/[locale]/admin'>) {
   const { locale } = await params;
@@ -17,7 +16,6 @@ async function AdminPanel({ params }: PageProps<'/[locale]/admin'>) {
   }
   if (!canAccessAdmin(user.role)) redirect(accountPath);
 
-  const { account } = locale === 'fa' ? fa : en;
   return (
     <main
       id="main-content"
@@ -25,8 +23,7 @@ async function AdminPanel({ params }: PageProps<'/[locale]/admin'>) {
     >
       <div className="card bg-base-100">
         <div className="card-body">
-          <h1 className="card-title">{account.adminPanel}</h1>
-          <p>{account.adminLanding}</p>
+          <AdminIntro />
         </div>
       </div>
     </main>
