@@ -8,6 +8,8 @@ import { loginSchema } from './validation';
 import { verifyPassword } from './password';
 import { allowAuthAttempt } from './rate-limit';
 
+const loginRateLimitError = new Error('RATE_LIMITED');
+
 export function getAuthOptions(): NextAuthOptions {
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret || secret.length < 32 || secret.startsWith('REPLACE-'))
@@ -28,7 +30,8 @@ export function getAuthOptions(): NextAuthOptions {
             const result = loginSchema.safeParse(credentials);
             if (!result.success) return null;
             const { email, password } = result.data;
-            if (!(await allowAuthAttempt(email, 'login'))) return null;
+            if (!(await allowAuthAttempt(email, 'login')))
+              throw loginRateLimitError;
             const user = await getDb().user.findUnique({ where: { email } });
             const matches = await verifyPassword(
               password,
@@ -42,8 +45,9 @@ export function getAuthOptions(): NextAuthOptions {
               image: user.image,
               sessionVersion: user.sessionVersion,
             };
-          } catch {
+          } catch (error) {
             // NextAuth v4 exposes authorize errors in its redirect query.
+            if (error === loginRateLimitError) throw error;
             throw new Error('UNAVAILABLE');
           }
         },

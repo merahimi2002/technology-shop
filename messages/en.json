@@ -148,6 +148,8 @@
       "OWNER": "Owner"
     },
     "invalid": "Check your details and try again. After repeated attempts, wait 15 minutes.",
+    "invalidCredentials": "Incorrect email or password.",
+    "loginLimited": "Too many sign-in attempts. Wait a while and try again.",
     "unavailable": "We could not connect. Please try again.",
     "registered": "You can now sign in. If this email already has an account, use its existing password.",
     "limited": "Too many attempts. Please wait 15 minutes."

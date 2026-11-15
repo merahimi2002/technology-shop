@@ -95,6 +95,8 @@ export function AccountPanel({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<
     | 'invalid'
+    | 'invalidCredentials'
+    | 'loginLimited'
     | 'unavailable'
     | 'registered'
     | 'profile.invalidAvatar'
@@ -283,7 +285,11 @@ export function AccountPanel({
         });
         if (!response?.ok || response.error) {
           setMessage(
-            response?.error === 'UNAVAILABLE' ? 'unavailable' : 'invalid',
+            response?.error === 'CredentialsSignin'
+              ? 'invalidCredentials'
+              : response?.error === 'RATE_LIMITED'
+                ? 'loginLimited'
+                : 'unavailable',
           );
         } else {
           window.location.replace(returnPath);

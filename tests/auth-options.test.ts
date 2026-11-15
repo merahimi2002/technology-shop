@@ -73,12 +73,12 @@ it('returns an authenticated identity without its stored hash', async () => {
 });
 it('throttles login before database lookup and password work', async () => {
   mocks.allow.mockResolvedValueOnce(false);
-  expect(
-    await authorize()(
+  await expect(
+    authorize()(
       { email: 'test@example.com', password: 'test password' },
       { headers: {}, query: {}, body: {}, method: 'POST' },
     ),
-  ).toBeNull();
+  ).rejects.toThrow(/^RATE_LIMITED$/);
   expect(mocks.findUnique).not.toHaveBeenCalled();
   expect(mocks.verify).not.toHaveBeenCalled();
 });
