@@ -3,17 +3,9 @@ import { useId, type SVGProps } from 'react';
 
 type LogoProps = Omit<SVGProps<SVGSVGElement>, 'children'> & {
   label: string;
-  primaryColor?: string;
-  secondaryColor?: string;
 };
 
-export function Logo({
-  label,
-  primaryColor,
-  secondaryColor,
-  style,
-  ...props
-}: LogoProps) {
+export function Logo({ label, ...props }: LogoProps) {
   const id = useId();
   return (
     <svg
@@ -21,21 +13,40 @@ export function Logo({
       viewBox="0 0 140 140"
       role="img"
       aria-label={label}
-      style={{
-        ...style,
-        ...(primaryColor ? { '--logo-primary': primaryColor } : {}),
-        ...(secondaryColor ? { '--logo-secondary': secondaryColor } : {}),
-      }}
       {...props}
     >
       <defs>
-        <linearGradient id={`cart-brand-${id}`} x2="1" y1=".04" y2=".83">
-          <stop stopColor="var(--logo-primary, var(--brand-logo-primary, #5731ed))" />
-          <stop
-            offset="1"
-            stopColor="var(--logo-secondary, var(--brand-logo-secondary, #0fc58e))"
+        <mask
+          id={`cart-brand-${id}`}
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="140"
+          height="140"
+        >
+          <path
+            d="M29 40L119 30Q127 29 125 38L116 78Q113 87 104 89L47 96Q39 97 36 88Z"
+            fill="white"
+            opacity=".17"
           />
-        </linearGradient>
+          <path
+            d="M29 40L24 24H10M45 97L40 108H108"
+            fill="none"
+            stroke="white"
+            strokeWidth="6.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M29 40L119 30Q127 29 125 38L116 78Q113 87 104 89L47 96Q39 97 36 88Z"
+            fill="none"
+            stroke="white"
+            strokeWidth="5.5"
+            strokeLinejoin="round"
+          />
+          <circle cx="49" cy="116" r="7" fill="white" />
+          <circle cx="101" cy="116" r="7" fill="white" />
+        </mask>
         <linearGradient
           id={`cart-metal-${id}`}
           x1="0"
@@ -52,20 +63,12 @@ export function Logo({
           <path d="M29 40L119 30Q127 29 125 38L116 78Q113 87 104 89L47 96Q39 97 36 88Z" />
         </clipPath>
       </defs>
-      <path
-        d="M29 40L24 24H10M45 97L40 108H108"
-        fill="none"
-        stroke={`url(#cart-brand-${id})`}
-        strokeWidth="6.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <g mask={`url(#cart-brand-${id})`}>
+        <foreignObject x="0" y="0" width="140" height="140">
+          <div className="size-full bg-[linear-gradient(128deg,var(--color-primary),var(--color-secondary))]" />
+        </foreignObject>
+      </g>
       <g clipPath={`url(#cart-body-${id})`}>
-        <path
-          d="M29 40L119 30Q127 29 125 38L116 78Q113 87 104 89L47 96Q39 97 36 88Z"
-          fill={`url(#cart-brand-${id})`}
-          opacity=".17"
-        />
         <g transform="translate(30 32) scale(.179 .124)" opacity=".94">
           <g
             fill="none"
@@ -105,11 +108,7 @@ export function Logo({
             <circle cx="129" cy="454" r="4" />
           </g>
         </g>
-        <g
-          transform="scale(.1)"
-          className="fill-[#3045a5] dark:fill-[#eaffff]"
-          opacity=".8"
-        >
+        <g transform="scale(.1)" fill="var(--color-base-content)" opacity=".8">
           <path
             d="M533 458h4v4h-4ZM553 454h4v4h-4ZM572 450h4v4h-4ZM592 446h4v4h-4ZM612 444h4v4h-4ZM631 442h4v4h-4ZM651 441h4v4h-4ZM671 442h4v4h-4ZM690 443h4v4h-4ZM710 446h4v4h-4ZM730 449h4v4h-4ZM749 453h4v4h-4ZM769 457h4v4h-4ZM789 461h4v4h-4ZM1202 464h4v4h-4ZM1222 462h4v4h-4ZM1241 460h4v4h-4ZM531 461h4v4h-4ZM551 457h4v4h-4ZM571 454h4v4h-4ZM591 450h4v4h-4ZM611 448h4v4h-4ZM630 447h4v4h-4ZM650 447h4v4h-4ZM670 447h4v4h-4ZM690 450h4v4h-4ZM709 453h4v4h-4ZM729 457h4v4h-4ZM749 461h4v4h-4ZM769 466h4v4h-4ZM1105 470h4v4h-4ZM1125 469h4v4h-4ZM1144 469h4v4h-4ZM1164 468h4v4h-4ZM1184 467h4v4h-4ZM1204 466h4v4h-4ZM1223 465h4v4h-4ZM1243 464h4v4h-4ZM529 468h4v4h-4ZM549 464h4v4h-4ZM569 461h4v4h-4ZM589 458h4v4h-4ZM609 456h4v4h-4ZM629 456h4v4h-4ZM649 456h4v4h-4ZM669 457h4v4h-4ZM688 460h4v4h-4ZM708 463h4v4h-4ZM728 468h4v4h-4ZM748 472h4v4h-4ZM1067 476h4v4h-4ZM1087 475h4v4h-4ZM1107 473h4v4h-4ZM1127 472h4v4h-4ZM1147 472h4v4h-4ZM1167 471h4v4h-4ZM1187 471h4v4h-4ZM1207 471h4v4h-4ZM1227 471h4v4h-4ZM1247 470h4v4h-4ZM526 477h4v4h-4ZM546 474h4v4h-4ZM566 471h4v4h-4ZM586 469h4v4h-4ZM606 468h4v4h-4ZM626 467h4v4h-4ZM647 468h4v4h-4ZM667 469h4v4h-4ZM687 472h4v4h-4ZM707 476h4v4h-4ZM727 480h4v4h-4ZM1050 484h4v4h-4ZM1070 481h4v4h-4ZM1090 479h4v4h-4ZM1110 477h4v4h-4ZM1130 477h4v4h-4ZM1150 476h4v4h-4ZM1171 477h4v4h-4ZM1191 477h4v4h-4ZM1211 478h4v4h-4ZM1231 479h4v4h-4ZM1251 480h4v4h-4ZM542 486h4v4h-4ZM563 484h4v4h-4ZM583 482h4v4h-4ZM604 481h4v4h-4ZM624 481h4v4h-4ZM644 482h4v4h-4ZM665 484h4v4h-4ZM685 486h4v4h-4ZM706 490h4v4h-4ZM1032 494h4v4h-4ZM1052 490h4v4h-4ZM1073 487h4v4h-4ZM1093 485h4v4h-4ZM1114 483h4v4h-4ZM1134 483h4v4h-4ZM1155 483h4v4h-4ZM1175 484h4v4h-4ZM1195 486h4v4h-4ZM1216 487h4v4h-4ZM1236 489h4v4h-4ZM580 497h4v4h-4ZM600 496h4v4h-4ZM621 497h4v4h-4ZM642 497h4v4h-4ZM662 499h4v4h-4ZM1035 502h4v4h-4ZM1056 497h4v4h-4ZM1076 494h4v4h-4ZM1097 492h4v4h-4ZM1118 491h4v4h-4ZM1138 491h4v4h-4ZM1159 492h4v4h-4ZM1180 493h4v4h-4ZM1201 496h4v4h-4ZM1221 499h4v4h-4ZM1017 516h4v4h-4ZM1038 511h4v4h-4ZM1059 506h4v4h-4ZM1080 503h4v4h-4ZM1101 501h4v4h-4ZM1122 500h4v4h-4ZM1143 501h4v4h-4ZM1164 502h4v4h-4ZM1185 505h4v4h-4ZM1206 509h4v4h-4ZM1020 526h4v4h-4ZM1042 521h4v4h-4ZM1063 517h4v4h-4ZM1084 514h4v4h-4ZM1106 513h4v4h-4ZM1127 512h4v4h-4ZM1149 513h4v4h-4ZM1170 516h4v4h-4ZM1191 519h4v4h-4ZM1024 538h4v4h-4ZM1045 534h4v4h-4ZM1067 531h4v4h-4ZM1089 528h4v4h-4ZM1111 527h4v4h-4ZM1132 527h4v4h-4ZM1154 529h4v4h-4ZM1176 531h4v4h-4ZM1049 548h5v5h-5ZM1071 546h5v5h-5ZM1093 544h5v5h-5ZM1115 543h5v5h-5ZM1138 544h5v5h-5ZM1160 545h5v5h-5Z"
             opacity="0.270"
@@ -141,23 +140,15 @@ export function Logo({
           <path d="" opacity="0.816" />
         </g>
       </g>
-      <path
-        d="M29 40L119 30Q127 29 125 38L116 78Q113 87 104 89L47 96Q39 97 36 88Z"
-        fill="none"
-        stroke={`url(#cart-brand-${id})`}
-        strokeWidth="5.5"
-        strokeLinejoin="round"
-      />
+
       <path
         d="M47 54L70 52M59 54L63 76M101 49L87 51Q80 52 81 57T89 62L92 62Q100 61 101 66T94 72L81 74"
         fill="none"
-        className="stroke-[#283975] dark:stroke-[#effdff]"
+        stroke="var(--color-base-content)"
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="49" cy="116" r="7" fill={`url(#cart-brand-${id})`} />
-      <circle cx="101" cy="116" r="7" fill={`url(#cart-brand-${id})`} />
     </svg>
   );
 }

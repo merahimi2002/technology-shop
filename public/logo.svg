@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" role="img" aria-label="Tech Shop"><defs>
     <linearGradient id="cart-brand" x2="1" y1=".04" y2=".83">
-      <stop stop-color="#5731ed"/><stop offset="1" stop-color="#0fc58e"/>
+      <stop stop-color="#0c00b8"/><stop offset="1" stop-color="#008879"/>
     </linearGradient>
     <linearGradient id="cart-metal" x1="0" x2="1" y1="0" y2=".25" gradientUnits="objectBoundingBox">
       <stop offset="0" stop-color="#7d9aa7" stop-opacity=".07"/>

@@ -173,9 +173,11 @@
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode",
     "palettes": {
-      "navy": "Navy & Teal",
-      "cobalt": "Cobalt & Orange",
-      "violet": "Violet & Jade",
+      "night": "Night",
+      "navy": "TechLight / TechDark",
+      "lemonade": "Lemonade",
+      "bumblebee": "Bumblebee",
+      "halloween": "Halloween",
       "custom": "Custom colors"
     },
     "colorLabels": {

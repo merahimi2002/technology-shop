@@ -97,9 +97,9 @@ trigger دیتابیس حذف مالک و تغییر id، role، email، passwor
 
 دسته‌بندی با details بومی، کیبورد، Escape و خروج فوکوس کار می‌کند. مودال‌ها از dialog بومی و modal daisyUI استفاده می‌کنند؛ Escape، دکمه بستن و backdrop مسیرهای بستن هستند. skip-link، focus و reduced-motion حفظ شده‌اند.
 
-تنظیمات در localStorage با کلید tech-shop:appearance ذخیره و بین برگه‌ها همگام می‌شوند. palette شامل navy، cobalt، violet و custom است؛ mode شامل light، dark و system است. mode پیش‌فرض system است و دکمه مستقلی برای بازگشت به آن وجود ندارد. colors اختیاری، رنگ‌های primary و secondary را برای light و dark نگه می‌دارد؛ فقط hex شش‌رقمی معتبر پذیرفته می‌شود و مقدار نامعتبر به پیش‌فرض برمی‌گردد.
+تنظیمات در localStorage با کلید tech-shop:appearance ذخیره و بین برگه‌ها همگام می‌شوند. palette شامل navy، night، custom، lemonade، bumblebee و halloween است. پالت حذف‌شده به navy برمی‌گردد و حالت روشن یا تیرهٔ ذخیره‌شده حفظ می‌شود؛ mode شامل light، dark و system است. mode پیش‌فرض system است و دکمه مستقلی برای بازگشت به آن وجود ندارد. colors اختیاری، رنگ‌های primary و secondary را برای light و dark نگه می‌دارد؛ فقط hex شش‌رقمی معتبر پذیرفته می‌شود و مقدار نامعتبر به پیش‌فرض برمی‌گردد.
 
-تم custom از nord/night استفاده می‌کند؛ رنگ متن متناسب با کنتراست سیاه یا سفید انتخاب می‌شود. اسکریپت آغازین تم با `useServerInsertedHTML` فقط در HTML اولیهٔ سرور درج می‌شود و تنظیمات را پیش از hydration اعمال می‌کند. پیش‌نمایش کارت custom به رنگ ذخیره‌شده همان حالت متصل است و با انتخاب پالت دیگر هم حفظ می‌شود. بازنشانی فقط چهار رنگ دلخواه را به DEFAULT_CUSTOM_COLORS برمی‌گرداند و ذخیره می‌کند. favicon در custom از نسخه پیش‌فرض navy استفاده می‌کند.
+پالت custom از TechLight و TechDark استفاده می‌کند؛ هنگام فعال بودن پالت، stylesheet اختصاصی رنگ‌های ذخیره‌شده را روی تم فعال اعمال می‌کند و رنگ متن متناسب با کنتراست سیاه یا سفید انتخاب می‌شود. اسکریپت آغازین تم با `useServerInsertedHTML` فقط در HTML اولیهٔ سرور درج می‌شود و تنظیمات را پیش از hydration اعمال می‌کند. پیش‌نمایش کارت custom به رنگ ذخیره‌شده همان حالت متصل است و با انتخاب پالت دیگر هم حفظ می‌شود. بازنشانی فقط چهار رنگ دلخواه را به DEFAULT_CUSTOM_COLORS برمی‌گرداند و ذخیره می‌کند. favicon در custom از نسخه پیش‌فرض navy استفاده می‌کند.
 
 ### محدودیت‌ها و مرجع ظاهر
 

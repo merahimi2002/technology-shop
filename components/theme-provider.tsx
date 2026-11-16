@@ -11,8 +11,8 @@ import {
 import { useServerInsertedHTML } from 'next/navigation';
 import {
   DEFAULT_THEME,
-  DEFAULT_CUSTOM_COLORS,
-  applyCustomColors,
+  PALETTES,
+  applySavedThemeColors,
   resolveMode,
   type CustomColors,
   THEME_STORAGE_KEY,
@@ -33,20 +33,14 @@ const ThemeContext = createContext<{
 
 function applyTheme(preference: ThemePreference) {
   const root = document.documentElement;
-  root.dataset.theme = resolveTheme(
-    preference,
-    matchMedia('(prefers-color-scheme: dark)').matches,
+  const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  applySavedThemeColors(
+    preference.colors,
+    preference.palette === 'custom'
+      ? resolveMode(preference.mode, systemDark)
+      : undefined,
   );
-  if (preference.palette === 'custom') {
-    applyCustomColors(
-      root,
-      preference.colors ?? DEFAULT_CUSTOM_COLORS,
-      resolveMode(
-        preference.mode,
-        matchMedia('(prefers-color-scheme: dark)').matches,
-      ),
-    );
-  } else root.removeAttribute('data-custom-palette');
+  root.dataset.theme = resolveTheme(preference, systemDark);
   const background = getComputedStyle(root)
     .getPropertyValue('--color-base-100')
     .trim();
@@ -56,7 +50,7 @@ function applyTheme(preference: ThemePreference) {
   document
     .querySelectorAll<HTMLLinkElement>('link[rel="icon"]')
     .forEach((link) => {
-      link.href = `/favicons/${preference.palette === 'custom' ? 'navy' : preference.palette}.svg`;
+      link.href = '/favicons/navy.svg';
       link.type = 'image/svg+xml';
       link.sizes.value = 'any';
     });
@@ -158,7 +152,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         preference,
         setColors: (colors) =>
           update({ ...preference, palette: 'custom', colors }),
-        setPalette: (palette) => update({ ...preference, palette }),
+        setPalette: (palette) => {
+          const theme = PALETTES[palette];
+          const mode =
+            'preferredMode' in theme ? theme.preferredMode : preference.mode;
+          update({ ...preference, palette, mode });
+        },
         setMode: changeMode,
       }}
     >

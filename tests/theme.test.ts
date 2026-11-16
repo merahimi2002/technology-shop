@@ -1,3 +1,4 @@
+import { oklchToLinearSrgb } from '../lib/oklch';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
@@ -7,30 +8,9 @@ import {
   resolveMode,
 } from '../lib/theme';
 
-function luminance(hex: string) {
-  const hsl = /^hsl\(([\d.]+) ([\d.]+)% ([\d.]+)%\)$/.exec(hex);
-  if (hsl) {
-    const h = Number(hsl[1]) / 30;
-    const saturation = Number(hsl[2]) / 100;
-    const lightness = Number(hsl[3]) / 100;
-    const a = saturation * Math.min(lightness, 1 - lightness);
-    const channels = [0, 8, 4].map((n) => {
-      const k = (n + h) % 12;
-      return lightness - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
-    });
-    const linear = channels.map((n) =>
-      n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4,
-    );
-    return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
-  }
-  const rgb = hex
-    .replace('#', '')
-    .match(/.{2}/g)!
-    .map((part) => {
-      const n = parseInt(part, 16) / 255;
-      return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
-    });
-  return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+function luminance(color: string) {
+  const [red, green, blue] = oklchToLinearSrgb(color);
+  return red * 0.2126 + green * 0.7152 + blue * 0.0722;
 }
 function contrast(a: string, b: string) {
   const l1 = luminance(a);
@@ -53,16 +33,16 @@ describe('theme preferences', () => {
     }
   });
   it('restores supported preferences and independently repairs invalid fields', () => {
-    expect(parseTheme('{"palette":"violet","mode":"dark"}')).toEqual({
-      palette: 'violet',
+    expect(parseTheme('{"palette":"halloween","mode":"dark"}')).toEqual({
+      palette: 'halloween',
       mode: 'dark',
     });
-    expect(parseTheme('{"palette":"unknown","mode":"light"}')).toEqual({
+    expect(parseTheme('{"palette":"violet","mode":"light"}')).toEqual({
       palette: 'navy',
       mode: 'light',
     });
     expect(parseTheme('{"palette":"cobalt","mode":"unknown"}')).toEqual({
-      palette: 'cobalt',
+      palette: 'navy',
       mode: 'system',
     });
   });
@@ -75,29 +55,36 @@ describe('theme preferences', () => {
 });
 
 it('maps each palette and mode to the matching daisyUI theme', () => {
-  expect(resolveTheme({ palette: 'navy', mode: 'light' }, true)).toBe('nord');
-  expect(resolveTheme({ palette: 'navy', mode: 'system' }, true)).toBe('night');
-  expect(resolveTheme({ palette: 'cobalt', mode: 'light' }, false)).toBe(
-    'winter',
+  expect(resolveTheme({ palette: 'navy', mode: 'light' }, true)).toBe(
+    'TechLight',
   );
-  expect(resolveTheme({ palette: 'cobalt', mode: 'dark' }, false)).toBe('dim');
-  expect(resolveTheme({ palette: 'violet', mode: 'light' }, false)).toBe(
-    'cupcake',
+  expect(resolveTheme({ palette: 'navy', mode: 'system' }, true)).toBe(
+    'TechDark',
   );
-  expect(resolveTheme({ palette: 'violet', mode: 'system' }, true)).toBe(
-    'dracula',
+  expect(resolveTheme({ palette: 'night', mode: 'dark' }, false)).toBe('night');
+  expect(resolveTheme({ palette: 'custom', mode: 'light' }, true)).toBe(
+    'TechLight',
+  );
+  expect(resolveTheme({ palette: 'lemonade', mode: 'dark' }, false)).toBe(
+    'TechDark',
+  );
+  expect(resolveTheme({ palette: 'bumblebee', mode: 'light' }, false)).toBe(
+    'bumblebee',
+  );
+  expect(resolveTheme({ palette: 'halloween', mode: 'system' }, true)).toBe(
+    'halloween',
   );
 });
 
 const brandCss = readFileSync('styles/brand-themes.css', 'utf8');
 for (const block of brandCss.matchAll(
-  /@plugin 'daisyui\/theme'\s*\{([^}]+)\}/g,
+  /@plugin ['"]daisyui\/theme['"]\s*\{([^}]+)\}/g,
 )) {
   const name = /name:\s*'([^']+)'/.exec(block[1])![1];
   const tokens = Object.fromEntries(
-    [
-      ...block[1].matchAll(/--color-([\w-]+):\s*(#[\da-fA-F]+|hsl\([^)]*\));/g),
-    ].map((m) => [m[1], m[2]]),
+    [...block[1].matchAll(/--color-([\w-]+):\s*(oklch\([^)]*\));/g)].map(
+      (m) => [m[1], m[2]],
+    ),
   );
   for (const color of ['primary', 'secondary']) {
     it(`${name} ${color} button label contrast is at least 4.5:1`, () => {
@@ -122,5 +109,5 @@ it('restores custom colors and repairs invalid color values', () => {
   expect(preference.colors?.light.primary).toBe('#123456');
   expect(preference.colors?.light.secondary).toBe('#008879');
   expect(preference.colors?.dark.primary).toBe('#abcdef');
-  expect(resolveTheme(preference, false)).toBe('night');
+  expect(resolveTheme(preference, false)).toBe('TechDark');
 });

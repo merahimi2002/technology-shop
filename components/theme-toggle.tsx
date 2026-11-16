@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useSyncExternalStore } from 'react';
 import { MoonStar, SunMedium } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
-import { PALETTES, resolveMode } from '@/lib/theme';
+import { resolveMode } from '@/lib/theme';
 
 function subscribe(listener: () => void) {
   const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -30,8 +30,6 @@ export function ThemeToggle() {
       >
         <input
           type="checkbox"
-          value={PALETTES[preference.palette].dark}
-          className="theme-controller"
           checked={dark}
           onChange={(event) => setMode(event.target.checked ? 'dark' : 'light')}
           aria-label={t('theme.modes.dark')}

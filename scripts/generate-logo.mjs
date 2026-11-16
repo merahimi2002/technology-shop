@@ -1,16 +1,32 @@
 import fs from 'node:fs';
 import sharp from 'sharp';
+import { oklchToLinearSrgb } from '../lib/oklch.ts';
 import { terrain } from '../lib/particle-terrain.ts';
 
 const brandName = JSON.parse(
   fs.readFileSync(new URL('../messages/en.json', import.meta.url), 'utf8'),
 ).brand.name;
 
-const palettes = {
-  navy: ['#5731ed', '#0fc58e'],
-  cobalt: ['#2146d9', '#d85a1e'],
-  violet: ['#5030a0', '#008c78'],
-};
+const themeCss = fs.readFileSync(
+  new URL('../styles/brand-themes.css', import.meta.url),
+  'utf8',
+);
+const techLight = /name:\s*['"]TechLight['"];([^}]+)/.exec(themeCss)?.[1] ?? '';
+// Standalone SVGs and the ICO use sRGB for compatibility with the rasterizer.
+const standaloneColors = ['primary', 'secondary'].map((token) => {
+  const color =
+    new RegExp(`--color-${token}:\\s*([^;]+);`).exec(techLight)?.[1] ?? '';
+  const rgb = oklchToLinearSrgb(color).map((channel) => {
+    const encoded =
+      channel <= 0.0031308
+        ? 12.92 * channel
+        : 1.055 * channel ** (1 / 2.4) - 0.055;
+    return Math.round(encoded * 255)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + rgb.join('');
+});
 
 const circuit = fs.readFileSync(
   new URL('../public/circuit-traces.svg', import.meta.url),
@@ -43,17 +59,38 @@ for (const { x, y, phase, amplitude, size, light } of terrain) {
   );
 }
 
-function artwork(primary, secondary) {
-  return `<defs>
-    <linearGradient id="cart-brand" x2="1" y1=".04" y2=".83">
+function artwork(primary, secondary, live = false) {
+  const paint = live ? 'white' : 'url(#cart-brand)';
+  const frame = `<path d="M29 40L24 24H10M45 97L40 108H108" fill="none" stroke="${paint}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const bodyFill = `<path d="${body}" fill="${paint}" opacity=".17"/>`;
+  const outline = `<path d="${body}" fill="none" stroke="${paint}" stroke-width="5.5" stroke-linejoin="round"/>`;
+  const wheels = `<circle cx="49" cy="116" r="7" fill="${paint}"/>
+  <circle cx="101" cy="116" r="7" fill="${paint}"/>`;
+  // Animate the CSS background behind a fixed SVG mask. Animating SVG gradient
+  // paint directly can flash black in the embedded Chromium browser.
+  const paintDefinition = live
+    ? `<mask id="cart-brand" maskUnits="userSpaceOnUse" x="0" y="0" width="140" height="140">
+        ${bodyFill}${frame}${outline}${wheels}
+      </mask>`
+    : `<linearGradient id="cart-brand" x2="1" y1=".04" y2=".83">
       <stop stop-color="${primary}"/><stop offset="1" stop-color="${secondary}"/>
-    </linearGradient>
+    </linearGradient>`;
+  return `<defs>
+    ${paintDefinition}
     ${circuitGradient.trim().replace('id="metal"', 'id="cart-metal"')}
     <clipPath id="cart-body"><path d="${body}"/></clipPath>
   </defs>
-  <path d="M29 40L24 24H10M45 97L40 108H108" fill="none" stroke="url(#cart-brand)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  ${
+    live
+      ? `<g mask="url(#cart-brand)">
+    <foreignObject x="0" y="0" width="140" height="140">
+      <div className="size-full bg-[linear-gradient(128deg,var(--color-primary),var(--color-secondary))]" />
+    </foreignObject>
+  </g>`
+      : frame
+  }
   <g clip-path="url(#cart-body)">
-    <path d="${body}" fill="url(#cart-brand)" opacity=".17"/>
+    ${live ? '' : bodyFill}
     <g transform="translate(30 32) scale(.179 .124)" opacity=".94">
       ${circuitTraces.trim().replaceAll('url(#metal)', 'url(#cart-metal)').replaceAll('#26353b', '#96aaca')}
     </g>
@@ -61,34 +98,27 @@ function artwork(primary, secondary) {
       ${waves.map((paths, light) => `<path d="${paths.join('')}" opacity="${(0.27 + light * 0.078).toFixed(3)}"/>`).join('\n')}
     </g>
   </g>
-  <path d="${body}" fill="none" stroke="url(#cart-brand)" stroke-width="5.5" stroke-linejoin="round"/>
+  ${live ? '' : outline}
   <path d="M47 54L70 52M59 54L63 76M101 49L87 51Q80 52 81 57T89 62L92 62Q100 61 101 66T94 72L81 74" fill="none" stroke="#283975" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="49" cy="116" r="7" fill="url(#cart-brand)"/>
-  <circle cx="101" cy="116" r="7" fill="url(#cart-brand)"/>`;
+  ${live ? '' : wheels}`;
 }
 
 const svgStart =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140"';
 fs.writeFileSync(
   'public/logo.svg',
-  `${svgStart} role="img" aria-label="${brandName}">${artwork(...palettes.navy)}</svg>\n`,
+  `${svgStart} role="img" aria-label="${brandName}">${artwork(...standaloneColors)}</svg>\n`,
 );
 
-const jsx = artwork(
-  `var(--logo-primary, var(--brand-logo-primary, ${palettes.navy[0]}))`,
-  `var(--logo-secondary, var(--brand-logo-secondary, ${palettes.navy[1]}))`,
-)
+const jsx = artwork(undefined, undefined, true)
   .replace(
     /(stroke|stop|clip)-([a-z])/g,
     (_, name, letter) => name + letter.toUpperCase(),
   )
   .replace(/id="(cart-[^"]+)"/g, (_, name) => `id={\`${name}-\${id}\`}`)
   .replace(/"url\(#(cart-[^)]+)\)"/g, (_, name) => `{\`url(#${name}-\${id})\`}`)
-  .replace('fill="#3045a5"', 'className="fill-[#3045a5] dark:fill-[#eaffff]"')
-  .replace(
-    'stroke="#283975"',
-    'className="stroke-[#283975] dark:stroke-[#effdff]"',
-  );
+  .replace('fill="#3045a5"', 'fill="var(--color-base-content)"')
+  .replace('stroke="#283975"', 'stroke="var(--color-base-content)"');
 
 fs.writeFileSync(
   'components/logo.tsx',
@@ -97,14 +127,12 @@ import { useId, type SVGProps } from 'react';
 
 type LogoProps = Omit<SVGProps<SVGSVGElement>, 'children'> & {
   label: string;
-  primaryColor?: string;
-  secondaryColor?: string;
 };
 
-export function Logo({ label, primaryColor, secondaryColor, style, ...props }: LogoProps) {
+export function Logo({ label, ...props }: LogoProps) {
   const id = useId();
   return (
-    ${svgStart} role="img" aria-label={label} style={{ ...style, ...(primaryColor ? { '--logo-primary': primaryColor } : {}), ...(secondaryColor ? { '--logo-secondary': secondaryColor } : {}) }} {...props}>
+    ${svgStart} role="img" aria-label={label} {...props}>
       ${jsx}
     </svg>
   );
@@ -117,10 +145,8 @@ function favicon(palette) {
 }
 
 fs.mkdirSync('public/favicons', { recursive: true });
-for (const [name, palette] of Object.entries(palettes)) {
-  fs.writeFileSync(`public/favicons/${name}.svg`, favicon(palette));
-}
-const icon = favicon(palettes.navy);
+const icon = favicon(standaloneColors);
+fs.writeFileSync('public/favicons/navy.svg', icon);
 fs.writeFileSync('app/icon.svg', icon);
 const sizes = [16, 32, 48];
 const pngs = await Promise.all(

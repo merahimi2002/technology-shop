@@ -1,12 +1,38 @@
 export const PALETTES = {
-  navy: { labelKey: 'theme.palettes.navy', light: 'nord', dark: 'night' },
-  cobalt: { labelKey: 'theme.palettes.cobalt', light: 'winter', dark: 'dim' },
-  violet: {
-    labelKey: 'theme.palettes.violet',
-    light: 'cupcake',
-    dark: 'dracula',
+  navy: {
+    labelKey: 'theme.palettes.navy',
+    light: 'TechLight',
+    dark: 'TechDark',
   },
-  custom: { labelKey: 'theme.palettes.custom', light: 'nord', dark: 'night' },
+  night: {
+    labelKey: 'theme.palettes.night',
+    light: 'TechLight',
+    dark: 'night',
+    preferredMode: 'dark',
+  },
+  lemonade: {
+    labelKey: 'theme.palettes.lemonade',
+    light: 'lemonade',
+    dark: 'TechDark',
+    preferredMode: 'light',
+  },
+  halloween: {
+    labelKey: 'theme.palettes.halloween',
+    light: 'TechLight',
+    dark: 'halloween',
+    preferredMode: 'dark',
+  },
+  bumblebee: {
+    labelKey: 'theme.palettes.bumblebee',
+    light: 'bumblebee',
+    dark: 'TechDark',
+    preferredMode: 'light',
+  },
+  custom: {
+    labelKey: 'theme.palettes.custom',
+    light: 'TechLight',
+    dark: 'TechDark',
+  },
 } as const;
 
 export type Palette = keyof typeof PALETTES;
@@ -40,28 +66,51 @@ export function parseCustomColors(value: unknown): CustomColors {
   }
   return result;
 }
-export function applyCustomColors(
-  root: HTMLElement,
-  colors: CustomColors,
-  mode: 'light' | 'dark',
+export function applySavedThemeColors(
+  colors: CustomColors | undefined,
+  activeMode: 'light' | 'dark' | undefined,
 ) {
-  root.setAttribute('data-custom-palette', '');
-  for (const key of ['primary', 'secondary'] as const) {
-    const color = colors[mode][key];
-    const channels = color
-      .slice(1)
-      .match(/.{2}/g)!
-      .map((v) => {
-        const n = parseInt(v, 16) / 255;
-        return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
-      });
-    const luminance =
-      channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
-    root.style.setProperty('--custom-' + key, color);
-    root.style.setProperty(
-      '--custom-' + key + '-content',
-      luminance > 0.179 ? '#000000' : '#ffffff',
-    );
+  const rulesFor = (mode: 'light' | 'dark') =>
+    (['primary', 'secondary'] as const)
+      .flatMap((key) => {
+        const color = (colors ?? DEFAULT_CUSTOM_COLORS)[mode][key];
+        const [red, green, blue] = color
+          .slice(1)
+          .match(/.{2}/g)!
+          .map((channel) => {
+            const value = parseInt(channel, 16) / 255;
+            return value <= 0.04045
+              ? value / 12.92
+              : ((value + 0.055) / 1.055) ** 2.4;
+          });
+        const luminance = red * 0.2126 + green * 0.7152 + blue * 0.0722;
+        return [
+          '--color-' + key + ':' + color,
+          '--color-' +
+            key +
+            '-content:' +
+            (luminance > 0.179 ? '#000000' : '#ffffff'),
+        ];
+      })
+      .join(';');
+  const preview =
+    '.palette-card:has(> input[name="store-palette"][value="custom"])';
+  const rules =
+    colors || activeMode
+      ? preview +
+        '{' +
+        rulesFor('dark') +
+        '}' +
+        (activeMode ? ':root{' + rulesFor(activeMode) + '}' : '')
+      : '';
+  let stylesheet = document.getElementById('saved-theme-colors');
+  if (!stylesheet && rules) {
+    stylesheet = document.createElement('style');
+    stylesheet.id = 'saved-theme-colors';
+    stylesheet.textContent = rules;
+    document.head.append(stylesheet);
+  } else if (stylesheet && stylesheet.textContent !== rules) {
+    stylesheet.textContent = rules;
   }
 }
 export const THEME_STORAGE_KEY = 'tech-shop:appearance';
@@ -108,4 +157,4 @@ export function resolveTheme(preference: ThemePreference, systemDark: boolean) {
 }
 
 // The small pre-hydration script shares the same registry; no parallel token engine.
-export const THEME_BOOTSTRAP = `(()=>{const themes=${JSON.stringify(PALETTES)};let p='navy',m='system',colors=null;try{const v=JSON.parse(localStorage.getItem('${THEME_STORAGE_KEY}')||'null');if(v&&typeof v==='object'){colors=v.colors;if(Object.hasOwn(themes,v.palette))p=v.palette;if(['light','dark','system'].includes(v.mode))m=v.mode;}}catch{}const mode=m==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m;document.documentElement.dataset.theme=themes[p][mode];if(p==='custom'){const DEFAULT_CUSTOM_COLORS=${JSON.stringify(DEFAULT_CUSTOM_COLORS)};const parseCustomColors=${parseCustomColors.toString()};const applyCustomColors=${applyCustomColors.toString()};applyCustomColors(document.documentElement,parseCustomColors(colors),mode);}})()`;
+export const THEME_BOOTSTRAP = `(()=>{const themes=${JSON.stringify(PALETTES)};let p='navy',m='system',colors=null;try{const v=JSON.parse(localStorage.getItem('${THEME_STORAGE_KEY}')||'null');if(v&&typeof v==='object'){colors=v.colors;if(Object.hasOwn(themes,v.palette))p=v.palette;if(['light','dark','system'].includes(v.mode))m=v.mode;}}catch{}const mode=m==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m;if(colors||p==='custom'){const DEFAULT_CUSTOM_COLORS=${JSON.stringify(DEFAULT_CUSTOM_COLORS)};const parseCustomColors=${parseCustomColors.toString()};const applySavedThemeColors=${applySavedThemeColors.toString()};applySavedThemeColors(parseCustomColors(colors),p==='custom'?mode:undefined);}document.documentElement.dataset.theme=themes[p][mode];})()`;

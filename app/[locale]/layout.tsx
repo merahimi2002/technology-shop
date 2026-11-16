@@ -30,7 +30,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={locale === 'fa' ? 'rtl' : 'ltr'}
-      data-theme="nord"
+      data-theme="TechLight"
       suppressHydrationWarning
     >
       <body className="flex min-h-dvh flex-col bg-base-200 text-base-content ltr:[font-family:Arial,sans-serif]">

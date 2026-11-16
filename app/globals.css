@@ -6,7 +6,7 @@
 @import '../styles/brand-themes.css';
 @import '../styles/header.css';
 
-@custom-variant dark (&:where([data-theme='night'], [data-theme='night'] *, [data-theme='dim'], [data-theme='dim'] *, [data-theme='dracula'], [data-theme='dracula'] *));
+@custom-variant dark (&:where([data-theme='TechDark'], [data-theme='TechDark'] *, [data-theme='night'], [data-theme='night'] *, [data-theme='halloween'], [data-theme='halloween'] *));
 
 @theme {
   --font-sans: 'Vazirmatn', sans-serif;

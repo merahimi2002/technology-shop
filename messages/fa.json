@@ -173,9 +173,11 @@
     "switchToLight": "تغییر به حالت روشن",
     "switchToDark": "تغییر به حالت تیره",
     "palettes": {
-      "navy": "سرمه‌ای و سبزآبی",
-      "cobalt": "آبی کبالت و نارنجی",
-      "violet": "بنفش و یشمی",
+      "night": "نایت",
+      "navy": "TechLight / TechDark",
+      "lemonade": "لیموناد",
+      "bumblebee": "بامبل بی",
+      "halloween": "هالووین",
       "custom": "رنگ دلخواه"
     },
     "colorLabels": {
