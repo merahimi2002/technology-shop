@@ -13,7 +13,7 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 | @fontsource/vazirmatn     | 5.3.0        |
 | @gsap/react               | 2.1.2        |
 | @hookform/resolvers       | 7.0.1        |
-| @next/env                 | 16.4.3       |
+| @next/env                 | 16.4.6       |
 | @next-auth/prisma-adapter | 1.0.7        |
 | @prisma/adapter-pg        | 7.10.1       |
 | @prisma/client            | 7.10.1       |
@@ -24,7 +24,7 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 | gsap                      | 3.15.0       |
 | lenis                     | 1.3.27       |
 | lucide-react              | 1.66.0       |
-| next                      | 16.4.3       |
+| next                      | 16.4.6       |
 | next-auth                 | 4.24.15      |
 | next-intl                 | 4.14.9       |
 | pg                        | 8.23.1       |
