@@ -1,4 +1,13 @@
 {
+  "pagination": {
+    "first": "اولین صفحه",
+    "last": "آخرین صفحه",
+    "perPage": "تعداد در هر صفحه",
+    "label": "صفحه‌بندی",
+    "previous": "صفحهٔ قبلی",
+    "next": "صفحهٔ بعدی",
+    "goToPage": "صفحهٔ {page, number}"
+  },
   "admin": {
     "heading": "کاربران سایت",
     "dashboard": "داشبورد",

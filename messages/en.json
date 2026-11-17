@@ -1,4 +1,13 @@
 {
+  "pagination": {
+    "first": "First page",
+    "last": "Last page",
+    "perPage": "Per page",
+    "label": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "goToPage": "Page {page, number}"
+  },
   "admin": {
     "heading": "Site users",
     "dashboard": "Dashboard",
