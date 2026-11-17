@@ -50,9 +50,11 @@ function sampleWord(word: string) {
 
 export function ParticleTerrain({
   className = '',
+  dotScale = 1,
   word,
 }: {
   className?: string;
+  dotScale?: number;
   word: string;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -76,7 +78,6 @@ export function ParticleTerrain({
     let phase = 0;
     let visible = true;
     let activeWord = '';
-    let inkMoving = false;
     let rtl = false;
     let started = 0;
     let destinations = new Map<number, Point>();
@@ -271,7 +272,10 @@ export function ParticleTerrain({
           lastY[dot.index] = y / height;
           lastSize[dot.index] = size;
           if (destination) letters.push({ x, y, size });
-          else ctx.rect(x - size / 2, y - size / 2, size, size);
+          else {
+            const dotSize = size * dotScale;
+            ctx.rect(x - dotSize / 2, y - dotSize / 2, dotSize, dotSize);
+          }
         }
         ctx.fill();
         if (letters.length) {
@@ -298,7 +302,8 @@ export function ParticleTerrain({
         (target.strength > 0 &&
           Math.hypot(target.x - pointer.x, target.y - pointer.y) > 0.3);
       if (!moving) Object.assign(pointer, target);
-      if (inkMoving) updateInk();
+      // Inherited daisyUI colors interpolate on the root during theme changes.
+      updateInk();
       draw(now);
       if (visible && !motion.matches) frame = requestAnimationFrame(tick);
     }
@@ -368,13 +373,11 @@ export function ParticleTerrain({
 
     function startInk(event: TransitionEvent) {
       if (event.propertyName !== 'color') return;
-      inkMoving = true;
       schedule();
     }
 
     function stopInk(event: TransitionEvent) {
       if (event.propertyName !== 'color') return;
-      inkMoving = false;
       updateInk();
       draw();
     }
@@ -456,7 +459,7 @@ export function ParticleTerrain({
       for (const event of releaseEvents)
         surface.removeEventListener(event, release);
     };
-  }, []);
+  }, [dotScale]);
 
   return (
     <canvas

@@ -57,6 +57,8 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 
 ## تصمیم‌ها
 
+پنل از وابستگی‌های موجود استفاده می‌کند: daisyUI برای جدول، کنترل‌ها و tooltipهای primary؛ GSAP برای ورود فرم، نتایج و کشوی موبایل؛ Web Animations API مشترک برای جابه‌جایی زبان. موج‌های نقطه‌ای همان Canvas مشترک صفحهٔ حساب هستند. مشخصات ظاهر در [سیستم طراحی](DESIGN_SYSTEM.md#پنل-مدیریت) ثبت شده است.
+
 - Next.js App Router و React با TypeScript strict.
 - Tailwind و daisyUI برای تم و اجزای استاندارد؛ Lucide و فونت فارسی Vazirmatn. ابزار shadcn فعلاً نصب مانده است.
 - Tailwind روش اصلی استایل‌نویسی مستقیم در JSX است؛ CSS خام فقط برای موارد خاص و پیچیده استفاده می‌شود. قرارداد کامل در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) است.

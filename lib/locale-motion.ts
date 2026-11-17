@@ -30,11 +30,29 @@ export function finishLocaleMotion() {
   if (!snapshot) return;
   const animations: Animation[] = [];
   if (!snapshot.reduced) {
-    for (const { node, rect } of snapshot.positions) {
-      const next = node.getBoundingClientRect();
-      if (!rect.width || !next.width) continue;
-      const x = rect.left - next.left;
-      const y = rect.top - next.top;
+    const offsets = new Map(
+      snapshot.positions.map(({ node, rect }) => {
+        const next = node.getBoundingClientRect();
+        return [
+          node,
+          {
+            x: rect.left - next.left,
+            y: rect.top - next.top,
+            visible: Boolean(rect.width && next.width),
+          },
+        ] as const;
+      }),
+    );
+    for (const { node } of snapshot.positions) {
+      const offset = offsets.get(node)!;
+      if (!offset.visible || !node.isConnected) continue;
+      // A nested target already travels with its animated ancestor.
+      let ancestor = node.parentElement;
+      while (ancestor && !offsets.get(ancestor)?.visible)
+        ancestor = ancestor.parentElement;
+      const parentOffset = ancestor ? offsets.get(ancestor) : undefined;
+      const x = offset.x - (parentOffset?.x ?? 0);
+      const y = offset.y - (parentOffset?.y ?? 0);
       if (Math.abs(x) + Math.abs(y) < 1) continue;
       animations.push(
         node.animate(

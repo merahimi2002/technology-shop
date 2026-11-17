@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
-import { SiteHeader } from '@/components/store/site-header';
 import '../globals.css';
 import { LocaleProvider } from '@/components/locale-provider';
 import { notFound } from 'next/navigation';
@@ -36,10 +35,7 @@ export default async function RootLayout({
       <body className="flex min-h-dvh flex-col bg-base-200 text-base-content ltr:[font-family:Arial,sans-serif]">
         <ThemeProvider>
           <LocaleProvider>
-            <AuthProvider>
-              <SiteHeader />
-              {children}
-            </AuthProvider>
+            <AuthProvider>{children}</AuthProvider>
           </LocaleProvider>
         </ThemeProvider>
       </body>
