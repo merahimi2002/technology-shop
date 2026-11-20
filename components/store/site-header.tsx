@@ -534,10 +534,8 @@ export function SiteHeader() {
                   router.push(`${accountHref}?tab=edit`);
                 }}
               >
-                <span className="inline-flex items-center gap-2">
-                  <Pencil aria-hidden="true" className="shrink-0 size-4" />
-                  {t('account.profile.editShort')}
-                </span>
+                <Pencil aria-hidden="true" className="shrink-0 size-4" />
+                {t('account.profile.editShort')}
               </GradientButton>
               <button
                 type="button"

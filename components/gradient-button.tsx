@@ -28,7 +28,7 @@ export function GradientButton({
     <>
       <span
         className={cn(
-          'relative transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] motion-reduce:transition-none',
+          'relative inline-flex items-center justify-center gap-2 transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] motion-reduce:transition-none',
           icon &&
             'pe-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-not-disabled:group-hover:-translate-x-6 ltr:motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-not-disabled:group-hover:translate-x-6',
         )}
