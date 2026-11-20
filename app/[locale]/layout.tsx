@@ -1,6 +1,7 @@
 import { DevSkeletonPreview } from '@/components/dev-skeleton-preview';
 import type { Metadata, Viewport } from 'next';
-import { ThemeProvider } from '@/components/theme-provider';
+import { Suspense } from 'react';
+import { SiteThemeProvider } from '@/components/site-theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
 import '../globals.css';
 import { LocaleProvider } from '@/components/locale-provider';
@@ -28,23 +29,26 @@ export default async function RootLayout({
   if (locale !== 'fa' && locale !== 'en') notFound();
   return (
     <html
+      className="[scrollbar-gutter:stable]"
       lang={locale}
       dir={locale === 'fa' ? 'rtl' : 'ltr'}
       data-theme="TechLight"
       suppressHydrationWarning
     >
       <body className="flex min-h-dvh flex-col bg-base-200 text-base-content ltr:[font-family:Arial,sans-serif]">
-        <ThemeProvider>
-          <LocaleProvider>
-            <AuthProvider>
-              {process.env.NODE_ENV === 'development' ? (
-                <DevSkeletonPreview>{children}</DevSkeletonPreview>
-              ) : (
-                children
-              )}
-            </AuthProvider>
-          </LocaleProvider>
-        </ThemeProvider>
+        <Suspense>
+          <SiteThemeProvider>
+            <LocaleProvider>
+              <AuthProvider>
+                {process.env.NODE_ENV === 'development' ? (
+                  <DevSkeletonPreview>{children}</DevSkeletonPreview>
+                ) : (
+                  children
+                )}
+              </AuthProvider>
+            </LocaleProvider>
+          </SiteThemeProvider>
+        </Suspense>
       </body>
     </html>
   );

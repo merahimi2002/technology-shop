@@ -97,23 +97,33 @@ export function AdminToolbar({
           aria-hidden="true"
         />
         <span className="truncate">
-          {t(pathname.endsWith('/users') ? 'admin.heading' : 'admin.dashboard')}
+          {t(
+            pathname.endsWith('/settings/theme')
+              ? 'siteSettings.theme'
+              : pathname.endsWith('/settings')
+                ? 'siteSettings.title'
+                : pathname.endsWith('/users')
+                  ? 'admin.heading'
+                  : 'admin.dashboard',
+          )}
         </span>
       </div>
       <div
         data-locale-motion
         className="col-span-2 row-start-2 lg:col-span-1 lg:row-start-auto"
       >
-        <Suspense
-          fallback={
-            <div
-              aria-hidden="true"
-              className="skeleton h-10 rounded-full motion-reduce:animate-none"
-            />
-          }
-        >
-          <UserSearch />
-        </Suspense>
+        {!pathname.endsWith('/settings/theme') && (
+          <Suspense
+            fallback={
+              <div
+                aria-hidden="true"
+                className="skeleton h-10 rounded-full motion-reduce:animate-none"
+              />
+            }
+          >
+            <UserSearch />
+          </Suspense>
+        )}
       </div>
       <div
         data-locale-motion

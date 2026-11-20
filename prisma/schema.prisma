@@ -189,3 +189,10 @@ model OrderItem {
   @@index([orderId])
   @@index([variantId])
 }
+
+model SiteSettings {
+ id String @id @default("site")
+ theme String @default("light")
+ themes String[] @default(["night", "lemonade", "halloween", "bumblebee"])
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}

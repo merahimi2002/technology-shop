@@ -3,12 +3,16 @@ import 'server-only';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@/generated/prisma/client';
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  schemaVersion?: number;
+};
 let client: PrismaClient | undefined;
 
 export function getDb(): PrismaClient {
   if (client) return client;
-  if (globalForPrisma.prisma) return globalForPrisma.prisma;
+  if (globalForPrisma.prisma && globalForPrisma.schemaVersion === 2)
+    return globalForPrisma.prisma;
 
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -32,6 +36,9 @@ export function getDb(): PrismaClient {
     log: [],
   });
 
-  if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = client;
+  if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.prisma = client;
+    globalForPrisma.schemaVersion = 2;
+  }
   return client;
 }

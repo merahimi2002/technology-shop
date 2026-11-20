@@ -1,110 +1,121 @@
 'use client';
-
 import {
   createContext,
   useContext,
   useEffect,
-  useState,
   useRef,
+  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
 import {
-  DEFAULT_THEME,
-  PALETTES,
+  SITE_THEMES,
+  SITE_THEME_STORAGE_KEY,
+  parseVisitorTheme,
+  resolveVisitorTheme,
+  themeBootstrap,
+  type SiteTheme,
+  type VisitorTheme,
+} from '@/lib/site-theme';
+import {
   applySavedThemeColors,
   resolveMode,
   type CustomColors,
-  THEME_STORAGE_KEY,
-  THEME_BOOTSTRAP,
-  parseTheme,
-  resolveTheme,
-  type Palette,
   type ThemeMode,
-  type ThemePreference,
 } from '@/lib/theme';
-
+function subscribeSystem(listener: () => void) {
+  const media = matchMedia('(prefers-color-scheme: dark)');
+  media.addEventListener('change', listener);
+  return () => media.removeEventListener('change', listener);
+}
+const getSystemDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
 const ThemeContext = createContext<{
-  preference: ThemePreference;
-  setPalette: (palette: Palette) => void;
+  siteThemes: readonly SiteTheme[];
+  siteTheme: SiteTheme;
+  preference: VisitorTheme;
+  canToggleMode: boolean;
+  setTheme: (theme: VisitorTheme['choice']) => void;
+  previewTheme: (theme: SiteTheme) => void;
   setMode: (mode: ThemeMode) => void;
   setColors: (colors: CustomColors) => void;
 } | null>(null);
-
-function applyTheme(preference: ThemePreference) {
-  const root = document.documentElement;
-  const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+function applyTheme(preference: VisitorTheme) {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = resolveVisitorTheme(
+    preference,
+    dark,
+  );
   applySavedThemeColors(
     preference.colors,
-    preference.palette === 'custom'
-      ? resolveMode(preference.mode, systemDark)
+    preference.choice === 'custom'
+      ? resolveMode(preference.mode, dark)
       : undefined,
   );
-  root.dataset.theme = resolveTheme(preference, systemDark);
-  const background = getComputedStyle(root)
-    .getPropertyValue('--color-base-100')
-    .trim();
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute('content', background);
+    ?.setAttribute(
+      'content',
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-base-100')
+        .trim(),
+    );
   document
     .querySelectorAll<HTMLLinkElement>('link[rel="icon"]')
     .forEach((link) => {
-      link.href = '/favicons/navy.svg';
+      if (!link.href.endsWith('/favicons/navy.svg'))
+        link.href = '/favicons/navy.svg';
       link.type = 'image/svg+xml';
       link.sizes.value = 'any';
     });
 }
-
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const bootstrapInserted = useRef(false);
+export function ThemeProvider({
+  children,
+  siteThemes,
+}: {
+  children: ReactNode;
+  siteThemes: SiteTheme[];
+}) {
+  const inserted = useRef(false);
   useServerInsertedHTML(() => {
-    if (bootstrapInserted.current) return null;
-    bootstrapInserted.current = true;
+    if (inserted.current) return null;
+    inserted.current = true;
     return (
       <script
         id="store-theme-bootstrap"
-        dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
+        dangerouslySetInnerHTML={{ __html: themeBootstrap(siteThemes) }}
       />
     );
   });
-
-  const [preference, setPreference] = useState(DEFAULT_THEME);
-  const [ready, setReady] = useState(false);
-  const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (transitionTimer.current) clearTimeout(transitionTimer.current);
-      delete document.documentElement.dataset.themeChanging;
-    },
-    [],
+  const [preference, setPreference] = useState<VisitorTheme>(() =>
+    parseVisitorTheme(null, siteThemes),
   );
-
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const signature = siteThemes.join(',');
   useEffect(() => {
     const read = () => {
-      let stored = null;
+      let saved = null;
       try {
-        stored = localStorage.getItem(THEME_STORAGE_KEY);
-      } catch {
-        /* Storage can be denied. */
-      }
-      setPreference(parseTheme(stored));
-      setReady(true);
+        saved = localStorage.getItem(SITE_THEME_STORAGE_KEY);
+      } catch {}
+      const next = parseVisitorTheme(
+        saved,
+        signature.split(',') as SiteTheme[],
+      );
+      setPreference(next);
+      applyTheme(next);
     };
     const sync = (event: StorageEvent) => {
-      if (event.key === THEME_STORAGE_KEY || event.key === null) read();
+      if (event.key === SITE_THEME_STORAGE_KEY || event.key === null) read();
     };
     read();
     window.addEventListener('storage', sync);
     return () => window.removeEventListener('storage', sync);
-  }, []);
-
+  }, [signature]);
   useEffect(() => {
-    if (!ready) return;
     const media = matchMedia('(prefers-color-scheme: dark)');
     const update = () => applyTheme(preference);
     update();
-    // Next can append icon metadata after hydration or navigation.
     const observer = new MutationObserver(update);
     observer.observe(document.head, { childList: true });
     media.addEventListener('change', update);
@@ -112,62 +123,76 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       observer.disconnect();
       media.removeEventListener('change', update);
     };
-  }, [preference, ready]);
-
-  function update(next: ThemePreference) {
-    setPreference(next);
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      /* Keep the in-memory choice. */
-    }
-  }
-
-  function changeMode(mode: ThemeMode) {
-    const root = document.documentElement;
-    if (transitionTimer.current) clearTimeout(transitionTimer.current);
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      delete root.dataset.themeChanging;
-    } else {
-      root.dataset.themeChanging = 'true';
-      // Commit the transition rule before changing the daisyUI theme values.
-      void getComputedStyle(root).getPropertyValue('--color-base-100');
-      transitionTimer.current = setTimeout(() => {
-        delete root.dataset.themeChanging;
-        document
-          .querySelector('meta[name="theme-color"]')
-          ?.setAttribute(
-            'content',
-            getComputedStyle(root).getPropertyValue('--color-base-100').trim(),
-          );
-        transitionTimer.current = null;
+  }, [preference]);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+      delete document.documentElement.dataset.themeChanging;
+    },
+    [],
+  );
+  function change(next: VisitorTheme, animate = false) {
+    if (timer.current) clearTimeout(timer.current);
+    delete document.documentElement.dataset.themeChanging;
+    if (animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.dataset.themeChanging = 'true';
+      void getComputedStyle(document.documentElement).getPropertyValue(
+        '--color-base-100',
+      );
+      timer.current = setTimeout(() => {
+        delete document.documentElement.dataset.themeChanging;
+        timer.current = null;
       }, 1000);
     }
-    update({ ...preference, mode });
+    setPreference(next);
+    applyTheme(next);
+    try {
+      localStorage.setItem(SITE_THEME_STORAGE_KEY, JSON.stringify(next));
+    } catch {}
   }
-
+  function select(choice: VisitorTheme['choice']) {
+    change({
+      ...preference,
+      choice,
+      mode:
+        choice === 'brand' || choice === 'custom'
+          ? preference.mode
+          : SITE_THEMES[choice],
+    });
+  }
+  const systemDark = useSyncExternalStore(
+    subscribeSystem,
+    getSystemDark,
+    () => false,
+  );
+  const siteTheme = resolveVisitorTheme(preference, systemDark);
   return (
     <ThemeContext.Provider
       value={{
+        siteThemes,
+        siteTheme,
         preference,
-        setColors: (colors) =>
-          update({ ...preference, palette: 'custom', colors }),
-        setPalette: (palette) => {
-          const theme = PALETTES[palette];
-          const mode =
-            'preferredMode' in theme ? theme.preferredMode : preference.mode;
-          update({ ...preference, palette, mode });
+        canToggleMode: true,
+        setTheme: (choice) => {
+          if (
+            choice === 'brand' ||
+            choice === 'custom' ||
+            siteThemes.includes(choice)
+          )
+            select(choice);
         },
-        setMode: changeMode,
+        previewTheme: select,
+        setColors: (colors) =>
+          change({ ...preference, choice: 'custom', colors }),
+        setMode: (mode) => change({ ...preference, mode }, true),
       }}
     >
       {children}
     </ThemeContext.Provider>
   );
 }
-
 export function useTheme() {
-  const theme = useContext(ThemeContext);
-  if (!theme) throw new Error('useTheme must be used within ThemeProvider');
-  return theme;
+  const value = useContext(ThemeContext);
+  if (!value) throw new Error('useTheme must be used within ThemeProvider');
+  return value;
 }

@@ -10,6 +10,8 @@ import {
   ChevronsRight,
   ShoppingBag,
   Users,
+  Settings,
+  Palette,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,6 +28,8 @@ gsap.registerPlugin(useGSAP);
 const sections = [
   { path: '', labelKey: 'admin.dashboard', Icon: LayoutDashboard },
   { path: '/users', labelKey: 'admin.heading', Icon: Users },
+  { path: '/settings', labelKey: 'siteSettings.title', Icon: Settings },
+  { path: '/settings/theme', labelKey: 'siteSettings.theme', Icon: Palette },
 ] as const;
 
 function SidebarContent({
@@ -80,11 +84,15 @@ function SidebarContent({
               >
                 <Link
                   href={href}
+                  scroll={false}
                   aria-current={active ? 'page' : undefined}
                   aria-label={t(labelKey)}
                   onClick={close}
                   className={cn(
                     itemClass,
+                    path === '/settings/theme' &&
+                      !collapsed &&
+                      'ms-4 border-s border-base-content/15 text-sm',
                     active && 'bg-primary/12 text-primary hover:bg-primary/18',
                   )}
                 >

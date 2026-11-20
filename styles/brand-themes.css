@@ -1,5 +1,5 @@
 @plugin 'daisyui' {
-  themes: night, lemonade, halloween, bumblebee;
+  themes: all;
   logs: false;
 }
 

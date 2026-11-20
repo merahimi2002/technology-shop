@@ -20,7 +20,7 @@ export function useSystemDark() {
 
 export function ThemeToggle() {
   const t = useTranslations();
-  const { preference, setMode } = useTheme();
+  const { preference, setMode, canToggleMode } = useTheme();
   const dark = resolveMode(preference.mode, useSystemDark()) === 'dark';
   return (
     <span className="inline-flex min-h-11 shrink-0 items-center ps-0.5 pe-2">
@@ -31,6 +31,7 @@ export function ThemeToggle() {
         <input
           type="checkbox"
           checked={dark}
+          disabled={!canToggleMode}
           onChange={(event) => setMode(event.target.checked ? 'dark' : 'light')}
           aria-label={t('theme.modes.dark')}
         />
