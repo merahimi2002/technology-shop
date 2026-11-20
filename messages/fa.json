@@ -1,4 +1,8 @@
 {
+  "development": {
+    "showSkeleton": "تست اسکلتون (dev)",
+    "showContent": "نمایش محتوا (dev)"
+  },
   "pagination": {
     "first": "اولین صفحه",
     "last": "آخرین صفحه",

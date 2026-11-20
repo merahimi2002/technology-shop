@@ -36,6 +36,7 @@ import { AccountAvatar } from '@/components/store/account-avatar';
 import { Pagination } from '@/components/pagination';
 import { Title } from '@/components/title';
 import { Subtitle } from '@/components/subtitle';
+import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
 import type { UserFilters, UserList } from '@/lib/admin/users';
 import { deleteUser, updateUser } from './actions';
 
@@ -44,23 +45,6 @@ gsap.registerPlugin(useGSAP);
 type User = UserList['users'][number];
 const roles = ['CUSTOMER', 'ADMIN', 'OWNER'] as const;
 const layoutClass = 'w-full min-w-0 flex-1 px-4 py-4 sm:px-6 lg:p-0';
-
-export function AdminUsersLoading() {
-  const t = useTranslations('admin');
-  return (
-    <main className={layoutClass}>
-      <span role="status" className="sr-only">
-        {t('loading')}
-      </span>
-      <div
-        aria-hidden="true"
-        className="grid gap-5 motion-reduce:[&>*]:animate-none"
-      >
-        <div className="skeleton h-72 rounded-box" />
-      </div>
-    </main>
-  );
-}
 
 function UserRoundOff({ size }: { size: number }) {
   return (
@@ -218,12 +202,16 @@ export function AdminUsers({
   result,
   canEdit,
   currentUserId,
+  loading = false,
 }: {
   filters: UserFilters;
   result: UserList;
   canEdit: boolean;
   currentUserId: string;
+  loading?: boolean;
 }) {
+  const preview = useSkeletonPreview();
+  const showSkeleton = loading || preview;
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('admin');
@@ -370,7 +358,15 @@ export function AdminUsers({
   }
 
   return (
-    <main className={layoutClass}>
+    <main
+      className={`${layoutClass} motion-reduce:[&_.skeleton]:animate-none`}
+      aria-busy={showSkeleton}
+    >
+      {showSkeleton && (
+        <span role="status" className="sr-only">
+          {t('loading')}
+        </span>
+      )}
       <div ref={panel} className="grid gap-4">
         <section
           aria-label={t('heading')}
@@ -387,6 +383,7 @@ export function AdminUsers({
           </div>
           <div
             data-admin-enter
+            inert={showSkeleton}
             className="flex flex-wrap items-end gap-x-5 gap-y-3 px-4 pt-4 pb-0 sm:px-5"
           >
             <div className="flex min-w-0 items-center gap-3">
@@ -514,7 +511,7 @@ export function AdminUsers({
             className="group/table mx-3 mt-4 mb-3 max-h-[70dvh] min-w-0 overflow-auto overscroll-contain rounded-2xl border border-base-content/8 sm:mx-5 sm:mb-5"
           >
             <div ref={results} data-admin-results className="min-w-0">
-              {result.users.length > 0 ? (
+              {result.users.length > 0 || loading ? (
                 <>
                   <table
                     className="table table-pin-cols table-fixed max-md:min-w-[48rem] [&_tbody_:is(th,td)]:border-base-content/8 [&_tbody_:is(th,td)]:py-5"
@@ -522,6 +519,7 @@ export function AdminUsers({
                     aria-label={t('heading')}
                   >
                     <thead
+                      inert={showSkeleton}
                       className="bg-linear-to-r from-primary/16 to-secondary/16 text-base-content rtl:bg-linear-to-l [&_th]:static [&_th]:bg-transparent [&_th]:py-4 [&_th]:text-start [&_th]:text-sm [&_th]:font-bold [&_svg]:text-primary max-md:[&_th:first-child]:sticky max-md:[&_th:first-child]:z-20 max-md:[&_th:first-child]:bg-base-200"
                       role="rowgroup"
                     >
@@ -606,129 +604,142 @@ export function AdminUsers({
                       </tr>
                     </thead>
                     <tbody role="rowgroup">
-                      {result.users.map((user) => (
-                        <tr
-                          key={user.id}
-                          role="row"
-                          className={`align-top motion-safe:transition-colors motion-safe:duration-150 ${user.id === currentUserId ? 'bg-primary/12 hover:bg-primary/18' : 'even:bg-base-100/10 hover:bg-primary/5'}`}
-                        >
-                          <th
-                            scope="row"
-                            role="rowheader"
-                            className={`font-normal max-md:z-10 md:static md:bg-transparent ${user.id === currentUserId ? 'max-md:bg-linear-to-r max-md:from-primary/12 max-md:to-primary/12' : ''}`}
+                      {showSkeleton ? (
+                        <UserSkeletonRows
+                          pageSize={filters.pageSize}
+                          users={result.users}
+                          canEdit={canEdit}
+                        />
+                      ) : (
+                        result.users.map((user) => (
+                          <tr
+                            key={user.id}
+                            role="row"
+                            className={`align-top motion-safe:transition-colors motion-safe:duration-150 ${user.id === currentUserId ? 'bg-primary/12 hover:bg-primary/18' : 'even:bg-base-100/10 hover:bg-primary/5'}`}
                           >
-                            <div className="flex min-w-0 items-center gap-3">
-                              <span className="avatar size-10 shrink-0 rounded-full ring-1 ring-base-content/10 ring-offset-2 ring-offset-base-100/20">
-                                <AccountAvatar
-                                  key={user.image}
-                                  name={user.name}
-                                  image={user.image}
-                                  size={40}
-                                />
-                              </span>
-                              <div className="min-w-0 max-md:group-data-[compact=true]/table:sr-only">
-                                <div
-                                  className="font-semibold max-md:truncate md:wrap-anywhere"
-                                  dir="auto"
-                                >
-                                  {user.name || t('unnamed')}
+                            <th
+                              scope="row"
+                              role="rowheader"
+                              className={`font-normal max-md:z-10 md:static md:bg-transparent ${user.id === currentUserId ? 'max-md:bg-linear-to-r max-md:from-primary/12 max-md:to-primary/12' : ''}`}
+                            >
+                              <div className="flex min-w-0 items-center gap-3">
+                                <span className="avatar size-10 shrink-0 rounded-full ring-1 ring-base-content/10 ring-offset-2 ring-offset-base-100/20">
+                                  <AccountAvatar
+                                    key={user.image}
+                                    name={user.name}
+                                    image={user.image}
+                                    size={40}
+                                  />
+                                </span>
+                                <div className="min-w-0 max-md:group-data-[compact=true]/table:sr-only">
+                                  <div
+                                    className="font-semibold max-md:truncate md:wrap-anywhere"
+                                    dir="auto"
+                                  >
+                                    {user.name || t('unnamed')}
+                                  </div>
+                                  {user.email && (
+                                    <bdi
+                                      className="block text-sm text-base-content/75 max-md:truncate md:wrap-anywhere"
+                                      dir="ltr"
+                                      title={user.email}
+                                    >
+                                      {user.email}
+                                    </bdi>
+                                  )}
                                 </div>
-                                {user.email && (
-                                  <bdi
-                                    className="block text-sm text-base-content/75 max-md:truncate md:wrap-anywhere"
-                                    dir="ltr"
-                                    title={user.email}
-                                  >
-                                    {user.email}
-                                  </bdi>
-                                )}
                               </div>
-                            </div>
-                          </th>
-                          <td role="cell">
-                            <AccountRoleBadge
-                              role={user.role}
-                              showLabel={false}
-                            />
-                          </td>
-                          <td role="cell">
-                            <span
-                              className={
-                                user.disabledAt
-                                  ? 'badge badge-soft badge-error'
-                                  : 'badge badge-soft badge-success'
-                              }
-                            >
-                              {t(user.disabledAt ? 'disabled' : 'active')}
-                            </span>
-                          </td>
-                          <td
-                            role="cell"
-                            className="text-sm text-base-content/75"
-                          >
-                            <time
-                              dir="ltr"
-                              className="inline-block tabular-nums"
-                              dateTime={user.createdAt.toISOString()}
-                            >
-                              {format.dateTime(user.createdAt, {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                timeZone: 'Asia/Tehran',
-                              })}
-                            </time>
-                          </td>
-                          {canEdit && (
+                            </th>
                             <td role="cell">
-                              {user.role === 'OWNER' ? (
-                                <span
-                                  className="tooltip tooltip-primary tooltip-top me-auto block w-fit"
-                                  data-tip={t('protected')}
-                                >
+                              <AccountRoleBadge
+                                role={user.role}
+                                showLabel={false}
+                              />
+                            </td>
+                            <td role="cell">
+                              <span
+                                className={
+                                  user.disabledAt
+                                    ? 'badge badge-soft badge-error'
+                                    : 'badge badge-soft badge-success'
+                                }
+                              >
+                                {t(user.disabledAt ? 'disabled' : 'active')}
+                              </span>
+                            </td>
+                            <td
+                              role="cell"
+                              className="text-sm text-base-content/75"
+                            >
+                              <time
+                                dir="ltr"
+                                className="inline-block tabular-nums"
+                                dateTime={user.createdAt.toISOString()}
+                              >
+                                {format.dateTime(user.createdAt, {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit',
+                                  timeZone: 'Asia/Tehran',
+                                })}
+                              </time>
+                            </td>
+                            {canEdit && (
+                              <td role="cell">
+                                {user.role === 'OWNER' ? (
                                   <span
-                                    role="img"
-                                    aria-label={t('protected')}
-                                    className="flex items-center justify-center gap-2 text-primary"
+                                    className="tooltip tooltip-primary tooltip-top me-auto block w-fit"
+                                    data-tip={t('protected')}
                                   >
-                                    <span className="grid size-8 place-items-center">
-                                      <KeyRound size={18} aria-hidden="true" />
-                                    </span>
-                                    <span className="grid size-8 place-items-center">
-                                      <ShieldCheck
-                                        size={18}
-                                        aria-hidden="true"
-                                      />
+                                    <span
+                                      role="img"
+                                      aria-label={t('protected')}
+                                      className="flex items-center justify-center gap-2 text-primary"
+                                    >
+                                      <span className="grid size-8 place-items-center">
+                                        <KeyRound
+                                          size={18}
+                                          aria-hidden="true"
+                                        />
+                                      </span>
+                                      <span className="grid size-8 place-items-center">
+                                        <ShieldCheck
+                                          size={18}
+                                          aria-hidden="true"
+                                        />
+                                      </span>
                                     </span>
                                   </span>
-                                </span>
-                              ) : (
-                                <div className="flex flex-wrap justify-start gap-2">
-                                  <UserChangeButton
-                                    key={user.updatedAt.toISOString() + '-role'}
-                                    user={user}
-                                    field="role"
-                                  />
-                                  <UserChangeButton
-                                    key={
-                                      user.updatedAt.toISOString() + '-status'
-                                    }
-                                    user={user}
-                                    field="status"
-                                  />
-                                  <UserChangeButton
-                                    key={
-                                      user.updatedAt.toISOString() + '-delete'
-                                    }
-                                    user={user}
-                                    field="delete"
-                                  />
-                                </div>
-                              )}
-                            </td>
-                          )}
-                        </tr>
-                      ))}
+                                ) : (
+                                  <div className="flex flex-wrap justify-start gap-2">
+                                    <UserChangeButton
+                                      key={
+                                        user.updatedAt.toISOString() + '-role'
+                                      }
+                                      user={user}
+                                      field="role"
+                                    />
+                                    <UserChangeButton
+                                      key={
+                                        user.updatedAt.toISOString() + '-status'
+                                      }
+                                      user={user}
+                                      field="status"
+                                    />
+                                    <UserChangeButton
+                                      key={
+                                        user.updatedAt.toISOString() + '-delete'
+                                      }
+                                      user={user}
+                                      field="delete"
+                                    />
+                                  </div>
+                                )}
+                              </td>
+                            )}
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </>
@@ -745,7 +756,10 @@ export function AdminUsers({
               )}
             </div>
           </div>
-          <div className="border-t border-base-content/10 px-6 py-4 sm:px-8">
+          <div
+            inert={showSkeleton}
+            className="border-t border-base-content/10 px-6 py-4 sm:px-8"
+          >
             <Pagination
               page={result.page}
               pageCount={result.pages}
@@ -758,4 +772,73 @@ export function AdminUsers({
       </div>
     </main>
   );
+}
+
+function UserSkeletonRows({
+  users,
+  canEdit,
+  pageSize,
+}: {
+  users: User[];
+  canEdit: boolean;
+  pageSize: number;
+}) {
+  const rows: (User | null)[] = users.length
+    ? users
+    : Array.from({ length: Math.min(5, pageSize) }, () => null);
+  return rows.map((user, index) => (
+    <tr
+      key={user?.id ?? index}
+      aria-hidden="true"
+      className="align-top even:bg-base-100/10"
+    >
+      <th
+        scope="row"
+        className="font-normal max-md:z-10 md:static md:bg-transparent"
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="skeleton size-10 shrink-0 rounded-full ring-1 ring-base-content/10 ring-offset-2 ring-offset-base-100/20" />
+          <div className="min-w-0 flex-1 max-md:group-data-[compact=true]/table:sr-only">
+            <div className="relative min-h-5 font-semibold max-md:truncate md:wrap-anywhere">
+              <span className="invisible">{user?.name}</span>
+              <span className="skeleton absolute start-0 top-1 h-3 w-3/5" />
+            </div>
+            {(!user || user.email) && (
+              <div
+                className="relative min-h-5 text-sm max-md:truncate md:wrap-anywhere"
+                dir="ltr"
+              >
+                <span className="invisible">{user?.email}</span>
+                <span className="skeleton absolute inset-x-0 top-1 h-3" />
+              </div>
+            )}
+          </div>
+        </div>
+      </th>
+      <td>
+        <span className="badge skeleton w-14 border-0" />
+      </td>
+      <td>
+        <span className="badge skeleton w-14 border-0" />
+      </td>
+      <td className="text-sm text-base-content/75">
+        <span className="skeleton inline-block h-4 w-20 max-w-full" />
+      </td>
+      {canEdit && (
+        <td>
+          <div className="flex flex-wrap justify-start gap-2">
+            {Array.from(
+              { length: user?.role === 'OWNER' ? 2 : 3 },
+              (_, action) => (
+                <span
+                  key={action}
+                  className="skeleton size-8 shrink-0 rounded-field"
+                />
+              ),
+            )}
+          </div>
+        </td>
+      )}
+    </tr>
+  ));
 }

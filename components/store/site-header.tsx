@@ -1,4 +1,6 @@
 'use client';
+
+import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
 import { useTranslations } from 'next-intl';
 
 import Link from 'next/link';
@@ -16,6 +18,7 @@ import {
   ChevronDown,
   Gamepad2,
   Headphones,
+  UserRound,
   Heart,
   Laptop,
   LayoutDashboard,
@@ -26,7 +29,6 @@ import {
   ShoppingBag,
   Smartphone,
   Palette,
-  UserRound,
   Pencil,
   Usb,
 } from 'lucide-react';
@@ -105,8 +107,10 @@ function SearchForm({
 export function SiteHeader() {
   const locale = useLocale();
   const t = useTranslations();
+  const skeletonPreview = useSkeletonPreview();
   const { data: session, status } = useSession();
-  const accountUser = status === 'authenticated' ? session?.user : undefined;
+  const accountUser =
+    !skeletonPreview && status === 'authenticated' ? session?.user : undefined;
   const showAdminLink = accountUser ? canAccessAdmin(accountUser.role) : false;
   const accountHref = `/${locale}/account`;
   const account = useRef<HTMLDialogElement>(null);
@@ -343,7 +347,7 @@ export function SiteHeader() {
               >
                 <Heart size={18} strokeWidth={1.7} />
               </button>
-              {status === 'loading' || accountUser ? (
+              {skeletonPreview || status === 'loading' || accountUser ? (
                 <button
                   type="button"
                   className={`${actionButtonClass}${accountUser ? ' avatar avatar-online' : ''}`}
@@ -351,7 +355,7 @@ export function SiteHeader() {
                   title={t('account.title')}
                   aria-haspopup={accountUser ? 'dialog' : undefined}
                   aria-controls={accountUser ? 'store-account' : undefined}
-                  disabled={status === 'loading'}
+                  disabled={skeletonPreview || status === 'loading'}
                   onClick={() => {
                     setSignOutFailed(false);
                     account.current?.showModal();
@@ -365,7 +369,10 @@ export function SiteHeader() {
                       size={32}
                     />
                   ) : (
-                    <UserRound size={18} strokeWidth={1.7} aria-hidden="true" />
+                    <span
+                      aria-hidden="true"
+                      className="skeleton size-8 rounded-full motion-reduce:animate-none"
+                    />
                   )}
                 </button>
               ) : (

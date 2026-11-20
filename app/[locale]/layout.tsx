@@ -1,3 +1,4 @@
+import { DevSkeletonPreview } from '@/components/dev-skeleton-preview';
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
@@ -35,7 +36,13 @@ export default async function RootLayout({
       <body className="flex min-h-dvh flex-col bg-base-200 text-base-content ltr:[font-family:Arial,sans-serif]">
         <ThemeProvider>
           <LocaleProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {process.env.NODE_ENV === 'development' ? (
+                <DevSkeletonPreview>{children}</DevSkeletonPreview>
+              ) : (
+                children
+              )}
+            </AuthProvider>
           </LocaleProvider>
         </ThemeProvider>
       </body>

@@ -1,5 +1,8 @@
 'use client';
 
+import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
+
+import { AccountSkeleton } from './account-skeleton';
 import { RequiredFieldLabel } from './required-field-label';
 import {
   useLayoutEffect,
@@ -78,6 +81,7 @@ export function AccountPanel({
   const locale = useLocale();
   const t = useTranslations('account');
   const brand = useTranslations('brand');
+  const skeletonPreview = useSkeletonPreview();
   const { data: session, status, update } = useSession();
   const editRequested = useSearchParams().get('tab') === 'edit';
   const [editSelected, setEditingProfile] = useState(false);
@@ -430,7 +434,9 @@ export function AccountPanel({
     : t(mode === 'signin' ? 'loginHeading' : 'registerHeading');
   const activeTint = 'bg-white/30 dark:bg-black/45';
   const hasAccount = Boolean(session?.user);
-  const showTabs = status !== 'loading' || hasAccount;
+  const showAccountSkeleton =
+    skeletonPreview || (status === 'loading' && !hasAccount);
+  const showTabs = status !== 'loading' || hasAccount || showAccountSkeleton;
   const validation = Object.values(fieldErrors);
   const success = message === 'registered' || message === 'passwordChanged';
   const scene = busy
@@ -477,13 +483,25 @@ export function AccountPanel({
                 key={option}
                 type="button"
                 aria-pressed={activeSheet === option}
-                disabled={busy}
+                aria-label={
+                  showAccountSkeleton
+                    ? t(option === 'signin' ? 'title' : 'profile.edit')
+                    : undefined
+                }
+                disabled={busy || showAccountSkeleton}
                 className="btn relative z-10 h-11 min-w-0 rounded-none border-0 bg-transparent px-4 font-medium text-base-content/75 shadow-none hover:bg-transparent hover:text-base-content focus-visible:outline-offset-[-3px] aria-pressed:font-bold aria-pressed:backdrop-blur-[3px] aria-pressed:text-black aria-pressed:hover:text-black dark:aria-pressed:text-white dark:aria-pressed:hover:text-white"
                 onClick={() => switchSheet(option)}
               >
-                {session?.user
-                  ? t(option === 'signin' ? 'title' : 'profile.edit')
-                  : t(option === 'signin' ? 'login' : 'registerTab')}
+                {showAccountSkeleton ? (
+                  <span
+                    aria-hidden="true"
+                    className="skeleton h-4 w-24 motion-reduce:animate-none"
+                  />
+                ) : session?.user ? (
+                  t(option === 'signin' ? 'title' : 'profile.edit')
+                ) : (
+                  t(option === 'signin' ? 'login' : 'registerTab')
+                )}
               </button>
             ))}
             <span
@@ -498,64 +516,61 @@ export function AccountPanel({
           ref={formContent}
           className={`relative z-30 flex flex-1 flex-col justify-center isolate overflow-hidden rounded-b-[24px] [@media(max-width:1023px)]:rounded-b-[20px] px-5 py-6 motion-safe:transition-[margin-inline-start,margin-inline-end,border-radius] motion-safe:duration-[270ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] sm:px-11 sm:py-8 md:px-9 lg:px-15 [--account-panel-min:33.5rem] sm:[--account-panel-min:36.5rem] ${showTabs ? activeTint + ' min-h-(--account-panel-min) backdrop-blur-[3px]' : 'rounded-t-[inherit] bg-white/8 min-h-[calc(var(--account-panel-min)+2.75rem-1px)]'} ${showTabs && (activeSheet === 'signin' ? 'ms-0 me-2 rounded-ss-none rounded-se-[24px] [@media(max-width:1023px)]:rounded-se-[20px]' : 'ms-2 me-0 rounded-ss-[24px] [@media(max-width:1023px)]:rounded-ss-[20px] rounded-se-none')}`}
         >
-          <div dir="rtl" className="flex items-center justify-between gap-3">
-            <div
-              dir={locale === 'fa' ? 'rtl' : 'ltr'}
-              className="flex min-w-0 flex-1 items-center gap-3 text-start"
-            >
-              {session?.user && !editingProfile && (
-                <div className="avatar size-16 shrink-0 text-xl sm:size-24">
-                  <AccountAvatar
-                    key={session.user.image}
-                    name={session.user.name}
-                    image={session.user.image}
-                    size={96}
-                  />
-                </div>
-              )}
-              <div className="min-w-0">
-                <Subtitle
-                  icon={
-                    mode === 'register' && !session?.user ? (
-                      <UserPlus />
-                    ) : session?.user ? (
-                      editingProfile ? (
-                        <Pencil />
+          {!showAccountSkeleton && (
+            <div dir="rtl" className="flex items-center justify-between gap-3">
+              <div
+                dir={locale === 'fa' ? 'rtl' : 'ltr'}
+                className="flex min-w-0 flex-1 items-center gap-3 text-start"
+              >
+                {session?.user && !editingProfile && (
+                  <div className="avatar size-16 shrink-0 text-xl sm:size-24">
+                    <AccountAvatar
+                      key={session.user.image}
+                      name={session.user.name}
+                      image={session.user.image}
+                      size={96}
+                    />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <Subtitle
+                    icon={
+                      mode === 'register' && !session?.user ? (
+                        <UserPlus />
+                      ) : session?.user ? (
+                        editingProfile ? (
+                          <Pencil />
+                        ) : (
+                          <UserRound />
+                        )
                       ) : (
-                        <UserRound />
+                        <LogIn />
                       )
-                    ) : (
-                      <LogIn />
-                    )
-                  }
-                  className="mb-1"
-                >
-                  {t(
-                    session?.user
-                      ? 'accountSubtitle'
-                      : mode === 'register'
-                        ? 'registerSubtitle'
-                        : 'loginSubtitle',
-                  )}
-                </Subtitle>
-                <Title as="h1" delay={titleDelay}>
-                  {heading}
-                </Title>
+                    }
+                    className="mb-1"
+                  >
+                    {t(
+                      session?.user
+                        ? 'accountSubtitle'
+                        : mode === 'register'
+                          ? 'registerSubtitle'
+                          : 'loginSubtitle',
+                    )}
+                  </Subtitle>
+                  <Title as="h1" delay={titleDelay}>
+                    {heading}
+                  </Title>
+                </div>
               </div>
+              <div ref={setPhotoPreview} className="shrink-0 empty:hidden" />
             </div>
-            <div ref={setPhotoPreview} className="shrink-0 empty:hidden" />
-          </div>
-          {!showTabs ? (
-            <div
-              className="mt-4 grid min-h-16 place-items-center text-primary"
-              role="status"
-            >
-              <span className="sr-only">{t('loading')}</span>
-              <span
-                aria-hidden="true"
-                className="loading loading-spinner loading-md motion-reduce:animate-none"
-              />
-            </div>
+          )}
+          {showAccountSkeleton ? (
+            <AccountSkeleton
+              showAdminLink={Boolean(
+                session?.user && canAccessAdmin(session.user.role),
+              )}
+            />
           ) : session?.user && editingProfile ? (
             <div key={session.user.id} className="mt-5 flex flex-col gap-4">
               <ProfileEditor

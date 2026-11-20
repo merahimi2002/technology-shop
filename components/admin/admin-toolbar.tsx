@@ -1,5 +1,7 @@
 'use client';
 
+import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
+
 import { Suspense, type ReactNode } from 'react';
 import { FolderOpen, Search, Waves, Power } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -73,7 +75,8 @@ export function AdminToolbar({
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations();
-  const { data: session } = useSession();
+  const skeletonPreview = useSkeletonPreview();
+  const { data: session, status } = useSession();
   const user = session?.user;
   const isAdmin = user?.role === 'OWNER' || user?.role === 'ADMIN';
   const WaveIcon = waves ? Waves : Power;
@@ -130,7 +133,21 @@ export function AdminToolbar({
           <ThemeToggle />
         </div>
         <LanguageSwitcher />
-        {isAdmin && (
+        {(skeletonPreview || (status === 'loading' && !user)) && (
+          <div
+            role="status"
+            aria-busy="true"
+            className="flex items-center gap-2 motion-reduce:[&_.skeleton]:animate-none"
+          >
+            <span className="sr-only">{t('account.loading')}</span>
+            <div
+              aria-hidden="true"
+              className="skeleton hidden h-8 w-24 sm:block"
+            />
+            <div aria-hidden="true" className="skeleton size-9 rounded-full" />
+          </div>
+        )}
+        {!skeletonPreview && isAdmin && (
           <Link
             href={`/${locale}/account`}
             aria-label={t('account.title')}

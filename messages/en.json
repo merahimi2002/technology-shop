@@ -1,4 +1,8 @@
 {
+  "development": {
+    "showSkeleton": "Test skeleton (dev)",
+    "showContent": "Show content (dev)"
+  },
   "pagination": {
     "first": "First page",
     "last": "Last page",

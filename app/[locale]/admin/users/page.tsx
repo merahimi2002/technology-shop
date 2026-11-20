@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { requireAdminUser } from '@/lib/auth/admin-session';
 import { listUsers, parseUserFilters } from '@/lib/admin/users';
-import { AdminUsers, AdminUsersLoading } from '../admin-users';
+import { AdminUsers } from '../admin-users';
+import { AdminUsersLoading } from '@/components/admin/admin-users-skeleton';
 
 async function AdminPanel({
   params,
@@ -22,11 +23,15 @@ async function AdminPanel({
   );
 }
 
-export default function AdminUsersPage(
+export default async function AdminUsersPage(
   props: PageProps<'/[locale]/admin/users'>,
 ) {
+  const filters = parseUserFilters(await props.searchParams);
   return (
-    <Suspense fallback={<AdminUsersLoading />}>
+    <Suspense
+      key={JSON.stringify(filters)}
+      fallback={<AdminUsersLoading filters={filters} />}
+    >
       <AdminPanel {...props} />
     </Suspense>
   );
