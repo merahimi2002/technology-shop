@@ -12,6 +12,7 @@ import {
   Users,
   Settings,
   Palette,
+  type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -25,12 +26,126 @@ import { useAdminSidebar } from '@/hooks/use-admin-sidebar';
 
 gsap.registerPlugin(useGSAP);
 
-const sections = [
+type SidebarSection = {
+  path: string;
+  labelKey:
+    | 'admin.dashboard'
+    | 'admin.heading'
+    | 'siteSettings.title'
+    | 'siteSettings.theme';
+  Icon: LucideIcon;
+  children?: readonly SidebarSection[];
+};
+
+const sections: readonly SidebarSection[] = [
   { path: '', labelKey: 'admin.dashboard', Icon: LayoutDashboard },
   { path: '/users', labelKey: 'admin.heading', Icon: Users },
-  { path: '/settings', labelKey: 'siteSettings.title', Icon: Settings },
-  { path: '/settings/theme', labelKey: 'siteSettings.theme', Icon: Palette },
-] as const;
+  {
+    path: '/settings',
+    labelKey: 'siteSettings.title',
+    Icon: Settings,
+    children: [
+      {
+        path: '/settings/theme',
+        labelKey: 'siteSettings.theme',
+        Icon: Palette,
+      },
+    ],
+  },
+];
+
+function SidebarEntry({
+  section,
+  collapsed,
+  close,
+}: {
+  section: SidebarSection;
+  collapsed: boolean;
+  close?: () => void;
+}) {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const t = useTranslations();
+  const { path, labelKey, Icon, children } = section;
+  const href = `/${locale}/admin${path}`;
+  const active = children ? pathname.startsWith(`${href}/`) : pathname === href;
+  const group = useRef<HTMLDetailsElement>(null);
+  const tooltip = `tooltip tooltip-primary ${locale === 'fa' ? 'tooltip-left' : 'tooltip-right'}`;
+  useEffect(() => {
+    if (active && group.current) group.current.open = true;
+  }, [active, pathname]);
+  const itemClass = cn(
+    'flex min-h-11 items-center rounded-xl font-medium',
+    collapsed ? 'justify-center px-0' : 'gap-3 px-3',
+    active && 'bg-primary/12 text-primary hover:bg-primary/18',
+  );
+
+  if (children) {
+    return (
+      <li>
+        <details
+          ref={group}
+          open={active}
+          className={
+            collapsed
+              ? 'overflow-visible [&::details-content]:transition-none'
+              : undefined
+          }
+        >
+          <summary
+            aria-label={t(labelKey)}
+            className={cn(
+              itemClass,
+              'after:ms-auto',
+              collapsed && 'after:hidden',
+            )}
+          >
+            <span
+              className={collapsed ? tooltip : 'inline-flex'}
+              data-tip={collapsed ? t(labelKey) : undefined}
+            >
+              <Icon size={19} className="shrink-0" aria-hidden="true" />
+            </span>
+            {!collapsed && t(labelKey)}
+          </summary>
+          <ul
+            className={cn(
+              'gap-2 pt-2',
+              collapsed ? 'mx-0 px-0 before:hidden' : 'me-0 pe-0',
+            )}
+          >
+            {children.map((child) => (
+              <SidebarEntry
+                key={child.path}
+                section={child}
+                collapsed={collapsed}
+                close={close}
+              />
+            ))}
+          </ul>
+        </details>
+      </li>
+    );
+  }
+  return (
+    <li
+      className={collapsed ? tooltip : undefined}
+      data-tip={collapsed ? t(labelKey) : undefined}
+    >
+      <Link
+        href={href}
+        scroll={false}
+        aria-current={active ? 'page' : undefined}
+        aria-label={t(labelKey)}
+        onClick={close}
+        className={itemClass}
+      >
+        <Icon size={19} className="shrink-0" aria-hidden="true" />
+        {!collapsed && t(labelKey)}
+      </Link>
+    </li>
+  );
+}
 
 function SidebarContent({
   collapsed = false,
@@ -42,7 +157,6 @@ function SidebarContent({
   close?: () => void;
 }) {
   const locale = useLocale();
-  const pathname = usePathname();
   const t = useTranslations();
   const itemClass = cn(
     'flex min-h-11 items-center rounded-xl font-medium',
@@ -69,39 +183,14 @@ function SidebarContent({
       </div>
       <nav className="mt-7" aria-label={t('account.adminPanel')}>
         <ul className="menu w-full gap-2 p-0">
-          {sections.map(({ path, labelKey, Icon }) => {
-            const href = `/${locale}/admin${path}`;
-            const active = pathname === href;
-            return (
-              <li
-                key={path}
-                className={
-                  collapsed
-                    ? `tooltip tooltip-primary ${locale === 'fa' ? 'tooltip-left' : 'tooltip-right'}`
-                    : undefined
-                }
-                data-tip={collapsed ? t(labelKey) : undefined}
-              >
-                <Link
-                  href={href}
-                  scroll={false}
-                  aria-current={active ? 'page' : undefined}
-                  aria-label={t(labelKey)}
-                  onClick={close}
-                  className={cn(
-                    itemClass,
-                    path === '/settings/theme' &&
-                      !collapsed &&
-                      'ms-4 border-s border-base-content/15 text-sm',
-                    active && 'bg-primary/12 text-primary hover:bg-primary/18',
-                  )}
-                >
-                  <Icon size={19} className="shrink-0" aria-hidden="true" />
-                  {!collapsed && t(labelKey)}
-                </Link>
-              </li>
-            );
-          })}
+          {sections.map((section) => (
+            <SidebarEntry
+              key={section.path}
+              section={section}
+              collapsed={collapsed}
+              close={close}
+            />
+          ))}
         </ul>
       </nav>
       <div className="mt-auto grid gap-3 border-t border-base-content/10 pt-3">
@@ -119,12 +208,14 @@ function SidebarContent({
             onClick={close}
             className={cn(
               itemClass,
-              'btn btn-ghost w-full justify-start',
+              'btn btn-ghost h-11 w-full flex-nowrap justify-start overflow-hidden whitespace-nowrap',
               collapsed && 'justify-center',
             )}
           >
             <ShoppingBag size={18} className="shrink-0" aria-hidden="true" />
-            {!collapsed && t('admin.backToStore')}
+            {!collapsed && (
+              <span className="min-w-0 truncate">{t('admin.backToStore')}</span>
+            )}
           </Link>
         </div>
       </div>

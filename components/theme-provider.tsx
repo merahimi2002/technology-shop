@@ -131,10 +131,10 @@ export function ThemeProvider({
     },
     [],
   );
-  function change(next: VisitorTheme, animate = false) {
+  function change(next: VisitorTheme) {
     if (timer.current) clearTimeout(timer.current);
     delete document.documentElement.dataset.themeChanging;
-    if (animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.dataset.themeChanging = 'true';
       void getComputedStyle(document.documentElement).getPropertyValue(
         '--color-base-100',
@@ -184,7 +184,7 @@ export function ThemeProvider({
         previewTheme: select,
         setColors: (colors) =>
           change({ ...preference, choice: 'custom', colors }),
-        setMode: (mode) => change({ ...preference, mode }, true),
+        setMode: (mode) => change({ ...preference, mode }),
       }}
     >
       {children}

@@ -59,7 +59,7 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 
 صفحه‌بندی از Next Link، فرم Next.js و اجزای استاندارد daisyUI در یک کامپوننت مشترک استفاده می‌کند. مرجع [صفحه‌بندی مشترک](DESIGN_SYSTEM.md#صفحه‌بندی-مشترک) است.
 
-پنل از وابستگی‌های موجود استفاده می‌کند: daisyUI برای جدول، badgeهای نقش، کنترل‌ها و tooltipهای رنگی؛ dialog بومی و useActionState برای تأیید عملیات؛ GSAP برای ورود فیلترها، نتایج و کشوی موبایل؛ Web Animations API مشترک برای جابه‌جایی زبان. موج‌های نقطه‌ای همان Canvas مشترک صفحهٔ حساب هستند. مشخصات ظاهر در [سیستم طراحی](DESIGN_SYSTEM.md#پنل-مدیریت) ثبت شده است.
+پنل از وابستگی‌های موجود استفاده می‌کند: daisyUI برای جدول، badgeهای نقش، کنترل‌ها، tooltipهای رنگی و گروه‌های بومی details/summary سایدبار؛ dialog بومی و useActionState برای تأیید عملیات؛ GSAP برای گذار opacity نتایج و ورود کشوی موبایل؛ SplitText برای تیتر و زیرتیتر در layout ثابت هر مسیر؛ Web Animations API مشترک برای جابه‌جایی زبان. موج‌های نقطه‌ای همان Canvas مشترک صفحهٔ حساب هستند. مشخصات ظاهر در [سیستم طراحی](DESIGN_SYSTEM.md#پنل-مدیریت) ثبت شده است.
 
 - Next.js App Router و React با TypeScript strict.
 - Tailwind و daisyUI برای تم و اجزای استاندارد؛ Lucide و فونت فارسی Vazirmatn. ابزار shadcn فعلاً نصب مانده است.

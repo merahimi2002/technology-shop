@@ -1,10 +1,8 @@
 import { Suspense } from 'react';
-import { requireAdminUser } from '@/lib/auth/admin-session';
-import { SettingsOverview } from '@/components/admin/settings-overview';
+import { redirect } from 'next/navigation';
 async function Settings({ params }: PageProps<'/[locale]/admin/settings'>) {
   const { locale } = await params;
-  await requireAdminUser(locale, '/settings');
-  return <SettingsOverview />;
+  return redirect(`/${locale}/admin/settings/theme`);
 }
 export default function Page(props: PageProps<'/[locale]/admin/settings'>) {
   return (

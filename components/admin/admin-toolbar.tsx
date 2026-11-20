@@ -110,7 +110,7 @@ export function AdminToolbar({
       </div>
       <div
         data-locale-motion
-        className="col-span-2 row-start-2 lg:col-span-1 lg:row-start-auto"
+        className="col-span-2 row-start-2 min-h-10 lg:col-span-1 lg:row-start-auto"
       >
         {!pathname.endsWith('/settings/theme') && (
           <Suspense
