@@ -9,6 +9,7 @@ import { verifyPassword } from './password';
 import { allowAuthAttempt } from './rate-limit';
 
 const loginRateLimitError = new Error('RATE_LIMITED');
+const disabledAccountError = new Error('ACCOUNT_DISABLED');
 
 export function getAuthOptions(): NextAuthOptions {
   const secret = process.env.NEXTAUTH_SECRET;
@@ -37,7 +38,8 @@ export function getAuthOptions(): NextAuthOptions {
               password,
               user?.passwordHash ?? null,
             );
-            if (!user || !matches || user.disabledAt) return null;
+            if (!user || !matches) return null;
+            if (user.disabledAt) throw disabledAccountError;
             return {
               id: user.id,
               name: user.name,
@@ -47,7 +49,8 @@ export function getAuthOptions(): NextAuthOptions {
             };
           } catch (error) {
             // NextAuth v4 exposes authorize errors in its redirect query.
-            if (error === loginRateLimitError) throw error;
+            if (error === loginRateLimitError || error === disabledAccountError)
+              throw error;
             throw new Error('UNAVAILABLE');
           }
         },

@@ -72,7 +72,7 @@ export function Pagination({
           <span
             aria-disabled="true"
             aria-label={t(label)}
-            className="btn btn-square btn-sm btn-disabled"
+            className="btn btn-square btn-sm btn-soft btn-primary btn-disabled"
           >
             {icon}
           </span>
@@ -82,7 +82,7 @@ export function Pagination({
             scroll={scroll}
             prefetch={false}
             aria-label={t(label)}
-            className="btn btn-square btn-sm btn-ghost"
+            className="btn btn-square btn-sm btn-soft btn-primary"
           >
             {icon}
           </Link>
@@ -103,7 +103,7 @@ export function Pagination({
               prefetch={false}
               rel="prev"
               aria-label={t('previous')}
-              className="btn btn-square btn-sm btn-ghost"
+              className="btn btn-square btn-sm btn-soft btn-primary"
             >
               <ChevronLeft
                 size={17}
@@ -115,7 +115,7 @@ export function Pagination({
             <span
               aria-disabled="true"
               aria-label={t('previous')}
-              className="btn btn-square btn-sm btn-disabled"
+              className="btn btn-square btn-sm btn-soft btn-primary btn-disabled"
             >
               <ChevronLeft
                 size={17}
@@ -132,7 +132,7 @@ export function Pagination({
                 <span
                   aria-current="page"
                   aria-label={t('goToPage', { page: item })}
-                  className="btn btn-square btn-sm btn-primary"
+                  className="btn btn-square btn-sm btn-primary border-0 bg-[conic-gradient(from_90deg,var(--color-primary)_0%,var(--color-secondary)_50%,var(--color-primary)_100%)] shadow-none"
                 >
                   {format.number(item)}
                 </span>
@@ -142,7 +142,7 @@ export function Pagination({
                   scroll={scroll}
                   prefetch={false}
                   aria-label={t('goToPage', { page: item })}
-                  className="btn btn-square btn-sm btn-ghost"
+                  className="btn btn-square btn-sm btn-soft btn-primary"
                 >
                   {format.number(item)}
                 </Link>
@@ -165,7 +165,7 @@ export function Pagination({
               prefetch={false}
               rel="next"
               aria-label={t('next')}
-              className="btn btn-square btn-sm btn-ghost"
+              className="btn btn-square btn-sm btn-soft btn-primary"
             >
               <ChevronRight
                 size={17}
@@ -177,7 +177,7 @@ export function Pagination({
             <span
               aria-disabled="true"
               aria-label={t('next')}
-              className="btn btn-square btn-sm btn-disabled"
+              className="btn btn-square btn-sm btn-soft btn-primary btn-disabled"
             >
               <ChevronRight
                 size={17}

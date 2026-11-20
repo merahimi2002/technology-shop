@@ -46,6 +46,17 @@ function UserSearch() {
       />
       <input type="hidden" name="role" value={params.get('role') ?? ''} />
       <input type="hidden" name="status" value={params.get('status') ?? ''} />
+      <input type="hidden" name="sort" value={params.get('sort') ?? ''} />
+      <input
+        type="hidden"
+        name="direction"
+        value={params.get('direction') ?? ''}
+      />
+      <input
+        type="hidden"
+        name="pageSize"
+        value={params.get('pageSize') ?? '20'}
+      />
     </Form>
   );
 }

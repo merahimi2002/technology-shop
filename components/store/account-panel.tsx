@@ -96,6 +96,7 @@ export function AccountPanel({
   const [message, setMessage] = useState<
     | 'invalid'
     | 'invalidCredentials'
+    | 'accountDisabled'
     | 'loginLimited'
     | 'unavailable'
     | 'registered'
@@ -289,7 +290,9 @@ export function AccountPanel({
               ? 'invalidCredentials'
               : response?.error === 'RATE_LIMITED'
                 ? 'loginLimited'
-                : 'unavailable',
+                : response?.error === 'ACCOUNT_DISABLED'
+                  ? 'accountDisabled'
+                  : 'unavailable',
           );
         } else {
           window.location.replace(returnPath);

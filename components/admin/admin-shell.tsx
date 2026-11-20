@@ -19,6 +19,7 @@ import { Logo } from '@/components/logo';
 import { ModalCloseButton } from '@/components/modal-close-button';
 import { ParticleTerrain } from '@/components/particle-terrain';
 import { cn } from '@/lib/utils';
+import { useAdminSidebar } from '@/hooks/use-admin-sidebar';
 
 gsap.registerPlugin(useGSAP);
 
@@ -126,7 +127,7 @@ function SidebarContent({
 export function AdminShell({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const locale = useLocale();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, toggleCollapsed] = useAdminSidebar();
   const [waves, setWaves] = useState(true);
   const shellId = useId();
   const sidebarId = `${shellId}-sidebar`;
@@ -208,7 +209,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           control={
             <button
               type="button"
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={toggleCollapsed}
               aria-label={collapseLabel}
               title={collapseLabel}
               aria-expanded={!collapsed}

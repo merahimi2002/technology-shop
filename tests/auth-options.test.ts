@@ -43,7 +43,9 @@ it('rejects wrong passwords and disabled users and spends password work for miss
     disabledAt: new Date(),
   });
   mocks.verify.mockResolvedValueOnce(true);
-  expect(await authorize()(credentials, request)).toBeNull();
+  await expect(authorize()(credentials, request)).rejects.toThrow(
+    /^ACCOUNT_DISABLED$/,
+  );
   mocks.findUnique.mockResolvedValueOnce({
     id: 'user-1',
     passwordHash: 'hash',
@@ -52,6 +54,21 @@ it('rejects wrong passwords and disabled users and spends password work for miss
   mocks.verify.mockResolvedValueOnce(false);
   expect(await authorize()(credentials, request)).toBeNull();
 });
+it('does not reveal a disabled account when the password is incorrect', async () => {
+  mocks.findUnique.mockResolvedValueOnce({
+    id: 'disabled-user',
+    passwordHash: 'hash',
+    disabledAt: new Date(),
+  });
+  mocks.verify.mockResolvedValueOnce(false);
+  expect(
+    await authorize()(
+      { email: 'test@example.com', password: 'wrong password' },
+      { headers: {}, query: {}, body: {}, method: 'POST' },
+    ),
+  ).toBeNull();
+});
+
 it('returns an authenticated identity without its stored hash', async () => {
   mocks.findUnique.mockResolvedValueOnce({
     id: 'user-1',
