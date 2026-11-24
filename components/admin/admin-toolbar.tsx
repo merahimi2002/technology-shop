@@ -3,7 +3,14 @@
 import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
 
 import { Suspense, type ReactNode } from 'react';
-import { FolderOpen, Search, Waves, Power } from 'lucide-react';
+import {
+  FileText,
+  Folder,
+  FolderOpen,
+  Search,
+  Waves,
+  Power,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Form from 'next/form';
 import Link from 'next/link';
@@ -14,23 +21,126 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { GradientButton } from '@/components/gradient-button';
 
-function UserSearch() {
-  const locale = useLocale();
-  const t = useTranslations('admin');
+function CategoryEditorCrumb() {
+  const t = useTranslations('adminProducts');
   const params = useSearchParams();
-  const query = params.get('q') ?? '';
+
+  return t(params.get('edit') ? 'editCategory' : 'newCategory');
+}
+
+function AdminBreadcrumbs({ pathname }: { pathname: string }) {
+  const locale = useLocale();
+  const t = useTranslations();
+  const root = `/${locale}/admin`;
+  const [section, child] = pathname
+    .slice(root.length)
+    .split('/')
+    .filter(Boolean);
+  const crumbs: Array<{ label: ReactNode; href?: string }> = [];
+
+  switch (section) {
+    case undefined:
+      crumbs.push({ label: t('admin.dashboard') });
+      break;
+    case 'users':
+      crumbs.push({ label: t('admin.heading') });
+      break;
+    case 'search':
+      crumbs.push({ label: t('admin.globalSearch') });
+      break;
+    case 'products':
+      crumbs.push({
+        label: t('adminProducts.heading'),
+        href: `${root}/products`,
+      });
+      if (child) {
+        crumbs.push({
+          label: t(
+            child === 'new'
+              ? 'adminProducts.newProduct'
+              : 'adminProducts.editPage',
+          ),
+        });
+      }
+      break;
+    case 'categories':
+      crumbs.push({
+        label: t('adminProducts.categories'),
+        href: `${root}/categories`,
+      });
+      if (child === 'new') {
+        crumbs.push({
+          label: (
+            <Suspense fallback={t('adminProducts.newCategory')}>
+              <CategoryEditorCrumb />
+            </Suspense>
+          ),
+        });
+      }
+      break;
+    case 'settings':
+      crumbs.push({ label: t('siteSettings.title') });
+      if (child === 'theme') crumbs.push({ label: t('siteSettings.theme') });
+      break;
+  }
+
+  return (
+    <nav
+      className="breadcrumbs min-w-0 overflow-visible py-0"
+      aria-label={t('admin.breadcrumbs')}
+    >
+      <ol className="flex-wrap gap-y-1 whitespace-normal">
+        {crumbs.map(({ label, href }, index) => {
+          const current = index === crumbs.length - 1;
+          const Icon = [Folder, FolderOpen][index] ?? FileText;
+          const content = (
+            <>
+              <Icon size={16} className="shrink-0" aria-hidden="true" />
+              <span className="min-w-0 wrap-anywhere">{label}</span>
+            </>
+          );
+          return (
+            <li
+              key={href ?? index}
+              className="min-w-0 max-w-full before:shrink-0"
+            >
+              {href && !current ? (
+                <Link href={href} className="min-w-0">
+                  {content}
+                </Link>
+              ) : (
+                <span
+                  className="min-w-0 cursor-default hover:no-underline"
+                  aria-current={current ? 'page' : undefined}
+                >
+                  {content}
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+function AdminSearch({ showQuery }: { showQuery: boolean }) {
+  const locale = useLocale();
+  const t = useTranslations();
+  const params = useSearchParams();
+  const query = showQuery ? (params.get('q') ?? '') : '';
+  const label = t('admin.globalSearch');
 
   return (
     <Form
-      action={`/${locale}/admin/users`}
-      scroll={false}
+      action={`/${locale}/admin/search`}
       role="search"
-      aria-label={t('search')}
+      aria-label={label}
       className="input w-full rounded-full bg-base-200/80"
     >
       <button
         type="submit"
-        aria-label={t('search')}
+        aria-label={label}
         className="btn btn-ghost btn-circle btn-xs shrink-0 text-primary"
       >
         <Search size={18} aria-hidden="true" />
@@ -42,22 +152,10 @@ function UserSearch() {
         dir={locale === 'fa' ? 'rtl' : 'ltr'}
         className="text-start"
         maxLength={120}
-        aria-label={t('search')}
-        placeholder={t('searchPlaceholder')}
+        required
+        aria-label={label}
+        placeholder={label}
         defaultValue={query}
-      />
-      <input type="hidden" name="role" value={params.get('role') ?? ''} />
-      <input type="hidden" name="status" value={params.get('status') ?? ''} />
-      <input type="hidden" name="sort" value={params.get('sort') ?? ''} />
-      <input
-        type="hidden"
-        name="direction"
-        value={params.get('direction') ?? ''}
-      />
-      <input
-        type="hidden"
-        name="pageSize"
-        value={params.get('pageSize') ?? '20'}
       />
     </Form>
   );
@@ -91,45 +189,25 @@ export function AdminToolbar({
         className="flex min-w-0 items-center gap-2 text-sm font-semibold text-primary"
       >
         {menuButton}
-        <FolderOpen
-          size={18}
-          className="hidden shrink-0 lg:block"
-          aria-hidden="true"
-        />
-        <span className="truncate">
-          {t(
-            pathname.endsWith('/settings/theme')
-              ? 'siteSettings.theme'
-              : pathname.endsWith('/settings')
-                ? 'siteSettings.title'
-                : pathname.includes('/admin/products')
-                  ? 'adminProducts.heading'
-                  : pathname.includes('/admin/categories')
-                    ? 'adminProducts.categories'
-                    : pathname.endsWith('/users')
-                      ? 'admin.heading'
-                      : 'admin.dashboard',
-          )}
-        </span>
+        <AdminBreadcrumbs pathname={pathname} />
       </div>
       <div
         data-locale-motion
         className="col-span-2 row-start-2 min-h-10 lg:col-span-1 lg:row-start-auto"
       >
-        {!pathname.endsWith('/settings/theme') &&
-          !pathname.includes('/admin/products') &&
-          !pathname.includes('/admin/categories') && (
-            <Suspense
-              fallback={
-                <div
-                  aria-hidden="true"
-                  className="skeleton h-10 rounded-full motion-reduce:animate-none"
-                />
-              }
-            >
-              <UserSearch />
-            </Suspense>
-          )}
+        <Suspense
+          fallback={
+            <div
+              aria-hidden="true"
+              className="skeleton h-10 rounded-full motion-reduce:animate-none"
+            />
+          }
+        >
+          <AdminSearch
+            key={pathname}
+            showQuery={pathname === `/${locale}/admin/search`}
+          />
+        </Suspense>
       </div>
       <div
         data-locale-motion

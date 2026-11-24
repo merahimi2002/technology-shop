@@ -127,6 +127,8 @@ The shared frame for users and theme settings is `components/admin/admin-page-fr
 
 Admin sidebar items are defined as a tree. An item with children controls a group and has no page destination; only leaf items are links. The legacy `/[locale]/admin/settings` route redirects to `/[locale]/admin/settings/theme`, and the standalone settings view was removed. Access checks remain on the theme destination.
 
+The admin top bar shows the current page hierarchy starting at the section. The dashboard label appears only on the dashboard. Ancestor pages link to their localized routes. The settings group appears as text, and the category editor uses its `edit` query parameter to distinguish creation from editing.
+
 ### Current structure
 
 The desktop glass header is one row with the logo and Persian name, categories and menus, then controls. The English text beneath the logo was removed. Mobile uses a side menu and a separate controls row; the fixed search box was removed.

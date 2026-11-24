@@ -2,6 +2,7 @@ import { requireAdminUser } from '@/lib/auth/admin-session';
 import { getDb } from '@/lib/db';
 import { AdminCategories } from '@/components/admin/admin-categories';
 import { parseProductFilters } from '@/lib/admin/product-input';
+import type { Prisma } from '@/generated/prisma/client';
 
 export default async function Page({
   params,
@@ -11,10 +12,21 @@ export default async function Page({
   await requireAdminUser(locale, '/categories');
   const filters = parseProductFilters(await searchParams);
   const db = getDb();
-  const total = await db.category.count();
+  const contains = filters.q.replace(/[\\%_]/g, '\\$&');
+  const where: Prisma.CategoryWhereInput = contains
+    ? {
+        OR: [
+          { nameFa: { contains, mode: 'insensitive' } },
+          { nameEn: { contains, mode: 'insensitive' } },
+          { slug: { contains, mode: 'insensitive' } },
+        ],
+      }
+    : {};
+  const total = await db.category.count({ where });
   const pages = Math.max(1, Math.ceil(total / filters.pageSize));
   const page = Math.min(filters.page, pages);
   const categories = await db.category.findMany({
+    where,
     orderBy: { slug: 'asc' },
     include: { _count: { select: { products: true } } },
     skip: (page - 1) * filters.pageSize,
@@ -27,6 +39,7 @@ export default async function Page({
       page={page}
       pages={pages}
       pageSize={filters.pageSize}
+      searchQuery={filters.q}
     />
   );
 }

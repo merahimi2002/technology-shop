@@ -29,6 +29,7 @@ export function AdminCategories({
   pages,
   pageSize,
   total,
+  searchQuery = '',
   loading = false,
 }: {
   categories: Category[];
@@ -36,6 +37,7 @@ export function AdminCategories({
   pages: number;
   pageSize: number;
   total?: number;
+  searchQuery?: string;
   loading?: boolean;
 }) {
   const t = useTranslations('adminProducts');
@@ -201,7 +203,7 @@ export function AdminCategories({
         </Table>
         {!skeleton && !categories.length && (
           <p className="p-6 text-center text-sm text-base-content/60">
-            {t('categoryFirst')}
+            {t(searchQuery ? 'noMatchingCategories' : 'categoryFirst')}
           </p>
         )}
       </TableViewport>
@@ -212,6 +214,11 @@ export function AdminCategories({
         <Pagination
           total={total}
           pathname={`/${locale}/admin/categories`}
+          query={
+            searchQuery
+              ? new URLSearchParams({ q: searchQuery }).toString()
+              : ''
+          }
           page={page}
           pageCount={pages}
           pageSize={pageSize}
