@@ -1,21 +1,21 @@
-# کارهای فنی آینده
+# Technical Backlog
 
-آخرین بازبینی: ۲۰۲۶/۱۱/۲۰. این فایل فقط کارهای فنی باقی‌مانده را ثبت می‌کند؛ شرح قابلیت‌های فعال در [معماری](ARCHITECTURE.md) و صفحه‌ها و پنل‌های آینده در [نقشه راه](ROADMAP.md) هستند.
+Last reviewed: 2026-11-20. This file tracks remaining technical work only. Active features are described in [Architecture](ARCHITECTURE.md); future pages and admin tools are listed in the [roadmap](ROADMAP.md).
 
-## ذخیره و آپلود عکس
+## Storage and image uploads
 
-عکس دسته‌بندی از مسیر جداگانهٔ سروری پیاده‌سازی شده و Storage محلی آن با کلید خصوصی فعال و آزموده شده است؛ وضعیت آزمون و محدودیت انتخاب‌گر ابزار مرورگر در [توسعه، عکس دسته‌بندی](DEVELOPMENT.md#عکس-دسته‌بندی) ثبت است. محیط استقرار هم به کلید خصوصی نیاز دارد. موارد زیر همچنان برنامهٔ تصاویر محصول‌اند. پاک‌سازی عکس‌های بدون ارجاع دسته‌بندی به retry پایدار نیاز دارد؛ پاک‌سازی فعلی best effort است.
+Category images use a separate server route, and private local storage has been enabled and tested with a secret key. Test results and the browser file-picker limitation are recorded in [Development: category images](DEVELOPMENT.md#category-images). Deployment also requires a private key. The following items are still planned for product images. Cleanup of unreferenced category images needs a durable retry mechanism; current cleanup is best effort.
 
-این بخش برنامهٔ استفاده از Supabase Storage برای تصاویر محصول و فایل‌هاست. bucket، API آپلود محصول و مدل ProductImage هنوز پیاده‌سازی نشده‌اند. دامنهٔ این فهرست ذخیره‌سازی آینده است؛ پیاده‌سازی فعال عکس پروفایل در [معماری](ARCHITECTURE.md#تصاویر-و-فایل‌های-آپلودی) مستند شده است.
+This section tracks planned Supabase Storage support for product images and files. Product image buckets, upload APIs, and the `ProductImage` model have not been implemented. Active profile photo support is documented in [Architecture: uploaded images and files](ARCHITECTURE.md#uploaded-images-and-files).
 
-- [ ] طراحی bucketها: فضای خصوصی برای فایل‌های تازه‌آپلودشده و فایل‌های شخصی، و فضای عمومی برای عکس تأییدشده محصولات.
-- [ ] بررسی نشست NextAuth و مجوز در API سرور؛ آپلود عکس محصول فقط برای OWNER یا ADMIN، و عکس شخصی فقط برای صاحب حساب.
-- [ ] تولید لینک موقت آپلود با مسیر فایل تصادفی و تعیین‌شده توسط سرور؛ کلید محرمانه Storage فقط در env سرور نگه‌داری شود. نشست NextAuth خودکار مجوز Supabase Storage نمی‌دهد.
-- [ ] کنترل نوع واقعی فایل، حجم، ابعاد و تعداد پیکسل پس از آپلود خصوصی؛ اعتبارسنجی فقط به پسوند یا MIME اعلامی مرورگر تکیه نکند. حدود نهایی هنگام پیاده‌سازی تعیین شوند.
-- [ ] تولید نسخه بهینه، انتشار عکس تأییدشده و نمایش مناسب با next/image؛ فایل تأییدنشده عمومی نشود.
-- [ ] افزودن مدل ProductImage و migration برای مسیر Storage، محصول مرتبط، متن جایگزین فارسی/انگلیسی و ترتیب نمایش؛ بایت یا Base64 عکس داخل PostgreSQL ذخیره نشود.
-- [ ] پیاده‌سازی جایگزینی و حذف با کنترل مجوز و پاک‌سازی فایل‌های موقت، ناموفق یا بدون رکورد؛ از بازنویسی تصادفی فایل‌های موجود جلوگیری شود.
-- [ ] افزودن رابط انتخاب و پیش‌نمایش عکس، پیشرفت آپلود و پیام خطا با ترجمه‌های پروژه.
-- [ ] تست فایل نامعتبر و بیش‌ازحد، کاربر بدون مجوز، دسترسی به فایل شخص دیگر، شکست آپلود و جریان کامل آپلود تا نمایش و حذف.
+- [ ] Design buckets: private storage for newly uploaded and personal files, and public storage for approved product images.
+- [ ] Check the NextAuth session and authorization in the server API. Only `OWNER` or `ADMIN` may upload product images; personal images are limited to their owner.
+- [ ] Generate signed upload URLs with random file paths chosen by the server. Keep Storage secrets in server-only environment variables. A NextAuth session does not automatically grant Supabase Storage access.
+- [ ] After private upload, validate the actual file type, size, dimensions, and pixel count. Do not trust only the extension or browser-reported MIME type. Set final limits during implementation.
+- [ ] Generate an optimized version, publish approved images, and serve them with `next/image`. Never make an unapproved file public.
+- [ ] Add a `ProductImage` model and migration for the Storage path, related product, Persian/English alt text, and display order. Do not store image bytes or Base64 in PostgreSQL.
+- [ ] Implement replacement and deletion with authorization checks and cleanup of temporary, failed, or orphaned files. Prevent accidental overwrites of existing files.
+- [ ] Add image selection and preview, upload progress, and error messages using the project's translations.
+- [ ] Test invalid and oversized files, unauthorized users, access to another user's file, upload failures, and the full upload-to-display-and-delete flow.
 
-مرجع اندازه‌ها و قابلیت‌های سرویس هنگام شروع کار دوباره بررسی شود: [bucketها و دسترسی](https://supabase.com/docs/guides/storage/buckets/fundamentals)، [لینک آپلود امضاشده](https://supabase.com/docs/reference/javascript/storage-from-createsigneduploadurl).
+Recheck current service limits and capabilities when implementation begins: [buckets and access](https://supabase.com/docs/guides/storage/buckets/fundamentals), [signed upload URLs](https://supabase.com/docs/reference/javascript/storage-from-createsigneduploadurl).

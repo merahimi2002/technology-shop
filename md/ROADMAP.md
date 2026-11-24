@@ -1,7 +1,7 @@
-# نقشه راه صفحه‌ها و پنل‌ها
+# Storefront and Admin Roadmap
 
-آخرین بازبینی: ۲۰۲۶/۱۱/۲۰. این فایل فقط کارهای باقی‌مانده را نگه می‌دارد؛ قابلیت‌های فعال حساب و پنل مدیریت در [معماری](ARCHITECTURE.md#دسترسی-به-پنل-مدیریت) ثبت شده‌اند.
+Last reviewed: 2026-11-20. This file tracks remaining work only. Active account and admin features are documented in [Architecture: admin panel access](ARCHITECTURE.md#admin-panel-access).
 
-- [ ] ابزارهای مدیریت فروشگاه در پنل.
+- [ ] Store management tools in the admin panel.
 
-فهرست‌های آیندهٔ محصولات و سفارش‌ها از [صفحه‌بندی مشترک](DESIGN_SYSTEM.md#صفحه‌بندی-مشترک) استفاده می‌کنند. برنامهٔ ذخیره‌سازی تصاویر محصول در [TODO](TODO.md#ذخیره-و-آپلود-عکس) قرار دارد.
+Future product and order lists should use [shared pagination](DESIGN_SYSTEM.md#shared-pagination). Product image storage is tracked in [TODO](TODO.md#storage-and-image-uploads).

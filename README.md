@@ -1,8 +1,8 @@
 # Tech Shop
 
-فروشگاه فارسی/انگلیسی با Next.js، PostgreSQL روی Supabase، Prisma و NextAuth؛ مدیر بسته فقط npm است.
+A Persian/English storefront built with Next.js, PostgreSQL on Supabase, Prisma, and NextAuth. npm is the only package manager.
 
-پیش از اجرا، env محلی را مطابق [راهنمای توسعه](md/DEVELOPMENT.md) تنظیم کنید؛ اطلاعات واقعی اتصال یا مالک را در Git قرار ندهید.
+Before starting, configure the local environment as described in the [development guide](md/DEVELOPMENT.md). Never commit real connection credentials or owner credentials.
 
 ```bash
 npm ci
@@ -10,6 +10,6 @@ npm run db:generate
 npm run dev
 ```
 
-راهنمای پشته، توسعه و بررسی امنیتی در [md/README.md](md/README.md) است.
+The stack, development, and security guides are indexed in [md/README.md](md/README.md).
 
-[کارهای فنی آینده](md/TODO.md) · [نقشه راه صفحه‌ها](md/ROADMAP.md)
+[Technical backlog](md/TODO.md) · [Page roadmap](md/ROADMAP.md)

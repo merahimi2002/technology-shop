@@ -1,54 +1,54 @@
-# امنیت و بررسی وابستگی‌ها
+# Security and Dependency Review
 
-این سند کنترل‌های امنیتی دیتابیس و احراز هویت و محدودیت‌های فعلی را ثبت می‌کند. گزارش بررسی وابستگی‌ها در بخش‌های بعدی مربوط به ۲۰۲۶/۱۱/۰۲ است و ادعای audit تازه نیست.
+This document records database and authentication controls and their current limitations. The dependency review in later sections is dated 2026-11-02; it is not a claim that a new audit was run.
 
-## اتصال سروری دیتابیس
+## Server-side database connection
 
-### تصاویر دسته‌بندی
+### Category images
 
-دریافت و تغییر عکس دسته‌بندی فقط برای نشست ADMIN/OWNER است. منبع فایل با Sharp دوباره decode و به WebP تبدیل می‌شود؛ SVG، تصویر متحرک، بیش از ۲MB یا بیش از ۱۶ میلیون پیکسل رد می‌شوند. فایل قبل از اعتبارسنجی به Storage نمی‌رود. مسیرها تصادفی، بدون نام فایل ارسالی و بدون overwrite هستند. bucket خصوصی است و کلید فقط از env سرور خوانده می‌شود. مسیر دریافت `nosniff` و `private, no-store` دارد. اگر Storage کلید معتبر نداشته باشد، درخواست دارای عکس بدون ثبت رکورد جدید شکست می‌خورد. پاک‌سازی فایل بدون ارجاع best effort است و retry پایدار هنوز نیاز به پیاده‌سازی دارد.
+Retrieving or changing category images requires an `ADMIN` or `OWNER` session. Sharp decodes the source again and converts it to WebP; SVG, animated images, files over 2 MB, and images over 16 million pixels are rejected. Files are not sent to Storage before validation. Paths are random, do not use the submitted filename, and are never overwritten. The bucket is private, and its key is read only from the server environment. The image route sets `nosniff` and `private, no-store`. If Storage does not have a valid key, a request containing an image fails without creating a new record. Cleanup of unreferenced files is best effort; durable retries still need implementation.
 
-بررسی وابستگی پس از نصب SDK در ۲۰۲۶/۱۱/۲۳، ۷ مورد (۳ high و ۴ moderate) در زنجیره‌های موجود Prisma/effect و shadcn/ts-morph/minimatch گزارش کرد؛ گزارش موردی برای SDK جدید نداشت. `audit fix --force` اجرا نشد چون پیشنهادهای گزارش شامل downgrade ناسازگار بودند.
+After the SDK was installed, a dependency review on 2026-11-23 reported seven findings (three high and four moderate) in existing Prisma/effect and shadcn/ts-morph/minimatch chains. It reported no finding for the new SDK. `audit fix --force` was not run because the proposed changes included incompatible downgrades.
 
-زیرساخت اتصال ۲۰۲۶/۱۱/۰۶ با متغیر خصوصی DATABASE_URL، مرز server-only، TLS با verify-full، pool محدود و بدون query log آماده شد. رمز و کلید سرویس نباید در چت، مستندات، Git، NEXT_PUBLIC_ یا پاسخ API قرار گیرند. `.env.example` صرفاً placeholder دارد؛ اطلاعات واقعی فقط در env محلی یا secret manager میزبان نگه‌داری می‌شوند. اسکریپت بررسی خطای خام درایور را چاپ نمی‌کند.
+The database connection infrastructure was prepared on 2026-11-06 with a private `DATABASE_URL`, a server-only boundary, `verify-full` TLS, a limited pool, and no query logging. Passwords and service keys must never appear in chat, documentation, Git, `NEXT_PUBLIC_` variables, or API responses. `.env.example` contains placeholders only; real values belong only in local environment files or the host's secret manager. The diagnostic script does not print raw driver errors.
 
-قالب داشبورد از نقش postgres استفاده می‌کند؛ این نقش مدیریتی است و مجوز استقرار تولیدی محسوب نمی‌شود. پیش از اتصال قابلیت‌های تجاری، نقش runtime با حداقل مجوز و اتصال migration مستقل تعریف شود. NextAuth مسئول احراز هویت برنامه است؛ اتصال Prisma به postgres خودبه‌خود کنترل دسترسی کاربر یا RLS را اعمال نمی‌کند. هنگام ایجاد جدول در schema قابل‌دسترسی Data API، RLS و مجوزها باید در migration همان جدول بازبینی شوند.
+The dashboard template uses the `postgres` role. This is an administrative role, not a suitable production runtime role. Before commercial features are connected, define a least-privilege runtime role and a separate migration connection. NextAuth handles application authentication; Prisma's connection as `postgres` does not automatically enforce user authorization or RLS. When creating a table in a schema exposed to the Data API, review RLS and grants in the migration for that table.
 
-## ثبت‌نام و نشست
+## Registration and sessions
 
-در فهرست پنل، بینندهٔ ADMIN ایمیل حساب‌های ADMIN و OWNER را در پاسخ سرور دریافت نمی‌کند. تطبیق ایمیل در جست‌وجوی او هم به CUSTOMER محدود است تا جست‌وجو راهی برای تشخیص ایمیل پنهان نباشد. OWNER دسترسی کامل به ایمیل‌های فهرست دارد. این قاعده با تست سروری بررسی شده؛ نتیجه و دامنهٔ آزمون در [توسعه](DEVELOPMENT.md#بررسی-پنل-مدیریت) ثبت است.
+In the admin list, an `ADMIN` viewer does not receive `ADMIN` or `OWNER` account emails in the server response. Email search is also limited to `CUSTOMER` accounts so it cannot be used to discover hidden addresses. `OWNER` has access to all listed emails. This rule was checked by a server test; its result and scope are recorded in [Development: admin users review](DEVELOPMENT.md#admin-users-review).
 
-حذف حساب از پنل فقط با نشست OWNER و تأیید مستقل انجام می‌شود؛ حذف خود، مالک و درخواست دارای نسخهٔ قدیمی رد می‌شود. شرط نقش و updatedAt در دستور حذف هم بررسی می‌شود تا تغییر هم‌زمان محافظت را دور نزند. محدودیت دیتابیس برای حساب دارای سفارش حفظ شده و هیچ سفارش یا تاریخچهٔ پرداختی از این مسیر حذف نمی‌شود.
+Deleting an account from the panel requires an `OWNER` session and a separate confirmation. Requests to delete the owner or a stale account version are rejected. The delete statement also checks role and `updatedAt` so a concurrent change cannot bypass the guard. The database restriction for accounts with orders remains in place; this flow does not delete any order or payment history.
 
-ورود حساب غیرفعال رد می‌شود. فقط پس از تأیید رمز صحیح، کد عمومی `ACCOUNT_DISABLED` به پیام فارسی یا انگلیسیِ غیرفعال‌بودن حساب نگاشت می‌شود؛ کاربر ناموجود یا رمز اشتباه همان خطای عمومی ورود را دارد. خطاهای داخلی همچنان به `UNAVAILABLE` تبدیل می‌شوند.
+Sign-in is rejected for disabled accounts. Only after the password is verified is the public `ACCOUNT_DISABLED` code mapped to the Persian or English disabled-account message; unknown users and incorrect passwords receive the same generic sign-in error. Internal errors are still mapped to `UNAVAILABLE`.
 
-NextAuth 4 با Credentials و JWT پس از اعمال migration روی Supabase از مسیر واقعی API و مرورگر بررسی شد؛ این بررسی محدود به مسیرهای ثبت‌نام، ورود، نشست و خروج است. scrypt با N=131072، r=8 و p=1، salt تصادفی ۱۶ بایتی و خروجی ۶۴ بایتی استفاده می‌شود. رمز ۸ تا ۱۲۸ نویسه و بدون trim یا تغییر حروف پذیرفته می‌شود. مقایسه هش timing-safe است و برای کاربر ناموجود هم derivation انجام می‌شود. نام و ایمیل ورودی محدود و نرمال‌سازی ایمیل پیش از lookup و ذخیره انجام می‌شود.
+NextAuth 4 with Credentials and JWT was checked through real API and browser flows after migrations were applied to Supabase. The check covered registration, sign-in, sessions, and sign-out only. Password hashing uses scrypt with N=131072, r=8, p=1, a random 16-byte salt, and a 64-byte output. Passwords from 8 to 128 characters are accepted without trimming or changing letter case. Hash comparison is timing-safe, and derivation is also performed for unknown users. Name and email input are bounded, and email is normalized before lookup and storage.
 
-ثبت‌نام فقط از Origin رسمی، با JSON و بدنه حداکثر ۸ کیلوبایت پذیرفته می‌شود؛ NextAuth برای ورود و خروج محافظ CSRF داخلی دارد. محدودیت مشترک دیتابیسی فعلی ۶۰ تلاش در دقیقه برای کل سرویس، ۱۰ ورود و ۳ ثبت‌نام برای هر ایمیل در ۱۵ دقیقه است. کلید ایمیل با HMAC secret ساخته و bucket منقضی پاک می‌شود؛ شمارنده‌ها atomic هستند و به حافظه یک فرایند وابسته نیستند. این سقف سراسری برای نمونه اولیه است و پیش از ترافیک واقعی باید با ظرفیت و محدودکننده لبه تنظیم شود. به IP اعلام‌شده در header اعتماد نشده است.
+Registration accepts requests only from the official Origin, with JSON and a body no larger than 8 KB. NextAuth provides built-in CSRF protection for sign-in and sign-out. The current shared database rate limits are 60 attempts per minute for the entire service, 10 sign-in attempts per email, and 3 registrations per email in 15 minutes. The email key is made with an HMAC secret and expired buckets are removed. Counters are atomic and do not depend on one process's memory. This global ceiling is for the prototype and must be tuned to capacity and edge rate limits before real traffic. Forwarded IP headers are not trusted.
 
-ناموجودبودن ایمیل و رمز نادرست پیام ورود یکسان و ثبت‌نام تکراری پاسخ یکسان دارند. ثبت‌نام هرگز نقش مدیریتی از ورودی نمی‌پذیرد. callback نشست نقش، غیرفعال‌نبودن کاربر و نسخه نشست را از DB بررسی می‌کند. برای ابطال همه نشست‌ها sessionVersion افزایش می‌یابد؛ خروج معمول فقط cookie همان مرورگر را پاک می‌کند. پاسخ حساب Cache-Control=no-store دارد. رمز، hash و جزئیات خطای درایور در پاسخ یا log احراز هویت قرار نمی‌گیرند.
+Unknown email and incorrect password produce the same sign-in message; duplicate registration also has a uniform response. Registration never accepts an admin role from input. The session callback checks the user's role, enabled status, and session version against the database. Incrementing `sessionVersion` revokes all sessions; normal sign-out clears only that browser's cookie. Account responses use `Cache-Control: no-store`. Passwords, hashes, and driver error details are not included in responses or authentication logs.
 
-migration اولیه تمام جدول‌های عمومی و متادیتای Prisma را با RLS و بدون grant برای anon/authenticated محافظت می‌کند؛ policy کاربر Supabase ساخته نشده چون NextAuth مسئول هویت است. نقش postgres فعلی RLS را دور می‌زند، بنابراین بررسی مجوز در سرور الزامی است و نقش runtime محدود پیش از استقرار تجاری همچنان لازم است. ثبت‌نام این مرحله مالکیت ایمیل را اثبات نمی‌کند؛ تأیید ایمیل، بازیابی رمز، سیاست رمزهای افشاشده و MFA هنوز فعال نشده‌اند و نباید تأییدشدگی ایمیل یا آمادگی تولیدی ادعا شود.
+The initial migration protects all public tables and Prisma metadata with RLS and grants no access to `anon` or `authenticated`. No Supabase user policy was created because NextAuth is the identity provider. The current `postgres` role bypasses RLS, so server-side authorization checks are mandatory and a restricted runtime role is still needed before commercial deployment. Registration does not prove email ownership at this stage. Email verification, password recovery, breached-password policy, and MFA are not yet active; do not claim verified email or production readiness.
 
-درخواست تغییر رمز با Origin رسمی و محدودیت سه تلاش برای هر حساب در ۱۵ دقیقه، زیر سقف مشترک احراز هویت، پذیرفته می‌شود. سرور رمز فعلی را با هش ذخیره‌شده بررسی می‌کند و هش جدید و نسخهٔ نشست را با هم به‌روز می‌کند. تغییر هم‌زمان رمز یا غیرفعال‌سازی حساب باعث رد به‌روزرسانی می‌شود.
+Password change requests require the official Origin and are limited to three attempts per account in 15 minutes, within the shared authentication ceiling. The server checks the current password against the stored hash and updates the new hash and session version together. A concurrent password change or account disable causes the update to be rejected.
 
-## حفاظت مالک
+## Owner protection
 
-بررسی واقعی پس از migration در ۲۰۲۶/۱۱/۰۶: RLS روی هر ۱۳ جدول عمومی شامل متادیتای Prisma فعال است و نقش‌های anon/authenticated مجوز SELECT ندارند. بررسی امنیت Supabase فقط ۱۳ پیام اطلاعاتی [RLS Enabled No Policy](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy) گزارش کرد؛ این وضعیت برای دسترسی صرفاً سروری فعلی عمدی است و با ساخت policy عمومی رفع نمی‌شود. پیام سطح WARN یا ERROR گزارش نشد. حساب‌های موقت آزمون حذف شدند.
+Real verification after the migration on 2026-11-06: RLS is enabled on all 13 public tables, including Prisma metadata, and `anon`/`authenticated` have no `SELECT` grants. Supabase Security reported only 13 informational [RLS Enabled No Policy](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy) messages. This is intentional for the current server-only access model; do not resolve it by adding public policies. No WARN or ERROR messages were reported. Temporary test accounts were deleted.
 
-OWNER صرفاً یک نقش قدرتمندتر در JWT نیست: یکتایی مالک در SQL با partial unique index اعمال می‌شود و با درخواست هم‌زمان هم مالک دوم مجاز نیست. trigger با SECURITY INVOKER و search_path خالی، حذف مالک و تغییر هویت/رمز/نقش/غیرفعال‌سازی او را متوقف می‌کند؛ دسترسی مستقیم اجرای تابع به PUBLIC، anon و authenticated داده نشده است. تغییر مستقیم محافظ‌ها با اختیار مالک دیتابیس همچنان ممکن است، پس این نگهبان جای نقش runtime محدود را نمی‌گیرد.
+`OWNER` is more than a privileged JWT role. SQL enforces owner uniqueness with a partial unique index, so concurrent requests cannot create a second owner. A trigger using `SECURITY INVOKER` and an empty `search_path` blocks deletion of the owner and changes to the owner's identity, password, role, or enabled state. Direct execution of the function is not granted to `PUBLIC`, `anon`, or `authenticated`. A database owner can still change these protections, so the trigger does not replace a restricted runtime role.
 
-برای حفظ راه بازیابی، چرخش رمز یا ایمیل مالک عملیات عمومی پنل نیست: فقط در فرایند نگه‌داری امن خارج از برنامه، در تراکنش کنترل‌شده، trigger مربوط موقتاً غیرفعال، تغییر ضروری انجام، sessionVersion افزایش و trigger دوباره فعال شود. این عملیات نباید به endpoint برنامه یا دسترسی ADMIN سپرده شود. ساخت حساب مالک نیز باید خارج از ثبت‌نام عمومی و با بررسی واقعی هویت انجام شود؛ صرف داشتن ایمیل ادعاشده در User به‌معنی مالکیت ایمیل نیست.
+To preserve a recovery path, changing the owner's password or email is not a normal panel operation. Perform it only as secure maintenance outside the application: in a controlled transaction, temporarily disable the trigger, make the necessary change, increment `sessionVersion`, and re-enable the trigger. Do not expose this operation through an application endpoint or to `ADMIN`. Create the owner account outside public registration and verify identity. An email address claimed in a `User` record does not by itself prove ownership of that address.
 
-هیچ تضمین نفوذناپذیری وجود ندارد. حفاظت کنونی مانع مالک دوم، تغییر نقش از ثبت‌نام و تغییر هویت مالک از مسیرهای عادی می‌شود؛ MFA برای مالک هنوز پیاده‌سازی نشده است. با توجه به ورود رمز عبوری فعلی، فعال‌سازی MFA و تفکیک دسترسی دیتابیس پیش از استفاده تجاری لازم است.
+No system is guaranteed to be impenetrable. Current protections prevent a second owner, role changes through public registration, and owner identity changes through ordinary routes. MFA for the owner is not implemented. Given the current password sign-in, MFA and database access separation are required before commercial use.
 
-## نتیجه بررسی وابستگی‌ها
+## Dependency review result
 
-در نسخه‌های منتشرشده فعلی، رفع کامل این ۶ گزارش با حفظ محدوده سازگاری اعلام‌شده بسته‌ها ممکن نیست. package.json و package-lock.json برای این بررسی تغییر نکردند؛ override، downgrade و audit fix --force اعمال نشد.
+The currently published releases cannot fully resolve these six findings while staying within the packages' declared compatibility ranges. `package.json` and `package-lock.json` were not changed for this review; no override, downgrade, or `audit fix --force` was applied.
 
-۶ مورد audit به معنی ۶ نقص مستقل نیست: دو آسیب‌پذیری اصلی در deepmerge و minimatch وجود دارد و چهار بسته دیگر به‌علت وابستگی به آن‌ها گزارش می‌شوند. وضعیت فعلی: ۲ low، ۴ moderate، بدون high یا critical.
+Six audit findings do not represent six independent vulnerabilities: the two root vulnerabilities are in `deepmerge` and `minimatch`; four other packages are reported because they depend on them. Current status: two low and four moderate, with no high or critical findings.
 
-## زنجیره واقعی نصب
+## Actual installed chain
 
 ```text
 shadcn@4.23.0
@@ -59,50 +59,50 @@ shadcn@4.23.0
         └── minimatch@10.2.6
 ```
 
-| بسته گزارش‌شده   | شدت audit | علت                                                      |
-| ---------------- | --------- | -------------------------------------------------------- |
-| deepmerge        | low       | prototype poisoning؛ GHSA-gcqx-w48m-w2h4                 |
-| @shadcn/registry | low       | وابستگی به deepmerge                                     |
-| minimatch        | moderate  | مصرف بیش از حد منابع با الگوی ورودی؛ GHSA-g3hv-75wg-m249 |
-| @ts-morph/common | moderate  | وابستگی به minimatch                                     |
-| ts-morph         | moderate  | وابستگی به common                                        |
-| shadcn           | moderate  | وابستگی به زنجیره‌های بالا                               |
+| Reported package | Audit severity | Reason                                                            |
+| ---------------- | -------------- | ----------------------------------------------------------------- |
+| deepmerge        | low            | Prototype poisoning; GHSA-gcqx-w48m-w2h4                          |
+| @shadcn/registry | low            | Depends on deepmerge                                              |
+| minimatch        | moderate       | Excessive resource use with an input pattern; GHSA-g3hv-75wg-m249 |
+| @ts-morph/common | moderate       | Depends on minimatch                                              |
+| ts-morph         | moderate       | Depends on common                                                 |
+| shadcn           | moderate       | Depends on the chains above                                       |
 
-## گزینه‌های بررسی‌شده
+## Options reviewed
 
 ### deepmerge
 
-آخرین نسخه منتشرشده 4.3.1 است. advisory رسمی نسخه‌های 4.2.0 تا 4.3.1 را آسیب‌پذیر و patched version را None اعلام می‌کند. shadcn نسخه ^4.3.1 می‌خواهد. بنابراین patch یا minor اصلاح‌شده‌ای برای نصب سازگار وجود ندارد. downgrade به 4.1.1 خارج از قرارداد shadcn است و صرفاً قرار نگرفتن در بازه advisory اثبات امنیت نسخه قدیمی نیست؛ انجام نشد.
+The latest published version is 4.3.1. The official advisory marks versions 4.2.0 through 4.3.1 as vulnerable and lists no patched version. shadcn requests `^4.3.1`, so there is no compatible fixed patch or minor release to install. Downgrading to 4.1.1 would violate shadcn's contract; being outside the advisory's affected range does not prove the older release is secure. No downgrade was made.
 
 ### minimatch
 
-آخرین نسخه شاخه ۱۰ برابر 10.2.6 و آخرین stable برابر 11.0.4 است. advisory نسخه اصلاح‌شده را از 11.0.1 معرفی می‌کند. @ts-morph/common@0.27.0 محدوده ^10.0.1 را می‌خواهد؛ حتی آخرین common@0.29.0 همین محدوده را اعلام می‌کند. آخرین ts-morph@28.0.0 نیز به common@~0.29.0 وابسته است و علاوه بر این خارج از ^26.0.0 مورد نیاز shadcn قرار می‌گیرد.
+The latest version on major 10 is 10.2.6; the latest stable release is 11.0.4. The advisory lists 11.0.1 and later as fixed. `@ts-morph/common@0.27.0` requests `^10.0.1`, and even the latest `common@0.29.0` requests the same range. The latest `ts-morph@28.0.0` also depends on `common@~0.29.0` and falls outside the `^26.0.0` range required by shadcn.
 
-Node 24 پروژه با engine نسخه ۱۱ minimatch سازگار است، اما این به معنی سازگاری با قرارداد ts-morph نیست. override به نسخه ۱۱ خارج از محدوده درخواست‌شده است؛ بدون تأیید upstream و تست مسیرهای ویرایش کد/الگوها، سازگاری آن را تضمین نمی‌کنیم و اعمال نشد. هیچ شکست عملی نسخه ۱۱ در این بررسی ادعا یا اثبات نشده است؛ مانع فعلی، نبود اصلاح در محدوده پشتیبانی اعلام‌شده است.
+The project's Node 24 runtime is compatible with minimatch major 11, but that does not establish compatibility with ts-morph's contract. Overriding to version 11 would exceed the requested range. Without upstream confirmation and tests of code-editing and pattern flows, compatibility cannot be guaranteed, so no override was applied. This review does not claim or prove an operational failure with version 11; the current blocker is the lack of a fix within the declared supported range.
 
-### پیشنهاد npm
+### npm recommendation
 
-npm audit fix --dry-run --json هیچ بسته‌ای برای افزودن، حذف یا تغییر پیشنهاد نکرد و همان ۶ گزارش باقی ماند. پیشنهاد --force برای بخش deepmerge بازگشت shadcn به 1.0.0 بود؛ این بازگشت چند نسخه اصلی با پشته فعلی Tailwind 4 و CLI 4 هم‌ارز نیست و انجام نشد.
+`npm audit fix --dry-run --json` proposed no packages to add, remove, or change, and the same six findings remained. The `--force` proposal for deepmerge reverted shadcn to 1.0.0, several major versions behind the current Tailwind 4 and CLI 4 stack; it was not applied.
 
-## دامنه اثر و اقدام فعلی
+## Impact and current action
 
-این زنجیره در CLI توسعه shadcn است. npm audit --omit=dev --json در زمان بررسی صفر آسیب‌پذیری گزارش کرد؛ این نتیجه به معنی رفع خطر هنگام اجرای CLI یا اثبات امنیت کل برنامه نیست. registry یا تنظیمات نامطمئن می‌توانند هنگام اجرای ابزار توسعه ورودی مسئله‌دار ایجاد کنند.
+This chain belongs to the shadcn development CLI. At review time, `npm audit --omit=dev --json` reported zero vulnerabilities. That does not remove risk when the CLI runs or prove the whole application is secure. An untrusted registry or configuration could provide problematic input while a development tool is running.
 
-تا انتشار اصلاح upstream، CLI فقط برای افزودن اجزای مورد نیاز از registry رسمی و ورودی بررسی‌شده استفاده شود. پس از انتشار نسخه جدید، وابستگی‌های shadcn و audit دوباره بررسی شوند. حذف CLI گزارش را از درخت نصب حذف می‌کند، اما رفع خود آسیب‌پذیری نیست و در این درخواست انجام نشد.
+Until upstream publishes a fix, use the CLI only to add required components from the official registry and inspect its input. Recheck shadcn dependencies and audit results after a new release. Removing the CLI would remove the findings from the installed tree, but would not fix the vulnerabilities themselves; it was not part of this work.
 
-## بررسی‌های اجراشده
+## Checks performed
 
-- npm audit --json: همان ۶ مورد؛ دو ریشه آسیب‌پذیری.
-- npm audit fix --dry-run --json: صفر تغییر پیشنهادی سازگار.
-- npm audit --omit=dev --json: صفر گزارش.
-- npm view برای نسخه‌ها و dependencies بسته‌های shadcn، deepmerge، minimatch، ts-morph و common.
-- npm ls deepmerge minimatch @shadcn/registry ts-morph @ts-morph/common: زنجیره فوق تأیید شد.
-- npm exec shadcn -- --version: نسخه 4.23.0 با موفقیت اجرا شد.
-- npm exec shadcn -- info: شناسایی Next.js 16.4.3، Tailwind 4، App Router و RTL موفق بود؛ فایل کامپوننتی اضافه نشد.
-- تست محصول یا build مجدد لازم نبود؛ تغییری در کد یا نسخه‌ها انجام نشد.
+- `npm audit --json`: the same six findings; two vulnerability roots.
+- `npm audit fix --dry-run --json`: no compatible changes proposed.
+- `npm audit --omit=dev --json`: no findings.
+- `npm view` for versions and dependencies of shadcn, deepmerge, minimatch, ts-morph, and common.
+- `npm ls deepmerge minimatch @shadcn/registry ts-morph @ts-morph/common`: confirmed the chain above.
+- `npm exec shadcn -- --version`: version 4.23.0 ran successfully.
+- `npm exec shadcn -- info`: identified Next.js 16.4.3, Tailwind 4, App Router, and RTL; no component files were added.
+- No product test or rebuild was needed; no code or package versions changed.
 
-## منابع
+## Sources
 
-- [گزارش رسمی deepmerge](https://github.com/advisories/GHSA-gcqx-w48m-w2h4)
-- [گزارش رسمی minimatch](https://github.com/advisories/GHSA-g3hv-75wg-m249)
-- متادیتای نسخه و dependencies در npm registry، تطبیق‌داده‌شده با package-lock.json همین پروژه.
+- [Official deepmerge advisory](https://github.com/advisories/GHSA-gcqx-w48m-w2h4)
+- [Official minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+- Version and dependency metadata from the npm registry, checked against this project's `package-lock.json`.

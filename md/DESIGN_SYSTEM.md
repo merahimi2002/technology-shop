@@ -1,389 +1,387 @@
-# سیستم طراحی و استاندارد رابط
+# Design System and UI Standards
 
-مرجع موضوعی ظاهر، رنگ، هویت بصری، تایپوگرافی، حرکت و اجزای قابل استفاده مجدد. برای هر کامپوننت فایل Markdown جدا ساخته نشود؛ اطلاعات جدید در بخش مرتبط همین سند یا [ARCHITECTURE.md](ARCHITECTURE.md) قرار بگیرد.
+This is the topic reference for appearance, color, brand identity, typography, motion, and reusable components. Do not create a separate Markdown file for every component; add guidance to this document or [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## قواعد رابط و حرکت
+## UI and motion rules
 
-### قرارداد مشترک فرم‌ها
+### Shared form conventions
 
-این قواعد برای همهٔ فرم‌های پروژه، چه موجود و چه جدید، الزامی‌اند:
+These rules are required for every existing and new project form:
 
-- فیلدهای ضروری کنار برچسب با ستارهٔ رنگ `primary` مشخص شوند؛ برای برچسب از `RequiredFieldLabel` مشترک و برای ورودی بومی از `required` استفاده شود. اعتبارسنجی سمت سرور نیز ضروری‌بودن فیلد را کنترل کند.
-- فیلد اختیاری ستاره نداشته باشد. توضیح عمومیِ «فیلدهای ستاره‌دار ضروری‌اند» به فرم اضافه نشود؛ نشانگر کنار خود فیلد کافی است.
-- پیام خطا و هشدار اعتبارسنجی از `FormError` مشترک، با ظاهر soft، آیکون هم‌اندازهٔ متن و عرض متناسب با محتوا استفاده کنند. خطا از رنگ `error` و نقش `alert`؛ هشدار قابل اصلاح هنگام تایپ از رنگ `warning` و نقش `status` استفاده می‌کند.
+- Mark required fields with a `primary`-colored asterisk beside the label. Use the shared `RequiredFieldLabel` and the native `required` attribute. Server validation must also enforce required values.
+- Optional fields have no asterisk. Do not add a generic “asterisked fields are required” note; the marker beside each field is sufficient.
+- Validation errors and warnings use the shared `FormError`, with a soft appearance, an icon the same size as the text, and content-sized width. Errors use the `error` color and `alert` role; correctable typing warnings use the `warning` color and `status` role.
 
-### ویرایش و نمایش عکس مشترک
+### Shared image editing and display
 
-طرح منتخب مدار با لوگوی برند و نوشتهٔ `NO IMAGE` در نسخه‌های روشن و تیره نگه‌داری می‌شود: `public/images/no-image{,-dark}.{svg,png}`. خروجی‌ها شفاف و ۵۱۲×۵۱۲ هستند و هندسهٔ لوگو از `public/logo.svg` می‌آید. فایل‌های طرح‌های انتخاب‌نشده و نسخه‌های تکراری حذف شده‌اند. طراحی بومی SVG است و منبع خارجی ندارد.
+Keep the selected circuit artwork with brand logo and `NO IMAGE` text in light and dark versions at `public/images/no-image{,-dark}.{svg,png}`. Outputs are transparent and 512×512, and logo geometry comes from `public/logo.svg`. Unselected designs and duplicate versions were removed. Artwork is native SVG with no external source.
 
-اسکلتون فهرست دسته‌بندی از خود `AdminCategories` و جدول مشترک استفاده می‌کند؛ تصویر ۴۰ پیکسلی، نام، نام اختصاصی، تعداد محصولات و دو کنترل هر ردیف placeholder می‌شوند. سرستون، عرض ستون‌ها و ارتفاع ردیف‌ها مشترک‌اند. هنگام dev تعداد واقعی ردیف‌ها و شمارنده حفظ می‌شود؛ در بارگذاری اولیهٔ بدون داده حداکثر پنج ردیف (برای pageSize=1 یک ردیف) موقت است. صفحه‌بندی هنگام loading غیرتعاملی است؛ `aria-busy` و متن وضعیت ترجمه‌شده و توقف حرکت در reduced-motion وجود دارند.
+The category-list skeleton uses `AdminCategories` itself and the shared table. It replaces the 40 px image, name, unique name, product count, and two controls in each row with placeholders. Header, column widths, and row heights are shared. The dev switch preserves the real row count and counter; initial loading without data temporarily shows at most five rows (one for `pageSize=1`). Pagination is non-interactive during loading. `aria-busy`, translated screen-reader status, and reduced-motion support are provided.
 
-تصویر جایگزین قاب‌های غیردایره‌ای از `NoImage` مشترک می‌آید: `public/images/no-image.png` برای تم روشن و `public/images/no-image-dark.png` برای تم تیره. انتخاب نسخه از تم حل‌شدهٔ برنامه (`useTheme` و `SITE_THEMES`) پیروی می‌کند؛ تغییر تم فوراً تصویر را عوض می‌کند و به زبان یا تنظیم مستقل سیستم وابسته نیست. نبود عکس یا شکست دریافت عکس واقعی به همین تصویر می‌رسد. در فرم و جدول دسته‌بندی از آیکونِ تصویر/پوشه به‌جای آن استفاده نشود. متن جایگزینِ دسترس‌پذیر با زبان صفحه ترجمه می‌شود. آواتار حساب همچنان fallback حرف اول نام/آیکون کاربر را حفظ می‌کند.
+For image-free non-circular frames, the shared `NoImage` uses `public/images/no-image.png` in light mode and `public/images/no-image-dark.png` in dark mode. It follows the resolved app theme (`useTheme` and `SITE_THEMES`); changing theme immediately changes the image and does not depend on locale or a separate system setting. Missing or failed real images use this asset. Do not replace it with an image/folder icon in category forms or tables. Translate accessible alt text for the current locale. Account avatars retain the initial/icon fallback.
 
-فرم ساخت/ویرایش دسته‌بندی اسکلتون متناظر با سه ورودی، کنترل‌های عکس، پیش‌نمایش و دکمه‌ها دارد. همان grid و اندازه‌های responsive فرم را دنبال می‌کند، `role="status"` و `aria-busy` دارد و در reduced-motion حرکت نمی‌کند. حالت dev از همان اسکلتون بارگذاری مسیر استفاده می‌کند.
+The category create/edit skeleton corresponds to three inputs, image controls, preview, and buttons. It follows the form's grid and responsive sizes, has `role="status"` and `aria-busy`, and does not animate in reduced-motion. Dev mode uses the route-loading skeleton.
 
-در تمام بخش‌های پروژه، نمایش عکس و پیش‌نمایش آن از `components/ui/image-preview.tsx` (`ImagePreview`) و انتخاب/ویرایش عکس از `components/ui/image-editor.tsx` (`ImageEditor`) انجام شود. برش تصویر از `ImageCrop` مشترک استفاده کند. رفتارهای جدید در همین اجزای مشترک توسعه یابند و کنترل یا fallback موازی ساخته نشود. لوگو و تصویرهای تزئینی ثابت، ورودی عکس کاربر نیستند.
+Across the project, show and preview images with `components/ui/image-preview.tsx` (`ImagePreview`) and select/edit images with `components/ui/image-editor.tsx` (`ImageEditor`). Cropping uses shared `ImageCrop`. Extend these components for new behavior; do not create parallel controls or fallbacks. Logos and fixed decorative images are not user image inputs.
 
-برای ورودی عکس در فرم‌ها از `components/ui/image-editor.tsx` استفاده شود؛ برای اکانت، دسته‌بندی و فرم‌های آینده کنترل موازی ساخته نشود. الگوی مشترک همان عکس اکانت است: دکمه‌های مدادی و حذف/لغو حذف بالای پیش‌نمایش، مودال daisyUI با انتخاب فایل، برش، زوم و موقعیت افقی/عمودی. قاب پروفایل دایره‌ای و قاب دسته‌بندی گوشه‌گرد است. تأیید مودال فقط انتخاب محلی را عوض می‌کند؛ ذخیرهٔ اصلی با تأیید فرم انجام می‌شود.
+Use `components/ui/image-editor.tsx` for image inputs in forms; do not create a parallel account, category, or future-form control. Follow the shared account photo pattern: edit and delete/undo-delete buttons above the preview, a daisyUI modal with file selection, crop, zoom, and horizontal/vertical position controls. Profile frames are circular and category frames rounded. Confirming the modal updates only the local selection; the form confirmation saves the change.
 
-نمایش و fallback عکس اکانت و دسته‌بندی از `ImagePreview` مشترک می‌آید. آواتار نام/آیکون و گرادیانت برند را حفظ می‌کند؛ عکس دسته‌بندی با `object-contain` نمایش داده می‌شود. `ImageCrop` مسئول بوم و کنترل برش است. متن‌ها از کاتالوگ `imageEditor` خوانده می‌شوند؛ جهت و رنگ‌ها تابع زبان و تم جاری‌اند.
+Account and category image display/fallback uses shared `ImagePreview`. The account avatar keeps the name/icon and brand gradient; category images use `object-contain`. `ImageCrop` owns the canvas and crop controls. Text comes from the `imageEditor` catalog; direction and colors follow the current locale and theme.
 
-این سند وضعیت فعلی پیاده‌سازی است؛ تنظیمات آزمایشی قبلی جایگزین شده‌اند.
+This document describes the current implementation; earlier experiments have been replaced.
 
-### قواعد اصلی
+### Core rules
 
-- در فرم دسته‌بندی، ورودی عکس زیر فیلدهای نام قرار گیرد. توضیح عمومیِ ستاره‌ها و ساخت خودکار نام اختصاصی در فرم نمایش داده نشود؛ قرارداد رفتاری در مستندات باقی بماند. خطای مشترک عرض متناسب با محتوا (`w-fit`) و سقف عرض ظرف (`max-w-full`) دارد؛ نوار تمام‌عرض نیست و متن بلند در همان ظرف می‌شکند.
+- In category forms, place the image input below the name fields. Do not show generic notes about asterisks or automatic unique-name generation; keep behavior in documentation. Shared errors use content-fit `w-fit` and `max-w-full`, not a full-width bar; long text wraps inside the same container.
+- Names shown in lists depend only on the current locale: Persian uses `nameFa` and English uses `nameEn`. Do not show the other-language name below it or in a duplicate column. Keep both name inputs in admin forms for bilingual content.
+- Mark required fields with `RequiredFieldLabel` and a primary-colored asterisk, and use the native `required` attribute. In categories, Persian name, English name, and unique name are required; image is optional. In products, names, unique name, category, status, and each variant's name/code/price/stock are required; descriptions are optional.
+- Form errors use the shared `FormError` with `alert alert-soft alert-error`. `CircleAlert` is decorative and `1em`, matching the text size. The message has `role="alert"`, and multiline text sits beside the icon. Catalog and image-editor errors follow this convention.
+- Tailwind CSS is the primary styling method; write utility classes directly in JSX.
+- daisyUI is the source for themes, semantic colors, and standard components such as buttons, inputs, menus, and modals.
+- Prefer shared project components and standard daisyUI components. If they do not cover a needed component, use shadcn with the page direction and daisyUI semantic colors.
+- By default, follow the page locale: Persian is RTL/right-aligned and English is LTR/left-aligned. Use logical Tailwind utilities such as `text-start`, `justify-start`, and `ms-*`. Keep email readable LTR in both languages.
+- Every UI change must work in light and dark modes. Use daisyUI semantic colors for text, background, borders, and states. Prefer standard daisyUI components and shared project components for buttons, forms, and modals.
+- Check layout and readability in the browser in both locales and themes.
+- Implement layout, spacing, sizing, typography, color, responsive behavior, and interaction states with Tailwind. Custom values and variants are allowed when needed.
+- Keep raw CSS for complex effects, masks, glass surfaces, browser compatibility, and image framing. Do not hide ordinary layout in CSS classes or `@apply`.
+- Keep `styles/brand-themes.css` for theme settings and brand color overrides only; do not create a parallel token system or global button/input styles.
+- Preserve semantic classes used by GSAP and custom selectors.
+- Review visual and animation changes in the browser before delivery. For a slider, switch among every product several times and inspect intermediate and final frames.
 
-- نام قابل نمایش در فهرست‌ها فقط تابع زبان جاری باشد: فارسی از `nameFa` و انگلیسی از `nameEn`؛ نام زبان دیگر زیر آن یا در ستون تکراری نمایش داده نشود. هر دو ورودی نام در فرم مدیریت برای تکمیل محتوای دوزبانه باقی بمانند.
-- فیلد ضروری با `RequiredFieldLabel` و ستارهٔ رنگ primary مشخص شود و ویژگی بومی `required` داشته باشد. در دسته‌بندی، نام فارسی، نام انگلیسی و نام اختصاصی ضروری و عکس اختیاری است. در محصول، نام‌ها، نام اختصاصی، دسته‌بندی، وضعیت و فیلدهای نام/کد/قیمت/موجودی هر تنوع لازم‌اند؛ توضیحات اختیاری‌اند.
-- خطاهای فرم از `FormError` مشترک با `alert alert-soft alert-error` استفاده کنند. آیکون `CircleAlert` تزئینی با اندازهٔ `1em` هم‌اندازهٔ متن است؛ پیام `role="alert"` دارد و متن چندخطی کنار آیکون قرار می‌گیرد. خطاهای کاتالوگ و ویرایشگر عکس این قرارداد را اجرا می‌کنند.
+### Shared pagination
 
-- Tailwind CSS روش اصلی استایل‌نویسی است؛ utilityها مستقیم در JSX نوشته شوند.
-- daisyUI مرجع تم، رنگ‌های معنایی و اجزای استاندارد مثل btn، input، menu و modal است.
-- ابتدا از کامپوننت‌های مشترک پروژه و اجزای استاندارد daisyUI استفاده شود. برای جزء موردنیازی که این‌ها پوشش نمی‌دهند، کامپوننت shadcn با جهت زبان و رنگ‌های معنایی تم daisyUI هماهنگ شود.
-- رابط به‌طور پیش‌فرض جهت زبان صفحه را دنبال کند: فارسی RTL و راست‌چین، انگلیسی LTR و چپ‌چین. برای چیدمان از ابزارهای منطقی Tailwind مثل `text-start`، `justify-start` و `ms-*` استفاده شود. ایمیل در هر دو زبان از چپ به راست خوانده شود.
-- هر تغییر رابط باید با هر دو تم روشن و تیره سازگار باشد. برای رنگ متن، زمینه، حاشیه و وضعیت‌ها از رنگ‌های معنایی تم daisyUI استفاده شود. برای دکمه‌ها، فرم‌ها و مودال‌ها ابتدا از اجزای استاندارد daisyUI و کامپوننت‌های مشترک پروژه استفاده شود.
-- چیدمان و خوانایی تغییرات رابط در مرورگر با هر دو زبان و هر دو تم بررسی شود.
-- چیدمان، فاصله، اندازه، تایپوگرافی، رنگ، responsive و حالت‌های تعاملی با Tailwind پیاده‌سازی شوند؛ مقادیر و variantهای دلخواه برای نیاز واقعی مجازند.
-- CSS خام برای افکت‌های پیچیده، mask، سطوح شیشه‌ای، سازگاری مرورگر و قاب‌بندی تصاویر باقی بماند. چیدمان معمولی پشت کلاس CSS یا @apply پنهان نشود.
-- styles/brand-themes.css فقط تنظیمات تم و رنگ برند را نگه می‌دارد؛ سیستم توکن موازی یا استایل سراسری button/input ساخته نشود.
-- کلاس‌های معنایی مورد استفاده GSAP و انتخاب‌گرهای اختصاصی حفظ شوند.
-- تغییرات ظاهری و انیمیشن‌ها قبل از تحویل در مرورگر بررسی شوند؛ برای اسلایدر، چند بار بین همه محصولات جابه‌جا شوید و فریم‌های میانی و حالت نهایی را ببینید.
+All site lists use `components/pagination.tsx` and the range logic in `lib/pagination.ts`. This is the single reference for pagination behavior and appearance.
 
-### صفحه‌بندی مشترک
+- Required props are `page`, `pageCount`, and `pathname`. `query` carries URL filters, `pageParam` names the page parameter, `scroll` controls scrolling, and `className` sets placement layout.
+- Optional `pageSize` enables row-count selection; `pageSizeOptions` supplies choices and `pageSizeParam` names its URL parameter. Shared options are 1, 10, 20, 50, and 100; the default in `lib/pagination.ts` is 20. Changing page size resets to page 1 and preserves search and filters.
+- `total` displays the total result count for the current filter. All admin lists (users, products, categories) pass it to pagination. The counter is at the start, page numbers in the middle, and page-size selector at the end; at narrow widths these sections stack. Do not add a separate counter above the table.
+- Show the current page and up to two pages on each side; every gap outside that range uses an ellipsis, even if it represents only one page. On page 1, the visible range is 1, 2, 3, and an ellipsis.
+- First/last use double arrows; previous/next use single arrows. Boundary buttons are disabled. Empty and single-page lists retain page 1 and four disabled arrows.
+- Number and navigation buttons use `btn-soft btn-primary`. Mark the current page with `aria-current="page"` and the shared primary/secondary/primary conic gradient. Links have accessible names; numbers and arrow directions follow the locale.
+- Keep numbers centered and allow them to wrap when narrow. On wide screens the page-size selector sits beside the numbers; at smaller widths it moves to a separate centered row. The consuming page sets distance from the frame edge.
 
-همهٔ فهرست‌های سایت از `components/pagination.tsx` و منطق بازهٔ شماره‌ها در `lib/pagination.ts` استفاده می‌کنند. این بخش مرجع واحد قرارداد و ظاهر صفحه‌بندی است.
+### Shared table
 
-- ورودی‌های اجباری `page`، `pageCount` و `pathname` هستند. `query` فیلترهای URL، `pageParam` نام پارامتر صفحه، `scroll` رفتار اسکرول و `className` چیدمان محل استفاده را تنظیم می‌کنند.
-- ورودی اختیاری `pageSize` انتخاب تعداد ردیف را فعال می‌کند؛ `pageSizeOptions` گزینه‌ها و `pageSizeParam` نام پارامتر را تعیین می‌کنند. گزینه‌های مشترک ۱، ۱۰، ۲۰، ۵۰ و ۱۰۰ هستند و مقدار پیش‌فرض در `lib/pagination.ts` برابر ۲۰ است. تغییر تعداد، صفحه را به ۱ برمی‌گرداند و جست‌وجو و فیلترها را حفظ می‌کند.
-- ورودی `total` تعداد کل نتایج همان فیلتر را نمایش می‌دهد. همهٔ فهرست‌های مدیریت (کاربران، محصولات و دسته‌بندی‌ها) آن را به صفحه‌بندی می‌دهند؛ شمارنده در ابتدای ردیف صفحه‌بندی، شماره‌ها در وسط و انتخاب تعداد در انتهاست. در عرض کم این بخش‌ها زیر هم قرار می‌گیرند. شمارندهٔ جدا بالای جدول ساخته نشود.
-- فقط صفحهٔ جاری و دو صفحهٔ قبل و بعد نشان داده می‌شوند؛ هر فاصلهٔ خارج از این بازه سه‌نقطه دارد، حتی اگر تنها یک شماره باشد. در صفحهٔ ۱، بازهٔ قابل مشاهده ۱، ۲، ۳ و سه‌نقطه است.
-- اول و آخر با فلش دوتایی و قبلی و بعدی با فلش تکی نمایش داده می‌شوند. دکمه‌های مرزی غیرفعال‌اند. برای فهرست خالی یا تک‌صفحه‌ای، شمارهٔ ۱ و چهار فلش غیرفعال باقی می‌مانند.
-- دکمه‌های شماره‌ها و ناوبری با `btn-soft btn-primary` نمایش داده می‌شوند. شمارهٔ جاری با `aria-current="page"` و گرادیانت مخروطی مشترک primary / secondary / primary مشخص می‌شود. لینک‌ها نام دسترس‌پذیر دارند و اعداد و جهت فلش‌ها از زبان جاری پیروی می‌کنند.
-- شماره‌ها همیشه وسط‌چین‌اند و در عرض کم در صورت نیاز به ردیف بعد می‌روند. انتخاب تعداد در نمایشگر عریض کنار شماره‌ها و در عرض کمتر در ردیف جدا و وسط‌چین می‌آید. فاصله از لبهٔ قاب در محل استفاده تعیین می‌شود.
+The category form has an optional image selector, a 96 px preview, and a delete control. Removal/replacement remains local until the form is confirmed. The category table shows a 40 px thumbnail beside the name. Missing or failed images use the selected brand artwork and `NO IMAGE` from shared `NoImage`, with light/dark selected by the current theme. Name and slug fields remain compact. Previews and thumbnails use `next/image` with `unoptimized` so requests to private image routes include the browser session.
 
-### جدول مشترک
+Every project table, including users, products, categories, and future tables, must use `components/ui/table.tsx` and its compound components. Do not create a parallel table or skeleton. User, product, and category tables already use it. `TableViewport` owns the scroll frame, minimum height, maximum height, and compact mobile-column state. `Table` and `TableHeader` share row spacing, borders, and gradient header. `TableBody`, `TableRow`, `TableHead`, and `TableCell` are compound components; cell content, widths, sorting, and operations stay in the consumer. Preserve the result ref and user skeleton props. Do not build a visually parallel table. Categories, like users, place pagination below the frame.
 
-فرم دسته‌بندی، انتخاب عکس با پیش‌نمایش ۹۶ پیکسلی و کنترل حذف عکس دارد. عکس اختیاری است؛ حذف یا تعویض تا تأیید فرم محلی می‌ماند. بندانگشتی ۴۰ پیکسلی کنار نام دسته‌بندی در جدول نمایش داده می‌شود؛ نبود عکس یا شکست دریافت با طرح منتخب برند و نوشتهٔ `NO IMAGE` از `NoImage` مشترک جایگزین می‌شود؛ نسخهٔ روشن/تیره تابع تم جاری است. فیلدهای نام و نامک همچنان عرض فشرده دارند. پیش‌نمایش و بندانگشتی از next/image با `unoptimized` استفاده می‌کنند تا درخواست مسیر خصوصی، نشست مرورگر را همراه داشته باشد.
+Category table cells and headers follow locale direction: Persian is right-aligned, English left-aligned. The operation column has a primary pencil and error-colored trash button with matching tooltips. Edit opens the same form with existing data; delete has a separate confirmation modal. Category form buttons follow profile editing: cancel with an X using `btn-soft btn-error rounded-full`, then confirm with a check using `btn-success rounded-full`. The group is at the inline end (left in Persian, right in English). Name and slug fields are at most 18 rem wide; three columns on wide screens, two at medium widths, and one on mobile. Delete button and tooltip text simply say “Delete.”
 
-تمام جدول‌های پروژه، شامل کاربران، محصولات، دسته‌بندی‌ها و جدول‌های آینده، باید از `components/ui/table.tsx` و اجزای ترکیبی آن استفاده کنند؛ جدول و اسکلتون اختصاصی با ساختار یا ظاهر موازی ساخته نشود. جدول‌های کاربران، محصولات و دسته‌بندی‌ها اکنون از همین کامپوننت استفاده می‌کنند. TableViewport قاب اسکرول، حداقل ارتفاع، سقف ارتفاع و وضعیت جمع‌شدن ستون موبایل را نگه می‌دارد؛ Table و TableHeader فاصلهٔ ردیف‌ها، حاشیه و سرستون گرادیانی یکسان دارند. TableBody، TableRow، TableHead و TableCell اجزای ترکیبی هستند؛ محتوای سلول، عرض ستون، مرتب‌سازی و عملیات در مصرف‌کننده باقی می‌مانند. ref نتایج و ویژگی‌های اسکلتون کاربران حفظ شده‌اند. جدول مستقل با ظاهر موازی ساخته نشود. دسته‌بندی‌ها مانند کاربران صفحه‌بندی پایین قاب دارند.
+### Admin panel
 
-سلول‌ها و سرستون‌های جدول دسته‌بندی‌ها جهت زبان را دنبال می‌کنند: فارسی راست‌چین و انگلیسی چپ‌چین. ستون عملیات مداد primary و سطل زباله error با تولتیپ هم‌رنگ دارد. ویرایش، همان فرم ساخت را با اطلاعات قبلی باز می‌کند و حذف، مودال تأیید مستقل دارد. دکمه‌های فرم دسته‌بندی مانند ویرایش پروفایل هستند: ابتدا انصراف با ضربدر، `btn-soft btn-error rounded-full` و سپس تأیید با تیک، `btn-success rounded-full`؛ گروه در انتهای جهت زبان قرار می‌گیرد (فارسی چپ، انگلیسی راست). فیلدهای نام و نامک حداکثر ۱۸rem عرض دارند؛ در نمایشگر عریض هر سه در یک ردیف، در عرض میانی دو ستون و در موبایل یک ستون هستند. متن دکمه و تولتیپ حذف فقط «حذف» است.
+Categories have a separate list page; the products-return link and create form were removed from the list. An icon-bearing GradientButton opposite the heading links to the standalone category creation page. Product creation and editing also use a full page in the shared admin frame; the new-product and row-pencil controls are real links. The bilingual product form has two columns on large screens and one on narrow screens; descriptions and variants span the full width. A back link is above the form and save/cancel buttons are at the end. This flow does not use a modal.
 
-### پنل مدیریت
+The sidebar is a tree. Parent nodes use daisyUI's standard `details/summary` menu behavior and are not links. Click or Enter/Space toggles the group without changing the URL. The active route's group opens on entry or child navigation. In collapsed mode, parent and child remain accessible by icon and tooltip; the parent control does not close the mobile drawer, while selecting a child link does. “Theme” is a child of “Settings”; the vertical gap between parent and submenu is 8 px.
 
-دسته‌بندی‌ها صفحهٔ فهرست مستقل دارند؛ پیوند بازگشت به محصولات و فرم ساخت از فهرست حذف شده‌اند. دکمهٔ آیکون‌دار GradientButton روبه‌روی تیتر به صفحهٔ مستقل ساخت دسته‌بندی می‌رود. ساخت و ویرایش محصول نیز در صفحهٔ کامل با قاب مشترک پنل انجام می‌شود؛ دکمهٔ محصول جدید و مداد هر ردیف لینک واقعی هستند. فرم دوزبانهٔ محصول در نمایشگر بزرگ دو ستون و در عرض کم یک ستون دارد؛ توضیحات و تنوع‌ها تمام عرض‌اند. پیوند بازگشت بالای فرم محصول و ذخیره/انصراف انتهای آن قرار دارند. این جریان از مودال استفاده نمی‌کند.
+The AccountAvatar fallback initial/icon sits in a separate span with `text-primary-content` and its own one-second color transition. It is independent from the root color transition and may finish after the root; perfect synchronization with the root is not the current contract. The local transition is disabled in reduced-motion.
 
-سایدبار ساختار درختی دارد؛ گره دارای فرزند از `details/summary` استاندارد menu در daisyUI استفاده می‌کند و لینک نیست. کلیک یا Enter/Space گروه را باز و بسته می‌کند و URL را تغییر نمی‌دهد. گروه مسیر فعال هنگام ورود یا ناوبری به فرزند باز می‌شود. در حالت جمع‌شده، گروه و فرزند با آیکون و tooltip در دسترس‌اند؛ کنترل والد کشوی موبایل را نمی‌بندد و انتخاب پیوند فرزند آن را می‌بندد. «رنگ‌بندی» فرزند «تنظیمات» است؛ میان والد و ابتدای زیرمنو ۸ پیکسل فاصلهٔ عمودی قرار دارد.
+AccountAvatar's background directly uses `linear-gradient(135deg, var(--color-primary), var(--color-secondary))`. It consumes the current theme frame's colors; intermediate `--tw-gradient-*` variables are not involved. This is shared for photo-free avatars in the admin bar, storefront, and account page.
 
-حرف یا آیکون جایگزین عکس در AccountAvatar داخل span مستقل با `text-primary-content` و گذار رنگ محلی یک‌ثانیه‌ای قرار دارد. این گذار مستقل از گذار رنگ ریشه است و ممکن است پس از پایان تغییر تم کامل شود؛ هم‌زمانی کامل با ریشه قرارداد فعلی نیست. در reduced-motion گذار محلی غیرفعال است.
+The sidebar's “Back to store” link has a fixed height of 44 px, single-line truncated text, and a non-shrinking icon. This prevents wrapping or movement while the sidebar width transitions.
 
-پس‌زمینهٔ AccountAvatar از گرادیانت مستقیم `linear-gradient(135deg, var(--color-primary), var(--color-secondary))` استفاده می‌کند؛ رنگ‌های فریم جاری تم مستقیماً مصرف می‌شوند و متغیرهای واسط `--tw-gradient-*` در این آواتار دخیل نیستند. این قرارداد برای آواتار بدون عکس در نوار پنل، فروشگاه و صفحهٔ حساب مشترک است.
+Users and theme headings/subtitles live in the stable layout for each route and the shared AdminPageFrame; the main Title/Subtitle animation runs on page entry. Only content below the heading changes within the loading boundary. Data arrival, filters, and pagination do not remount the heading or restart its animation. Color, typography, and independent locale motion remain. The top-bar search row retains its 40 px space even on the theme page so mobile bar height stays fixed. “Settings” is a collapsible sidebar group, not a standalone view.
 
-لینک «بازگشت به فروشگاه» در سایدبار ارتفاع ثابت ۴۴ پیکسل دارد؛ متن تک‌خطی و truncate است تا حین گذار عرض سایدبار نشکند و جابه‌جا نشود. آیکون همچنان بدون کوچک‌شدن نمایش داده می‌شود.
+The user table area reserves at least `min(70dvh, 30rem)` from initial skeleton through real content so pagination does not jump when data arrives. It grows for longer content, up to 70% of viewport height. While moving between pages of the same list, the greatest observed height is retained. Changing filters, sort, row count, or frame width recalculates the reserved height; long content scrolls inside the area. Real results enter only with a 240 ms opacity transition; filters and table have no vertical entrance motion.
 
-تیتر و زیرتیتر کاربران و رنگ‌بندی در layout ثابت هر مسیر و قاب مشترک AdminPageFrame قرار دارند؛ انیمیشن اصلی Title و Subtitle هنگام ورود به صفحه اجرا می‌شود. فقط محتوای زیر تیتر داخل مرز بارگذاری عوض می‌شود؛ رسیدن داده، فیلتر و صفحه‌بندی تیتر را دوباره mount نمی‌کنند و انیمیشن از ابتدا اجرا نمی‌شود. رنگ، تایپوگرافی و حرکت مستقل تغییر زبان حفظ می‌شوند. ردیف جست‌وجوی نوار بالا حتی در صفحهٔ رنگ‌بندی فضای ۴۰ پیکسلی خود را حفظ می‌کند تا ارتفاع نوار در موبایل ثابت بماند. «تنظیمات» گروه باز و بسته‌شوندهٔ سایدبار است و نمای مستقل ندارد.
+Sidebar and back-to-store tooltips use `tooltip-primary`, with primary background and primary-content text. They appear on the sidebar's left in Persian and right in English.
 
-ناحیهٔ جدول کاربران از ابتدا حداقل فضای `min(70dvh, 30rem)` را در اسکلتون و محتوای واقعی رزرو می‌کند تا جای صفحه‌بندی با رسیدن داده نپرد. ارتفاع با محتوای بلندتر افزایش می‌یابد و سقف آن ۷۰ درصد ارتفاع نمایشگر است. هنگام جابه‌جایی صفحات همان فهرست، بیشترین ارتفاع دیده‌شده حفظ می‌شود تا جای صفحه‌بندی نپرد. تغییر فیلتر، مرتب‌سازی، تعداد ردیف یا عرض قاب، ارتفاع رزروشده را دوباره محاسبه می‌کند؛ محتوای بلند درون ناحیه اسکرول می‌شود. نتایج واقعی فقط با گذار opacity در ۲۴۰ میلی‌ثانیه ظاهر می‌شوند؛ فیلترها و جدول حرکت عمودی ورود ندارند.
+The content area moves with the sidebar and top bar during locale changes. In collapsed mode, sidebar labels and the back-to-store link use standard daisyUI tooltips on hover/focus. The wave canvas color reads the current theme color on every frame so it follows light/dark transitions.
 
-تولتیپ‌های آیتم‌های سایدبار و بازگشت به فروشگاه از `tooltip-primary` با زمینهٔ primary و متن primary-content استفاده می‌کنند. سمت نمایش در فارسی چپ و در انگلیسی راست سایدبار است.
+Locale changes move the sidebar and top-bar groups with the home-page layout transition over 620 ms. Parent movement is subtracted from child movement so top-bar groups do not move twice. Under reduced motion, direction and language update immediately.
 
-ناحیهٔ محتوای صفحات همراه سایدبار و نوار بالا در تغییر زبان جابه‌جا می‌شود. در حالت جمع‌شده، برچسب آیتم‌های سایدبار و بازگشت به فروشگاه به شکل tooltip استاندارد daisyUI با هاور و فوکوس نمایش داده می‌شود. رنگ بوم موج در هر فریم از رنگ جاری تم خوانده می‌شود تا با گذار روشن و تیره همگام بماند.
+The shared account avatar is 40 px beside user names; without a photo it shows a name initial or icon. Table rows use translucent backgrounds, subtle separators, and soft hover feedback. Sidebar item spacing is 8 px. The wave button is 24 px, matching the visual surface of the locale flag.
 
-تغییر زبان، سایدبار و گروه‌های نوار بالا را با همان حرکت جابه‌جایی صفحهٔ اصلی در ۶۲۰ میلی‌ثانیه منتقل می‌کند. جابه‌جایی والد از حرکت فرزند کم می‌شود تا گروه‌های داخل نوار دوبار حرکت نکنند. در حالت کاهش حرکت، جهت و زبان فوراً به‌روز می‌شوند.
+The users page uses the shared frame. It shows Subtitle “Account administration” and Title “People & access” with the home page's shared motion and color; filters and table follow, with pagination at the bottom of the same frame. Role and status follow daisyUI's “Filter using HTML form, radio buttons and reset button” example. Each has its own `filter` form with radios and a `type="reset"` button using `btn-soft btn-error`. Group labels are bold and large, aligned with their options. A `divider-secondary` divider appears vertically between groups on desktop only; mobile has no line between filters. Clear-all uses `btn-soft btn-error` beside the groups, with a separate desktop divider. Selecting or resetting a group submits the Next.js form immediately and refreshes the table while preserving search and the other group. Clear-all restores the full user list.
 
-آواتار مشترک حساب با اندازهٔ ۴۰ پیکسل کنار نام کاربران قرار دارد و در نبود عکس، جایگزین نام یا آیکون نمایش داده می‌شود. ردیف‌های جدول زمینهٔ نیمه‌شفاف، جداکنندهٔ کم‌رنگ و بازخورد رنگی ملایم هنگام هاور دارند. فاصلهٔ آیتم‌های سایدبار ۸ پیکسل است. دکمهٔ موج با اندازهٔ ۲۴ پیکسل با سطح دیداری پرچم زبان هماهنگ است.
+Role badges show only the role name: owner uses the brand gradient, customer uses `badge-soft badge-info`, and admin uses `badge-soft badge-primary`. Membership dates use fully numeric day/month with leading zeros and LTR direction in both locales. The current account row uses `primary/12`. Role and status headers have ascending/descending sort controls and `aria-sort`; the sort control remains in the header and accessible on mobile.
 
-صفحهٔ کاربران در قاب مشترک، ابتدا Subtitle «مدیریت حساب‌ها» و Title «اعضا و دسترسی‌ها» (در انگلیسی Account administration و People & access) را با حرکت و رنگ مشترک صفحهٔ اصلی نشان می‌دهد؛ فیلترها و جدول زیر آن قرار می‌گیرند و صفحه‌بندی پایین همین قاب قرار دارد. نقش و وضعیت مطابق نمونهٔ «Filter using HTML form, radio buttons and reset button» در daisyUI، هرکدام فرم مستقل با کلاس `filter`، رادیو و دکمهٔ `type="reset"` با رنگ `btn-soft btn-error` دارند. برچسب هر گروه درشت و پررنگ و هم‌خط گزینه‌هاست؛ divider با `divider-secondary` فقط در دسکتاپ عمودی بین گروه‌ها قرار می‌گیرد؛ در موبایل خط بین فیلترها نمایش داده نمی‌شود. دکمهٔ پاک‌کردن همهٔ فیلترها با `btn-soft btn-error` کنار گروه‌هاست و در دسکتاپ divider مستقل دارد. انتخاب یا پاک‌کردن هر گروه فوراً فرم Next.js را ارسال می‌کند و جدول را با حفظ جست‌وجو و گروه دیگر به‌روز می‌کند. پاک‌کردن همهٔ فیلترها فهرست کامل کاربران را برمی‌گرداند.
+The operation column is titled “Edit” with a pencil icon. Each non-owner row has three soft icon buttons, ordered by locale direction, for role change, enable/disable, and delete. Promotion uses a keyed user icon and success color; demotion uses a crossed-out user and error color; status uses a checked/crossed user; deletion uses a trash icon. Each tooltip matches its button, appears on hover/focus, and opens above the control. Operation controls follow locale direction: right-aligned in Persian and left-aligned in English. Each icon frame is 32 px with 8 px between icons. The owner row shows a non-clickable key and shield with an account-protection explanation.
 
-نشان نقش در جدول فقط نام نقش را نمایش می‌دهد: مالک گرادیانت برند، کاربر `badge-soft badge-info` و مدیر `badge-soft badge-primary`. تاریخ عضویت در هر زبان کاملاً عددی، با روز و ماه دو رقمی و جهت LTR است. ردیف حساب جاری زمینهٔ `primary/12` دارد. نقش و وضعیت در سرستون دکمهٔ مرتب‌سازی صعودی/نزولی و `aria-sort` دارند؛ کنترل مرتب‌سازی در سرستون باقی می‌ماند و در موبایل هم قابل دسترسی است.
+Each operation has its own confirmation modal with the shared `glass-header` surface and 24 px corners. The operation icon appears before the title on a soft, matching surface. The modal shows action, account name, and effect. Cancel/confirm buttons are right-aligned in English and left-aligned in Persian. Cancel uses `btn-soft btn-neutral` so it remains distinct from the glass surface on hover in both themes. During submission, buttons and Escape-close are disabled. Errors appear inside the modal; success closes it. Deletion separately explains permanence and the restriction on accounts with orders.
 
-عنوان ستون عملیات «ویرایش» با آیکون مداد است. سه دکمهٔ آیکونی soft در ردیف غیرمالک، به‌ترتیب جهت زبان، برای تغییر نقش، فعال/غیرفعال‌کردن و حذف حساب قرار دارند. ارتقا با کاربر دارای کلید و رنگ success، تنزل با کاربر خط‌خورده و رنگ error، وضعیت با کاربر دارای تیک/ضربدر و حذف با سطل زباله مشخص می‌شود. تولتیپ هر عملیات هم‌رنگ دکمه است، در هاور و فوکوس نمایش داده می‌شود و بالای کنترل باز می‌شود. کنترل‌های ستون ویرایش جهت زبان را دنبال می‌کنند: فارسی راست‌چین و انگلیسی چپ‌چین؛ قاب هر آیکون ۳۲ پیکسل و فاصلهٔ بین آیکون‌ها ۸ پیکسل است. ردیف مالک فقط کلید و سپر غیرقابل‌کلیک با توضیح حفاظت حساب دارد.
+The background toggle uses the shared brand gradient and changes its icon with wave state. Search follows locale direction and alignment. The collapse control uses `btn-soft btn-secondary` and double arrows. The back-to-store area is separated from navigation by a top border.
 
-هر عملیات مودال تأیید مستقل با سطح مشترک `glass-header` و گوشهٔ ۲۴ پیکسلی دارد. پیش از تیتر مودال، همان آیکون عملیات روی سطح soft هم‌رنگ آن قرار می‌گیرد. عنوان عملیات، نام حساب و توضیح اثر نمایش داده می‌شوند؛ گروه دکمه‌های «انصراف» و «تأیید» در انگلیسی راست‌چین و در فارسی چپ‌چین است. دکمهٔ انصراف مودال‌های ویرایش کاربران از `btn-soft btn-neutral` استفاده می‌کند تا در هاور هر دو تم از سطح شیشه‌ای متمایز بماند. هنگام ارسال، دکمه‌ها و بستن با Escape غیرفعال‌اند. خطا داخل مودال نمایش داده می‌شود و موفقیت آن را می‌بندد. حذف، هشدار دائمی‌بودن و محدودیت حساب دارای سفارش را جداگانه توضیح می‌دهد.
+The user table header uses a medium gradient from `primary/16` to `secondary/16`, `base-content` text, primary icons and bold titles, a `primary/15` separator, and 14 px bold labels aligned to the locale start. The users, shield, status, calendar, and pencil icons are 16 px and decorative to screen readers. A 16 px vertical gap separates the header from rows; the header remains visible on mobile. The table frame has 16 px corners and a subtle border. Filters sit beneath the heading divider; the table frame is 16 px below filters and 12 px from mobile edges or 20 px on wider screens.
 
-دکمهٔ پس‌زمینه گرادیانت مشترک برند دارد و آیکون آن با وضعیت موج تغییر می‌کند. جست‌وجو جهت و تراز زبان جاری را دنبال می‌کند. کنترل جمع‌کردن سایدبار از `btn-soft btn-secondary` و فلش دوتایی استفاده می‌کند. بخش بازگشت به فروشگاه با خط بالایی از ناوبری جدا می‌شود.
+The dedicated admin top bar shows section title, user search, theme control, locale switch, and admin profile on a glass surface. Search navigates to the users page, preserves active filters, and moves to a second row on mobile. The wave button toggles the shared dotted background from the sign-in page. Dot size and contrast are stronger for the full-page admin surface. Turning the waves off removes the canvas and movement ring. Reduced-motion draws the wave statically.
 
-سرستون جدول کاربران گرادیانت با شدت میانه از `primary/16` به `secondary/16` و نوشته با `base-content` و آیکون با `primary` و عنوان ضخیم، جداکنندهٔ `primary/15` و برچسب‌های ۱۴ پیکسلی ضخیم با تراز ابتدای زبان دارد. کنار عنوان‌ها آیکون‌های کاربران، سپر، وضعیت، تقویم و مداد با اندازهٔ ۱۶ پیکسل قرار دارند و برای صفحه‌خوان تزئینی‌اند. فاصلهٔ عمودی ۱۶ پیکسل، سرستون را از ردیف‌های داده متمایز می‌کند؛ در موبایل هم سرستون نمایش داده می‌شود. قاب جدول گوشه‌های ۱۶ پیکسلی و حاشیهٔ ظریف دارد؛ فیلترها زیر خط جداکنندهٔ تیتر قرار دارند و قاب جدول از آن‌ها ۱۶ پیکسل و از کناره‌ها در موبایل ۱۲ و در عرض بزرگ‌تر ۲۰ پیکسل فاصله می‌گیرد.
+The panel fills the viewport. The sidebar collapses to an icon rail at desktop widths and opens as a drawer from the same side on mobile. Sidebar, users content header, filters, and results use the storefront menu's glass surface. Heading and subtitle use Title and Subtitle. The daisyUI table retains its table structure on mobile and scrolls horizontally inside its frame; `table-pin-cols` keeps the first column (name, email, avatar) fixed at the locale start. On mobile, the initial first-column width is 176 px; name/email are single-line and truncated. After 12 px of horizontal scrolling, the column collapses to 72 px and shows only the avatar. Returning to the start restores details. Other headers scroll and do not appear beneath the pinned column. Desktop columns are not pinned. Email remains LTR regardless of page direction, and operations use confirmation modals.
 
-نوار اختصاصی بالای پنل عنوان بخش، جست‌وجوی کاربران، کنترل تم، تغییر زبان و نمایهٔ مدیر را روی سطح شیشه‌ای نشان می‌دهد. جست‌وجو به صفحهٔ کاربران می‌رود، فیلترهای جاری را حفظ می‌کند و در موبایل در ردیف دوم می‌آید. دکمهٔ موج‌ها پس‌زمینهٔ نقطه‌ای مشترک با صفحهٔ ورود را در پنل روشن یا خاموش می‌کند. اندازه و کنتراست نقطه‌های پنل برای سطح تمام‌صفحه بیشتر است. با خاموش‌کردن آن، بوم و حلقهٔ حرکت حذف می‌شوند. در حالت کاهش حرکت، موج به‌صورت ثابت رسم می‌شود.
+Desktop sidebar width transitions over 240 ms. GSAP animates the mobile drawer and filters on entry and results when filters, sort, or page change. Motion runs only when `prefers-reduced-motion: no-preference`. The Next.js form sends filters through client navigation to the URL.
 
-پنل تمام عرض و ارتفاع صفحه را در اختیار دارد. سایدبار در ابتدای چیدمان به نوار آیکون جمع می‌شود و در موبایل به شکل کشو از همان سمت باز می‌شود. سایدبار، سربرگ محتوای کاربران، فیلتر و نتایج از همان سطح شیشه‌ای منوی فروشگاه استفاده می‌کنند. تیتر و زیرتیتر از Title و Subtitle استفاده می‌کنند. جدول daisyUI در موبایل هم ساختار جدولی دارد و داخل قاب خودش اسکرول افقی می‌شود؛ `table-pin-cols` ستون اول شامل نام، ایمیل و آواتار را در ابتدای زبان ثابت نگه می‌دارد. در موبایل، عرض اولیهٔ ستون اول ۱۷۶ پیکسل است و نام و ایمیل تک‌خطی با سه‌نقطه نمایش داده می‌شوند؛ بعد از ۱۲ پیکسل اسکرول افقی، ستون به ۷۲ پیکسل و فقط آواتار جمع می‌شود. با برگشت به ابتدا، اطلاعات بازمی‌گردند. سرستون‌های دیگر اسکرول می‌شوند و زیر ستون ثابت دیده نمی‌شوند. در دسکتاپ ستون‌ها ثابت نیستند. ایمیل مستقل از جهت صفحه چپ به راست است و عملیات دسترسی با مودال تأیید انجام می‌شود.
+### Shared heading: Title
 
-عرض سایدبار دسکتاپ طی ۲۴۰ میلی‌ثانیه تغییر می‌کند. GSAP کشوی موبایل و فیلترها را هنگام ورود و نتایج را هنگام تغییر فیلتر، مرتب‌سازی یا صفحه حرکت می‌دهد. حرکت‌ها تنها با ترجیح `prefers-reduced-motion: no-preference` اجرا می‌شوند. فرم Next.js فیلترها را با ناوبری کلاینت به URL می‌فرستد.
+Path: `components/title.tsx`. Client component that can also render from a server page.
 
-### تیتر مشترک: Title
+| Property      | Current behavior                                   |
+| ------------- | -------------------------------------------------- |
+| Element       | `h2` by default; `as` accepts `h1`–`h6`            |
+| Size          | `clamp(1.5rem, 2.5vw, 2.25rem)`; normally 24–36 px |
+| Direction     | `auto` by default; configurable                    |
+| Persian       | Vazirmatn, natural tracking, line-height 1.6       |
+| LTR           | Arial, `-0.025em` tracking, line-height 1.25       |
+| Color         | Continuous gradient from the primary palette only  |
+| Active motion | Scatter; asymmetric word translation and rotation  |
 
-مسیر: components/title.tsx. کامپوننت کلاینت است و از صفحه سرور نیز قابل رندر است.
+Gradient runs from `color-mix(in srgb, var(--color-primary) 65%, black)` to `color-mix(in srgb, var(--color-primary) 45%, white)`; secondary is not used. Each word's background uses the full shared heading width and an origin based on its position, so the gradient does not restart per word. `autoSplit` recalculates dimensions on resize and font load.
 
-| ویژگی     | وضعیت فعلی                                                          |
-| --------- | ------------------------------------------------------------------- |
-| تگ        | h2 پیش‌فرض؛ as از h1 تا h6                                          |
-| اندازه    | clamp(1.5rem, 2.5vw, 2.25rem)؛ با اندازه پایه معمول، ۲۴ تا ۳۶ پیکسل |
-| جهت       | auto پیش‌فرض؛ قابل تغییر                                            |
-| فارسی     | Vazirmatn، tracking طبیعی، line-height برابر ۱٫۶                    |
-| LTR       | Arial، tracking برابر ‎-0.025em و line-height برابر ۱٫۲۵            |
-| رنگ       | گرادیانت پیوسته فقط از طیف primary                                  |
-| حرکت فعال | scatter؛ جابه‌جایی و چرخش نامتقارن کلمه‌ها                          |
+When split, `data-text-split` disables the parent's gradient and enables gradient only on words. `onRevert` removes the attribute and restores the plain text gradient. This prevents a black flash during transition and duplicate/overlapping text rendering.
 
-گرادیانت از color-mix(in srgb, var(--color-primary) 65%, black) به color-mix(in srgb, var(--color-primary) 45%, white) است؛ secondary در تیتر استفاده نمی‌شود. پس‌زمینه کلمه‌ها عرض مشترک برابر کل تیتر و مبدأ متناسب با جایگاه هر کلمه دارد؛ بنابراین گرادیانت روی هر کلمه از نو شروع نمی‌شود. autoSplit با تغییر عرض و بارگذاری فونت، اندازه‌ها را دوباره محاسبه می‌کند.
-
-در حالت تقسیم‌شده، data-text-split گرادیانت والد را خاموش می‌کند و فقط گرادیانت کلمه‌ها فعال است. در onRevert این ویژگی حذف می‌شود و گرادیانت متن ساده برمی‌گردد. این منطق هم فلش مشکی هنگام تعویض و هم رسم تکراری و هم‌پوشان حروف را رفع می‌کند.
-
-حرکت با SplitText و تقسیم words,lines انجام می‌شود؛ فقط کلمه‌ها متحرک‌اند. دامنه x برابر ±۴۸ پیکسل، y برابر ±۶۰ پیکسل، چرخش صفحه‌ای ±۱۶ درجه و rotationX برابر ±۶۵ درجه است. مدت ۰٫۸ ثانیه، منحنی power3.out و stagger با ترتیب تصادفی و دامنه ۰٫۲۴ ثانیه است.
+Motion uses SplitText with `words,lines`; only words move. X range is ±48 px, y ±60 px, 2D rotation ±16 degrees, and `rotationX` ±65 degrees. Duration is 0.8 seconds with `power3.out`; randomized stagger spans 0.24 seconds.
 
 ```tsx
 import { Title } from '@/components/title';
 
-<Title as="h1">انتخابی برای میز کار تو</Title>;
+<Title as="h1">A choice for your desk</Title>;
 ```
 
-children، className و ویژگی‌های استاندارد تیتر پذیرفته می‌شوند. active پیش‌فرض true و delay پیش‌فرض صفر برای اسلایدر در دسترس‌اند. تیتر هیرو با active محصول منتخب و delay برابر ۰٫۵۸ ثانیه استفاده می‌شود. ورود آن از انیمیشن گروهی متن جداست؛ خروج با متن هماهنگ است.
+Accepts `children`, `className`, and standard heading props. `active` defaults to true and `delay` to zero for sliders. The hero Title uses the selected product as `active` and a 0.58-second delay. Its entrance is separate from the grouped text animation; its exit is coordinated with the text.
 
-### زیرتیتر مشترک: Subtitle
+### Shared subtitle: Subtitle
 
-مسیر: components/subtitle.tsx. کامپوننت کلاینت برای متن کوتاه و آیکون دلخواه است. children، icon، className، ویژگی‌های پاراگراف، active و delay را می‌پذیرد. آیکون ۱۶ پیکسلی، ثابت و تزئینی است؛ در هیرو Store استفاده می‌شود.
+Path: `components/subtitle.tsx`. Client component for short copy and a replaceable icon. Accepts `children`, `icon`, `className`, paragraph props, `active`, and `delay`. The 16 px icon is fixed and decorative; the hero uses Store.
 
-حرکت special از ورود نمونه [Split Special Characters](https://codepen.io/GreenSock/pen/KoJOJb) گرفته شده است؛ بخش تکرار و انفجار متن اجرا نمی‌شود.
+Special motion is based on [Split Special Characters](https://codepen.io/GreenSock/pen/KoJOJb); repeated and exploding text behavior is not used.
 
-| تنظیم حرکت        | مقدار فعلی                                            |
-| ----------------- | ----------------------------------------------------- |
-| تقسیم             | chars با گروه‌بندی بخش‌های متصل فارسی در specialChars |
-| جابه‌جایی اولیه y | ۱۰ پیکسل                                              |
-| چرخش اولیه        | ۲۵ درجه                                               |
-| مدت               | ۱٫۴ ثانیه                                             |
-| فاصله شروع واحدها | ۰٫۱ ثانیه                                             |
-| منحنی             | elastic.out(1, 0.3)                                   |
-| تأخیر در هیرو     | ۰٫۵۲ ثانیه                                            |
+| Motion setting        | Current value                                                 |
+| --------------------- | ------------------------------------------------------------- |
+| Split                 | `chars`, grouping connected Persian parts with `specialChars` |
+| Initial y translation | 10 px                                                         |
+| Initial rotation      | 25 degrees                                                    |
+| Duration              | 1.4 seconds                                                   |
+| Stagger               | 0.1 seconds                                                   |
+| Ease                  | `elastic.out(1, 0.3)`                                         |
+| Hero delay            | 0.52 seconds                                                  |
 
-فهرست specialChars از واژه‌های خود متن ساخته می‌شود؛ فاصله‌ها، اعراب و نیم‌فاصله حفظ می‌شوند و اتصال حروف فارسی شکسته نمی‌شود. کاراکترهای دیگر از تقسیم استاندارد SplitText استفاده می‌کنند.
+The `specialChars` list is built from the text's words; spaces, diacritics, and half-spaces are preserved so Persian character connections do not break. Other characters use the standard SplitText split.
 
 ```tsx
 import { Store } from 'lucide-react';
 import { Subtitle } from '@/components/subtitle';
 
-<Subtitle icon={<Store />}>انتخاب تک‌شاپ</Subtitle>;
+<Subtitle icon={<Store />}>The Tech Shop choice</Subtitle>;
 ```
 
-### منطق مشترک متن
+### Shared text logic
 
-مسیر: hooks/use-text-reveal.ts. از GSAP، useGSAP، SplitText و IntersectionObserver استفاده می‌کند. حرکت فقط در صورت فعال‌بودن و ورود به دید شروع می‌شود. cleanup هنگام تغییر یا حذف کامپوننت اجرا می‌شود. aria: auto متن کامل را برای صفحه‌خوان نگه می‌دارد؛ بدون JavaScript متن خواناست و در reduced-motion حرکت ورودی اجرا نمی‌شود.
+Path: `hooks/use-text-reveal.ts`. Uses GSAP, `useGSAP`, SplitText, and IntersectionObserver. Motion begins only when active and in view. Cleanup runs when the component changes or unmounts. `aria: auto` keeps the full text for screen readers; text is readable without JavaScript, and entrance motion is disabled for reduced-motion.
 
-واژه‌ها و واحدهای متحرک inline-block هستند؛ transform روی span با display برابر inline به‌صورت بصری اعمال نمی‌شود. حالت rotate نیز در هوک موجود است، ولی در Title و Subtitle فعال نیست.
+Words and animated units use `inline-block`; transforms on an `inline` span do not render visually. The hook also supports `rotate`, but Title and Subtitle do not enable it.
 
-### دکمه مشترک: GradientButton
+### Shared button: GradientButton
 
-مسیر: components/gradient-button.tsx. بر پایه btn btn-primary از daisyUI و utilityهای Tailwind است؛ قانون CSS خام دکمه هیرو حذف شده است.
+Path: `components/gradient-button.tsx`. Built on daisyUI `btn btn-primary` and Tailwind utilities; the raw CSS hero button rule was removed.
 
-قاب محتوای دکمه با `inline-flex items-center justify-center gap-2` متن و آیکون ثابت را عمودی وسط‌چین می‌کند؛ دکمهٔ ویرایش منوی حساب از همین قاب مشترک استفاده می‌کند.
+The button content frame uses `inline-flex items-center justify-center gap-2` to keep text and icon fixed and vertically centered. The account-menu edit button uses the same shared frame.
 
-برای گرادیانت conic، موقعیت شروع روی دکمه و لایه before با `from-0%` صریح است. در خروجی production مقدار پیش‌فرض صفرِ property نوع length-percentage می‌تواند به `0px` محاسبه شود که در conic-gradient نامعتبر است؛ درصد صریح باید حفظ شود. بررسی ۲۰۲۶/۱۱/۰۶ در مرورگر بیلد Webpack، background-image معتبر را برای هر سه دکمه و لایه before تأیید کرد.
+The conic gradient's start position on the button and `before` layer is explicitly `from-0%`. In production, a zero default for a `length-percentage` property may compute to `0px`, which is invalid in `conic-gradient`; keep the explicit percentage. A 2026-11-06 browser review of the Webpack build confirmed valid `background-image` on all three buttons and their `before` layers.
 
-| ویژگی            | مقدار فعلی                                                                        |
-| ---------------- | --------------------------------------------------------------------------------- |
-| گرادیانت پیش‌فرض | conic با primary / secondary / primary                                            |
-| گزینه دیگر       | gradient="linear"؛ در هیرو استفاده نمی‌شود                                        |
-| اندازه           | ارتفاع ۴۰، padding افقی ۱۶ و عمودی ۸ پیکسل                                        |
-| گوشه             | کاملاً گرد                                                                        |
-| آیکون            | اختیاری و ۱۶ پیکسلی؛ در هیرو ArrowLeft                                            |
-| type             | button پیش‌فرض                                                                    |
-| سایر ورودی‌ها    | children، className، ref و ویژگی‌های استاندارد button، از جمله onClick و disabled |
+| Property         | Current value                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| Default gradient | Conic, primary / secondary / primary                                                       |
+| Alternate        | `gradient="linear"`; not used in the hero                                                  |
+| Size             | 40 px high, 16 px horizontal and 8 px vertical padding                                     |
+| Corners          | Fully rounded                                                                              |
+| Icon             | Optional, 16 px; hero uses `ArrowLeft`                                                     |
+| Type             | Defaults to `button`                                                                       |
+| Other props      | `children`, `className`, `ref`, and standard button props such as `onClick` and `disabled` |
 
-فقط یک دکمه «کشف محصول» در هر اسلاید وجود دارد و پنجره معرفی همان محصول را باز می‌کند. دکمه آزمایشی دوم حذف شده است.
+Each slide has one “Discover product” button, which opens that product's introduction. The second experimental button was removed.
 
-هاور گرادیانت با چرخش ۱۸۰ درجه‌ای لایه مخروطی در ۳۰۰ میلی‌ثانیه و منحنی cubic-bezier(0.23, 1, 0.32, 1) اجرا می‌شود. هنگام خروج موس، لایه برمی‌گردد. این تنظیم مستقل از حرکت فلش و متن است.
+On hover, the gradient rotates 180 degrees over 300 ms with `cubic-bezier(0.23, 1, 0.32, 1)`. It returns when the pointer leaves. This is independent of arrow and text motion.
 
-فلش افقی ابتدا در سمت چپ نوشته است. در هاور از لبه چپ خود دکمه خارج می‌شود و نسخه دوم از بیرون لبه راست به جای قبل از نوشته وارد می‌شود. متن هم ۲۴ پیکسل به چپ می‌رود. حرکت فلش و متن ۵۰۰ میلی‌ثانیه با cubic-bezier(0.77, 0, 0.175, 1) است. قاب برش، خود دکمه است؛ عرض دکمه هنگام هاور ثابت می‌ماند. دو نسخه آیکون تزئینی‌اند و برای صفحه‌خوان تکرار نمی‌شوند.
+The horizontal arrow starts to the left of the label. On hover it exits the button's left edge, and a second copy enters from beyond its right edge to the position before the label. Text also moves 24 px left. Arrow and text motion lasts 500 ms with `cubic-bezier(0.77, 0, 0.175, 1)`. The button itself clips the movement and keeps a fixed width. Both arrow copies are decorative and are not repeated for screen readers.
 
-هاور فقط با pointer دقیق، پشتیبانی hover، دکمه فعال و motion-safe اجرا می‌شود؛ reduced-motion و disabled حرکت را غیرفعال می‌کنند. هندسه فعلی جابه‌جایی فلش برای دکمه RTL طراحی شده است.
+Hover runs only for precise pointers that support hover, on an enabled button, and with motion-safe. Reduced-motion and disabled state turn off the motion. Current arrow geometry is designed for the RTL hero button.
 
 ```tsx
 import { ArrowLeft } from 'lucide-react';
 import { GradientButton } from '@/components/gradient-button';
 
 <GradientButton icon={<ArrowLeft />} onClick={openDetails}>
-  کشف محصول
+  Discover product
 </GradientButton>;
 ```
 
-### بررسی‌های انجام‌شده
+### Completed reviews
 
-- تعویض شش‌باره بین هر سه محصول با نمونه‌برداری فریم‌های میانی: گرادیانت حفظ شد و لایه اضافی کلمه‌ها دیده نشد.
-- مرورگر گرادیانت مخروطی و هاور آن را با rotate برابر ۱۸۰ درجه تأیید کرد.
-- حرکت نهایی فلش: جایگاه نسخه اول نسبت به چپ دکمه از ۱۶ به ‎-۳۲ پیکسل رسید؛ نسخه دوم از بیرون راست وارد شد و متن ۲۴ پیکسل جابه‌جا شد. عرض دکمه و مدت ۳۰۰ میلی‌ثانیه‌ای گرادیانت ثابت ماندند.
-- بازشدن معرفی با کلیک روی دکمه تأیید شد. لمس روی گوشی فیزیکی بررسی نشده است.
+- Six repeated transitions among all three products with intermediate-frame sampling: gradient remained intact and no extra word layer appeared.
+- Browser review confirmed the conic gradient and its 180-degree hover rotation.
+- Final arrow motion: first copy's position relative to the button's left edge moved from 16 to -32 px; second copy entered from beyond the right edge and text moved 24 px. Button width and 300 ms gradient duration stayed fixed.
+- Clicking the button opened the introduction. Touch interaction on a physical phone was not checked.
 
-## تم و رنگ
+## Themes and color
 
-نسخهٔ نصب‌شده daisyUI 5.7.50 است. این بخش مرجع جاری ظاهر تم است؛ جریان ذخیره و کنترل دسترسی در [معماری](ARCHITECTURE.md#ناوبری-و-پوسته) و نتایج آزمون در [توسعه](DEVELOPMENT.md#بررسی-تنظیمات-رنگ‌بندی) قرار دارند.
+Installed daisyUI version is 5.7.50. This is the current theme appearance reference. Save flow and authorization are in [Architecture](ARCHITECTURE.md#navigation-and-shell); test results are in [Development: theme settings review](DEVELOPMENT.md#theme-settings-review).
 
-### گزینه‌های کاربر
+### User options
 
-پنجرهٔ ظاهر فروشگاه شش کارت با این ترتیب دارد:
+The storefront appearance dialog has six cards in this order:
 
-1. **تم اصلی سایت**؛ گزینهٔ ثابت اول با جفت TechLight/TechDark.
-2. **چهار تم مدیر**؛ چهار انتخاب رسمی ذخیره‌شده، با همان ترتیب.
-3. **رنگ دلخواه**؛ گزینهٔ ثابت آخر با پیش‌فرض رنگ‌های برند.
+1. **Site default theme** — fixed first option, pairing `TechLight` and `TechDark`.
+2. **Four admin themes** — the four saved official selections, in the same order.
+3. **Custom color** — fixed last option, defaulting to brand colors.
 
-TechLight و TechDark در فهرست انتخاب مدیریت نیستند و یکی از چهار انتخاب مدیر محسوب نمی‌شوند. انتخاب اولیه brand با mode=system است؛ انتخاب قبلی معتبر کاربر بازیابی می‌شود. کلیک روی هر گزینه فوراً ظاهر را عوض می‌کند. تاگل هدر، حالت روشن/تیره را با حفظ انتخاب پالت تغییر می‌دهد؛ تم رسمی در حالت مخالف از همتای برند استفاده می‌کند.
+`TechLight` and `TechDark` are not in the admin selection list and are not part of the four admin choices. Initial selection is `brand` with `mode=system`; a valid previous user choice is restored. Clicking an option changes appearance immediately. The header toggle changes light/dark mode while preserving the palette selection; official themes use the paired brand theme in the opposite mode.
 
-گزینهٔ رنگ دلخواه ورودی‌های بومی primary و secondary هر دو حالت را باز می‌کند. مقدار اولیه DEFAULT_CUSTOM_COLORS برند است؛ تغییر فوراً اعمال و محلی ذخیره می‌شود. بازنشانی چهار رنگ اولیه را برمی‌گرداند. کارت custom رنگ‌های تیرهٔ ذخیره‌شده را پیش‌نمایش می‌کند. رنگ متن روی رنگ دلخواه بر اساس کنتراست سیاه/سفید انتخاب می‌شود.
+Custom color exposes native primary and secondary inputs for both modes. Initial values are brand `DEFAULT_CUSTOM_COLORS`; changes apply immediately and are stored locally. Reset restores all four defaults. The custom card previews saved dark colors. Text color over a custom color is selected by black/white contrast.
 
-### انتخاب چهار تم در مدیریت
+### Choosing four admin themes
 
-مسیر `/[locale]/admin/settings/theme` زیر «تنظیمات ← رنگ‌بندی» برای ADMIN و OWNER است و ۳۵ تم رسمی daisyUI دارد. نام‌ها از `siteSettings.themeNames` در کاتالوگ‌های فارسی/انگلیسی خوانده می‌شوند؛ شناسهٔ داده و `data-theme` همان نام رسمی باقی می‌ماند. همین ترجمه‌ها در پنجرهٔ کاربر استفاده می‌شوند.
+`/[locale]/admin/settings/theme` is under “Settings → Theme” for ADMIN and OWNER and lists 35 official daisyUI themes. Names come from `siteSettings.themeNames` in the Persian/English catalogs; data IDs and `data-theme` remain the official names. The same translations are used in the user dialog.
 
-- هر کارت checkbox بومی با ظاهر گرد radio دارد تا چهار انتخاب هم‌زمان ممکن باشد؛ جایگاه شماره‌دار جداگانه وجود ندارد.
-- منتخب‌ها با ترتیب انتخاب در ابتدای فهرست‌اند. با انتخاب پنجم، قدیمی‌ترین عضو حذف و تم جدید به انتها اضافه می‌شود.
-- کلیک، پیش‌نمایش کل صفحه را فوراً عوض می‌کند. آرایهٔ چهارتایی خودکار ذخیره می‌شود؛ کمتر از چهار فقط پیش‌نویس است.
-- در انتظار ذخیره، کارت‌ها غیرفعال و spinner کنار شمارنده نمایان است. خطای واقعی نمایش داده و آخرین مجموعهٔ ذخیره‌شده بازیابی می‌شود؛ پیام موفقیت نمایش داده نمی‌شود.
-- کارت منتخب opacity برابر ۱۰۰٪ و سایر کارت‌ها ۶۰٪ دارند. هاور ماوس یا فوکوس کیبورد کارت انتخاب‌نشده را به ۱۰۰٪ می‌رساند و خروج، آن را به ۶۰٪ برمی‌گرداند؛ گذار opacity در ۲۵۰ میلی‌ثانیه با ease-out است و در reduced-motion غیرفعال می‌شود.
+- Each card uses a native checkbox with a rounded radio appearance so four themes can be selected at once; there are no separate numbered positions.
+- Selected themes appear first in selection order. Choosing a fifth removes the oldest entry and adds the new theme at the end.
+- A click immediately previews the whole page. The four-item array saves automatically; fewer than four remain a draft.
+- During save, cards are disabled and a spinner appears beside the counter. A real error is shown and the last saved set restored; no success message is shown.
+- Selected-card opacity is 100%, other cards 60%. Hover or keyboard focus raises an unselected card to 100%; exit returns it to 60%. Opacity transitions over 250 ms with ease-out and is disabled in reduced-motion.
 
-### چیدمان و کنترل‌ها
+### Layout and controls
 
-صفحه از قاب glass-header، Title/Subtitle و فاصله‌گذاری مشترک صفحهٔ کاربران استفاده می‌کند. شبکه در دسکتاپ عریض شش ستون دارد و در عرض‌های پایین‌تر چهار، سه و دو ستون می‌شود. اسکرول داخلی شبکه حذف شده و فقط اسکرول طبیعی صفحه وجود دارد.
+The page uses the shared `glass-header` frame, Title/Subtitle, and spacing of the users page. The grid has six columns on wide desktop, then four, three, and two at smaller widths. Internal grid scrolling was removed; only normal page scrolling remains.
 
-فیلتر همه/روشن/تیره و تعداد نتایج کنار هم با divider عمودی هستند. دکمهٔ **تم اصلی سایت** کنار تعداد، گزینهٔ brand را در provider فعال می‌کند و چهار انتخاب مدیر را تغییر نمی‌دهد. شمارنده در انتهای همان ردیف، با جهت LTR، ارقام لاتین و صفر ابتدایی مانند `01/04` تا `04/04` نمایش داده می‌شود. جست‌وجوی محلی و جست‌وجوی کاربران در نوار بالای این صفحه حذف شده‌اند؛ جست‌وجوی خود صفحهٔ کاربران حفظ شده است.
+All/light/dark filters and result count sit together with a vertical divider. **Site default theme** beside the count activates the provider's `brand` option without changing the four admin choices. A counter at the end of the same row uses LTR, Latin digits, and leading zeros such as `01/04` through `04/04`. Local search and user search were removed from this page; user search remains on the users page.
 
-فضای نوار اسکرول ریشه ثابت است و لینک‌های سایدبار `scroll=false` دارند. حالت بارگذاری تم از همان کامپوننت، ترتیب تنظیمات provider و اندازهٔ کارت‌های نهایی استفاده می‌کند. فارسی RTL و انگلیسی LTR است؛ رنگ‌ها و اجزا از daisyUI می‌آیند و موتور توکن موازی ساخته نشده است.
+Root scrollbar space is fixed and sidebar links use `scroll=false`. Theme loading uses the same component, provider settings order, and final card sizes. Persian is RTL and English is LTR; colors and components come from daisyUI, with no parallel token generator.
 
-### فایل‌های اصلی
+### Main files
 
-- `lib/site-theme.ts`: فهرست رسمی، رد Techها در انتخاب مدیر، بازیابی انتخاب و bootstrap.
-- `lib/theme.ts`: پیش‌فرض و اعتبارسنجی رنگ دلخواه و stylesheet رنگ‌ها.
-- `components/admin/theme-settings.tsx`: انتخاب مستقیم، جایگزینی قدیمی‌ترین تم، فیلتر و بازگشت به تم اصلی.
-- `components/theme-switcher.tsx`: شش گزینه و ویرایش/بازنشانی رنگ دلخواه.
-- `components/theme-provider.tsx`: حالت، گذار تغییر رنگ، ذخیرهٔ محلی و همگام‌سازی برگه‌ها.
-- `components/site-theme-provider.tsx` و `lib/site-settings.ts`: خواندن تنظیم مشترک در مرز درخواست.
-- `styles/brand-themes.css`: فعال‌سازی تم‌های رسمی و overrideهای برند.
+- `lib/site-theme.ts`: official list, rejecting Tech themes in admin selection, restoring choice, and bootstrap.
+- `lib/theme.ts`: custom color defaults/validation and color stylesheet.
+- `components/admin/theme-settings.tsx`: direct selection, oldest-theme replacement, filter, and reset to site default.
+- `components/theme-switcher.tsx`: six options and custom color edit/reset.
+- `components/theme-provider.tsx`: mode, color transition, local storage, and tab synchronization.
+- `components/site-theme-provider.tsx` and `lib/site-settings.ts`: read shared settings at request boundary.
+- `styles/brand-themes.css`: official theme activation and brand overrides.
 
-## هویت بصری
+## Visual identity
 
-نشان تأییدشده، سبد چرخ‌دار مورب با مونوگرام TS و بدنهٔ نیمه‌شفاف است. بافت مدار و نمای ثابت موج نقطه‌ای صفحهٔ ورود درون بدنه قرار دارند. دو سر گرادیان نشان از primary و secondary تم فعال خوانده می‌شوند. رنگ مونوگرام و نقاط نشان از base-content تم فعال می‌آید. گرادیان CSS لوگو پشت ماسک SVG سبد قرار دارد و هنگام گذار روز و شب هم‌زمان با رنگ‌های تم تغییر می‌کند.
+The approved mark is an angled wheeled cart with a TS monogram and translucent body. The circuit texture and fixed dotted-wave view from the sign-in page sit inside the body. Gradient endpoints use the active theme's primary and secondary colors. The monogram and dots use the active theme's `base-content`. The logo's CSS gradient sits behind the cart's SVG mask and transitions with day/night theme colors.
 
-هندسه و رنگ‌های پایهٔ برند حفظ شده‌اند؛ رفتار جاری انتخاب تم در [DESIGN_SYSTEM.md#تم-و-رنگ](DESIGN_SYSTEM.md#تم-و-رنگ) است. پیش‌نمایش‌های آزمایشی شش پالت و گزینه‌های غیرفعال ۴ تا ۶ از مولد حذف شده‌اند؛ فقط دارایی‌های مصرفی سایت تولید می‌شوند.
+Brand geometry and base colors are retained; current theme-selection behavior is in [Themes and color](#themes-and-color). Experimental six-palette previews and inactive options 4–6 were removed from the generator; only site-used assets are produced.
 
-### استفاده
+### Usage
 
 ```tsx
 import { Logo } from '@/components/logo';
 
-// با تم فعال سایت هماهنگ است.
+// Follows the active site theme.
 <Logo label={brandName} width={96} height={96} />;
 ```
 
-SVG مستقل و favicon هنگام تولید، رنگ‌های TechLight را از همان فایل تم می‌خوانند و برای سازگاری با تبدیل تصویر به sRGB می‌برند.
+The standalone SVG and generated favicon read TechLight colors from the same theme file and convert them to sRGB for image conversion compatibility.
 
-### فایل‌ها
+### Files
 
-- public/logo.svg: SVG شفاف با viewBox برابر 0 0 140 140 و بدون فونت یا bitmap.
-- components/logo.tsx: نسخه React با دو پراپ رنگ.
-- scripts/generate-logo.mjs: منبع مشترک تولید؛ تغییر هندسه از این فایل انجام شود.
-- app/icon.svg و app/favicon.ico: نسخه پیش‌فرض برند؛ ICO با اندازه‌های 16، 32 و 48.
-- public/favicons: دارایی‌های favicon برند؛ provider فعلی از navy.svg استفاده می‌کند.
+- `public/logo.svg`: transparent SVG with `viewBox="0 0 140 140"`, no font or bitmap.
+- `components/logo.tsx`: React version with two color props.
+- `scripts/generate-logo.mjs`: shared generation source; change geometry here.
+- `app/icon.svg` and `app/favicon.ico`: default brand versions; ICO sizes 16, 32, and 48.
+- `public/favicons`: brand favicon assets; current provider uses `navy.svg`.
 
-favicon روی زمینهٔ روشن ثابت قرار می‌گیرد تا روی تب‌های روشن و تیره دیده شود. favicon جاری با تعویض تم ثابت می‌ماند؛ رنگ لوگوی داخل صفحه از تم فعال می‌آید.
+The favicon has a fixed light background so it remains visible in light and dark browser tabs. Current favicon stays fixed when the theme changes; the in-page logo follows the active theme.
 
-تولید مجدد با npm run assets:generate؛ بررسی‌ها و محدودیت‌های واقعی در DESIGN_SYSTEM.md#تم-و-رنگ ثبت شده‌اند.
+Regenerate with `npm run assets:generate`. Real checks and limitations are in [Themes and color](#themes-and-color).
 
-### چیدمان هدر و جست‌وجو
+### Header and search layout
 
-دسته‌بندی و منوهای دسکتاپ در ردیف اصلی بین لوگو و کنترل‌ها هستند. نوشته انگلیسی زیر لوگو حذف شده است. آخرین دکمه گروه کنترل‌ها جست‌وجو را در modal باز می‌کند؛ فیلد فوکوس می‌گیرد و میان‌بر / نیز همین پنجره را باز می‌کند. فرم جست‌وجوی ثابت دسکتاپ و موبایل حذف شده است؛ ثبت جست‌وجو پنجره را می‌بندد و وضعیت نتایج موجود را نشان می‌دهد.
+Desktop categories and menus sit in the main row between logo and controls. The English text below the logo was removed. The last control button opens search in a modal and focuses the field; `/` also opens it. The fixed desktop/mobile search field was removed. Submission closes the modal and shows the existing result state.
 
-### رنگ نهایی انتخاب‌شده
+### Final selected color
 
-رنگ primary در لایت و دارک با OKLCH در فایل تم تعریف شده است. رنگ دوم در بخش بعد ثبت شده است. پنل مقایسه، اسلایدرها و overrideهای موقت حذف شدند؛ رنگ‌های منتخب در تم‌های اصلی TechLight و TechDark ثبت شده‌اند.
+Primary colors for light and dark are defined with OKLCH in the theme file. The secondary color is recorded in the next section. The comparison panel, sliders, and temporary overrides were removed; selected colors are in the main `TechLight` and `TechDark` themes.
 
-### رنگ دوم و تم دلخواه
+### Secondary color and custom theme
 
-این بخش سابقهٔ رنگ‌های برند تا ۲۰۲۶/۱۱/۰۵ است. رابط رنگ دلخواه با [تنظیم سراسری تم](#تم-و-رنگ) جایگزین شده است.
+This section records brand colors through 2026-11-05. The color interface was replaced by [global theme settings](#themes-and-color).
 
-| حالت | primary نهایی     | secondary نهایی         |
-| ---- | ----------------- | ----------------------- |
-| روشن | hsl(244 100% 36%) | #008879                 |
-| تیره | hsl(190 100% 55%) | hsl(169.49 100% 53.53%) |
+| Mode  | Final primary       | Final secondary           |
+| ----- | ------------------- | ------------------------- |
+| Light | `hsl(244 100% 36%)` | `#008879`                 |
+| Dark  | `hsl(190 100% 55%)` | `hsl(169.49 100% 53.53%)` |
 
-شناسه داخلی پالت پیش‌فرض همچنان navy است. هندسه لوگو حفظ شده؛ فایل SVG و favicon پیش‌فرض با رنگ اصلی جدید بازتولید شده‌اند.
+The internal default palette ID remains `navy`. Logo geometry is preserved; the SVG and default favicon were regenerated with the new primary color.
 
-- چهار کارت تم در شبکه دو در دو با فاصله ۱۲ پیکسل هستند؛ سه پالت آماده و «رنگ دلخواه».
-- مودال انتخاب تم حداکثر ۴۴۰ پیکسل عرض، padding برابر ۲۰ پیکسل و فاصله‌های فشرده دارد.
-- کارت دلخواه، رنگ اصلی و دوم ذخیره‌شده برای حالت فعال را در لوگو و نمونه رنگ‌ها نمایش می‌دهد.
-- چهار انتخاب‌گر بومی رنگ در یک ردیف هستند؛ دو گروه روشن و تیره، همراه آیکون بازنشانی، تمام عرض داخلی مودال را پر می‌کنند. انتخاب‌گرهای هر گروه در مرکز و با فاصله ۴ پیکسل قرار دارند.
-- مربع رنگ ۴۰ پیکسل با گوشه گرد ۸ پیکسل است؛ کادر، padding داخلی و سایه swatch بومی در WebKit و Firefox حذف شده‌اند. Firefox به‌صورت مستقیم بررسی نشده است.
-- متن توضیحی بالای رنگ‌ها حذف شده؛ اسلایدرهای فام/اشباع/روشنی و پنل‌های موقت آزمایشی در نسخه نهایی وجود ندارند.
-- بازنشانی آیکون RotateCcw با اندازه ۱۸ داخل دکمه دایره‌ای ۳۲ پیکسلی است؛ زمینه base-content/7 و هاور گرادیانتی مانند هدر دارد. هر چهار رنگ به DEFAULT_CUSTOM_COLORS برمی‌گردند و خودکار ذخیره می‌شوند.
+- Four theme cards use a two-by-two grid with 12 px gaps: three preset palettes and “Custom color.”
+- Theme modal is at most 440 px wide, with 20 px padding and compact gaps.
+- The custom card previews the saved primary and secondary colors for the active mode in the logo and swatches.
+- Four native color pickers sit in one row; light/dark groups and reset icon fill the modal's inner width. Each group's pickers are centered with 4 px spacing.
+- Swatches are 40 px squares with 8 px rounded corners. Border, inner padding, and native swatch shadow were removed in WebKit and Firefox; Firefox was not directly checked.
+- Explanatory text above colors was removed; hue/saturation/lightness sliders and temporary test panels are not in the final version.
+- Reset is an 18 px `RotateCcw` inside a 32 px circle. Background is `base-content/7`, with a header-like gradient hover. It restores all four `DEFAULT_CUSTOM_COLORS` and saves automatically.
 
-رنگ دلخواه به‌صورت hex شش‌رقمی ذخیره و اعتبارسنجی می‌شود؛ رنگ نوشته بر اساس کنتراست سیاه یا سفید است. جزئیات جریان ذخیره و bootstrap در [معماری](ARCHITECTURE.md#تعامل‌ها) هستند. favicon تم دلخواه نسخه پیش‌فرض برند است.
+Custom color is stored and validated as six-digit hex; text is black or white based on contrast. Save flow and bootstrap details are in [Architecture: interactions](ARCHITECTURE.md#interactions). A custom theme uses the default favicon.
 
-هدر، مودال حساب و نمای اصلی صفحهٔ حساب برای کاربر واردشده عکس پروفایل را نمایش می‌دهند. در نمای اصلی صفحهٔ حساب، آواتار پیش از گروه تیتر و زیرتیتر قرار دارد. اگر عکس موجود نباشد یا بارگیری نشود، حرف اول نام و در صورت خالی بودن نام، آیکون حساب نمایش داده می‌شود. جایگزین عکس پس‌زمینهٔ گرادیانی از رنگ اصلی و ثانویه دارد. نقطهٔ آنلاین `avatar-online` روی تصویر حساب در هدر نمایش داده می‌شود. فرم ویرایش حساب دکمه‌های ویرایش و حذف را بالای عکس نشان می‌دهد. دکمهٔ ویرایش مودال انتخاب و برش عکس را باز می‌کند. در مودال، پیش‌نمایش در ابتدای ردیف انتخاب فایل قرار می‌گیرد و نوارهای برش رنگ اصلی تم را دارند. دکمهٔ «ذخیره» در مودال، پیش‌نمایش کنار تیتر را به‌روز می‌کند و ذخیرهٔ فرم تغییر را ثبت می‌کند. حذف عکس با ذخیرهٔ فرم اعمال می‌شود و تا آن زمان قابل لغو است. انتخاب عکس در فرم ساخت حساب اختیاری است و از همان دکمه‌های ویرایش و حذف کنار تیتر و مودال انتخاب و برش استفاده می‌کند. فرم ساخت و ویرایش حساب پیش‌نمایش دایره‌ای از برش عکس را سمت چپ و روبه‌روی تیتر و زیرتیتر نشان می‌دهند. جابه‌جایی با کشیدن عکس یا کنترل‌های موقعیت و بزرگ‌نمایی با نوار لغزنده انجام می‌شود. تصویر ذخیره‌شده از همان برش پیش‌نمایش ساخته می‌شود. نشان استاندارد daisyUI برای نقش در مودال روبه‌روی نام و ایمیل قرار دارد. نام و ایمیل تک‌خطی‌اند و متن بلند با سه‌نقطه کوتاه می‌شود. دکمه‌های مودال حساب در همهٔ نقش‌ها اندازهٔ معمول دارند و در عرض کم به ردیف بعد می‌روند. هر دکمهٔ مودال آیکون دارد و در عرض ۳۶۰ پیکسل و کمتر، برچسب پیوند مدیریت کوتاه می‌شود. نقش `CUSTOMER` در فارسی «کاربر» و در انگلیسی «User» نمایش داده می‌شود. در صفحهٔ حساب، نقش مانند نام و ایمیل در یک ردیف با آیکون نمایش داده می‌شود. پیوند پنل مدیریت در هر دو محل برای مدیر و مالک نمایش داده می‌شود. در صفحهٔ حساب، پیوند گرادیانی پنل مدیریت با آیکون داشبورد پیش از دکمهٔ خروج با رنگ `error` قرار دارد. مودال خلاصهٔ حساب از `modal` و `modal-box` استفاده می‌کند و دکمهٔ گرادیانی «ویرایش» را با آیکون مداد کنار دکمهٔ خروج نشان می‌دهد. این دکمه زبانهٔ ویرایش اطلاعات را باز می‌کند.
+The header, account modal, and main account page show the signed-in user's profile photo. On the main account page, the avatar precedes the heading/subtitle group. If the photo is absent or fails to load, show the name's first initial, or an account icon when the name is empty. The fallback has a primary/secondary gradient. The header uses daisyUI `avatar-online`. The account edit form has edit and delete buttons above the photo; edit opens the image selection/crop modal. The modal preview is at the start of the file-selection row and crop bars use the active primary color. Modal “Save” updates the preview beside the heading; form save commits it. Photo deletion is applied with form save and can be cancelled until then. Registration photo is optional and uses the same edit/delete buttons and image modal. Account create/edit forms show a circular crop preview to the left of the heading/subtitle. Dragging or position controls move the crop; a slider adjusts zoom. Saved image uses the same crop shown in preview. A standard daisyUI role badge sits opposite name/email in the modal. Name and email are single-line and truncate long text. Account modal buttons have standard size for every role and wrap at narrow width. Each modal button has an icon; at 360 px and below, the admin link label shortens. `CUSTOMER` is shown as “User” in English and Persian. On the account page, role appears in the same icon row as name and email. Admin and owner see the admin link in both locations. On the account page, the gradient admin link with dashboard icon comes before the error-colored sign-out button. The account summary uses `modal` and `modal-box`; the gradient “Edit” button with pencil sits beside sign-out and opens the Edit profile tab.
 
-### دکمه بستن مشترک مودال‌ها
+### Shared modal close button
 
-تمام مودال‌های هدر، معرفی محصول و منوی موبایل از components/modal-close-button.tsx استفاده می‌کنند. ظاهر مشترک btn btn-circle btn-soft btn-error، اندازه دکمه ۳۲ پیکسل و X برابر ۱۸ پیکسل با strokeWidth=1.7 است. نام دسترس‌پذیر از ترجمه محل استفاده به‌صورت prop اجباری می‌آید و متن پیش‌فرض مستقل ندارد. جای دکمه با className قابل تنظیم است؛ منطق بستن همان form بومی method=dialog است.
+All header, product-introduction, and mobile-menu dialogs use `components/modal-close-button.tsx`. Shared appearance is `btn btn-circle btn-soft btn-error`, with a 32 px button and an 18 px X at `strokeWidth=1.7`. Accessible name is a required prop translated at the call site; there is no separate default label. Placement can be customized with `className`; closing uses native `form method=dialog`.
 
-### فرم حساب
+### Account form
 
-AccountPanel در صفحهٔ حساب، فرم ورود و ثبت‌نام و وضعیت کاربر واردشده را نشان می‌دهد. فیلدها و دکمه‌ها از کلاس‌های استاندارد daisyUI و چیدمان Tailwind استفاده می‌کنند. برچسب‌ها و پیام‌های موفقیت/خطا از کاتالوگ فارسی/انگلیسی هستند؛ ایمیل و رمز جهت LTR دارند و متن و چیدمان از زبان رابط پیروی می‌کنند. حالت انتظار فرم با aria-busy و غیرفعال‌شدن فیلدها، و پیام‌ها با status یا alert اعلام می‌شوند. رمز ثبت‌نام ۸ تا ۱۲۸ نویسه است. فیلدها ۳۶ پیکسل ارتفاع دارند. اندازهٔ متن ورودی ۱۴ پیکسل و متن راهنمای داخل فیلد ۱۲ پیکسل است. آیکون‌های نام، ایمیل و قفل در ابتدای منطقی آن‌ها قرار می‌گیرند و رنگ خطا یا هشدار همان فیلد را می‌گیرند. دکمهٔ نمایش رمز دایره‌ای است و عرض دکمه‌های اصلی فرم با محتوا تنظیم می‌شود.
+`AccountPanel` shows sign-in, registration, and signed-in status on the account page. Fields and buttons use standard daisyUI classes and Tailwind layout. Labels and success/error messages come from Persian/English catalogs; email and password are LTR, while text and layout follow the UI locale. Pending state uses `aria-busy` and disables fields; messages use status or alert. Registration passwords are 8–128 characters. Fields are 36 px high, input text is 14 px, and placeholder text is 12 px. Name, email, and lock icons sit at the logical start and take the field's error/warning color. Password visibility control is circular; primary form buttons size to content.
 
-### بررسی نهایی هدر و تنظیم رنگ — ۲۰۲۶/۱۱/۰۵
+### Final header and color review — 2026-11-05
 
-npm run check و npm run build موفق بودند؛ ۲۲ تست موجود شامل بازیابی امن رنگ دلخواه و کنتراست برند پاس شدند. مرورگر نسخه تولیدی: جست‌وجوی مودال و ارسال فارسی، رنگ‌های نهایی روشن/تیره، انتخاب custom و ماندگاری رنگ پس از reload، هماهنگی کارت پیش‌نمایش، بازنشانی چهار رنگ، چیدمان موبایل، swatchهای گرد و دکمه مشترک در مودال تم و معرفی محصول بررسی شدند. پس از آخرین تغییر ظاهری، lint و build نیز موفق بودند. این بررسی جای تست گوشی فیزیکی، Firefox یا ارزیابی جامع دسترس‌پذیری را نمی‌گیرد.
+`npm run check` and `npm run build` succeeded; 22 existing tests, including secure custom-color recovery and brand contrast, passed. Production-browser review covered modal search and Persian submission, final light/dark colors, selecting custom color and persistence after reload, preview-card matching, resetting all four colors, mobile layout, rounded swatches, and the shared button in theme and product-introduction modals. Lint and build also succeeded after the final visual change. This does not replace physical-phone testing, Firefox testing, or a comprehensive accessibility evaluation.
 
-### پاک‌سازی دارایی‌ها
+### Asset cleanup
 
-پیش‌نمایش‌های آزمایشی md/assets/logo-palettes با فرمت‌های SVG، PNG و JSON و نسخه تکراری public/logo-mark.svg حذف شدند. دستور assets:generate فقط لوگوی مصرفی و faviconهای سه پالت را تولید می‌کند؛ شناسه‌های داخلی و هندسه برند حفظ شده‌اند.
+Experimental previews in `md/assets/logo-palettes` (SVG, PNG, and JSON) and duplicate `public/logo-mark.svg` were removed. `assets:generate` now creates only the used logo and favicon assets for three palettes; internal IDs and brand geometry are preserved.
 
-## نسخه انگلیسی
+## English version
 
-نسخه `/en` چیدمان LTR و فونت سیستمی Arial دارد. تیتر و بدنه از سمت آغاز متن تراز می‌شوند؛ جهت فلش‌ها و حرکت دکمه با زبان هماهنگ است. پس‌زمینه و نور استودیوی هیرو در انگلیسی آینه می‌شوند تا متن روی بخش خلوت تصویر بماند؛ خود تصاویر محصول آینه نمی‌شوند. رنگ‌ها و کلاس‌های استاندارد daisyUI بین زبان‌ها مشترک‌اند.
+The `/en` version uses LTR layout and system Arial. Heading and body align to the text start; arrow direction and button motion follow the locale. The hero studio background and lighting are mirrored in English to keep text over the quiet part of the image; product images are not mirrored. Colors and standard daisyUI classes are shared across locales.
 
-انتخاب زبان در هدر با پرچم SVG محلی در قاب دایره‌ای ۲۴ پیکسلی و دکمه دایره‌ای ۳۲ پیکسلی انجام می‌شود: پرچم ایران در نسخه انگلیسی و پرچم بریتانیا در نسخه فارسی، زبان مقصد را نشان می‌دهد. نام دسترس‌پذیر لینک، زبان مقصد را مشخص می‌کند؛ نمایش پرچم به پشتیبانی ایموجی سیستم وابسته نیست.
+The header locale control uses a local SVG flag inside a 24 px circular icon and a 32 px circular button: Iran's flag in English and the UK flag in Persian indicate the destination. The link's accessible name identifies the destination locale; flag rendering does not depend on emoji support.
 
-تغییر زبان با WAAPI و الگوی FLIP اجرا می‌شود: جای قبلی بخش‌های متحرک پیش از تغییر ثبت و پس از commit زبان و جهت، با transform در ۶۲۰ میلی‌ثانیه به جای جدید منتقل می‌شود؛ منحنی cubic-bezier(0.77, 0, 0.175, 1) است. هدر در همهٔ صفحه‌ها و بخش‌های مشخص‌شده با `data-locale-motion` در صفحه‌های داخلی از همین موشن استفاده می‌کنند. برای عبور متن و محصول در دسکتاپ، مسیر میانی متن کمی بالاتر و محصول پایین‌تر است. بدنه هیچ fade ندارد؛ تم و محصول انتخابی ثابت می‌مانند. در reduced-motion و فعال‌سازی با صفحه‌کلید تغییر مستقیم است. reveal حروف هنگام جابه‌جایی زبان اجرا نمی‌شود تا دو انیمیشن روی هم نیفتند. جهت تعویض معمول محصولات همچنان از RTL/LTR گرفته می‌شود.
+Locale changes use WAAPI and the FLIP pattern: positions of animated sections are captured before change and moved to their new positions with transforms over 620 ms after locale commit and direction update; easing is `cubic-bezier(0.77, 0, 0.175, 1)`. The header on all pages and sections marked `data-locale-motion` on internal pages use this motion. For text and product to cross on desktop, the text path passes slightly higher and product path lower. The body has no fade; theme and selected product remain unchanged. Reduced-motion and keyboard activation change directly. Letter reveals are paused during locale movement to avoid overlapping animations. Normal product transition direction still follows RTL/LTR.
 
-### گذار حالت روشن و تیره
+### Light/dark transition
 
-تغییر دستی روشن/تیره، انتخاب پالت و رنگ دلخواه همگی در ۱۰۰۰ میلی‌ثانیه با ease انجام می‌شوند. گرادیانت آواتار بدون عکس نیز از همان رنگ‌های در حال تغییر استفاده می‌کند و مسیر تغییر رنگ فوری جداگانه ندارد. رنگ‌های استاندارد daisyUI با @property به‌صورت color ثبت شده‌اند و فقط روی ریشه transition می‌گیرند؛ رنگ‌ها در خود رابط، گرادیانت، متن و لوگو پیوسته تغییر می‌کنند. تصویر ثابت یا لایه View Transition وجود ندارد، بنابراین حرکت محصول و FLIP زبان هم‌زمان زنده می‌مانند. تغییر سریع حالت، گذار CSS را از رنگ میانی به مقصد جدید هدایت می‌کند. در reduced-motion تغییر مستقیم است و بازیابی تم اولیه نیز انیمیشن ندارد. ثبت propertyها فقط برای رفتار گذار است؛ مقادیر و رنگ برند همچنان در brand-themes.css باقی می‌مانند.
+Manual light/dark changes, palette selection, and custom-color updates all transition over 1,000 ms with ease. The photo-free avatar gradient uses the same changing colors and has no separate instant color path. Standard daisyUI colors are registered with `@property` as `color` and transition only on the root; colors move continuously in the UI, gradients, text, and logo. No fixed image or View Transition snapshot exists, so product motion and locale FLIP stay live at the same time. A rapid mode change redirects the CSS transition from its current intermediate color to the new target. Reduced-motion changes directly, and initial theme restoration does not animate. Property registration supports transition behavior only; values and brand colors remain in `brand-themes.css`.
 
-## پس‌زمینه‌های مشترک
+## Shared backgrounds
 
-موج ذرات Canvas و بافت مدار SVG بخشی از هویت بصری مشترک فروشگاه‌اند. در صفحه‌ها و بخش‌های دیگر سایت هم این دو پس‌زمینه را به کار ببرید تا ظاهر بخش‌ها به هم پیوسته بماند.
+The Canvas particle wave and SVG circuit texture are part of the storefront's shared visual identity. Use both on other pages and sections to keep the experience cohesive.
 
-- برای بخش‌هایی که پس‌زمینهٔ متحرک و تعاملی دارند، از همان [موج ذرات Canvas](../components/particle-terrain.tsx) استفاده کنید.
-- برای زمینهٔ ثابت فرم‌ها، کارت‌ها و پنل‌های شیشه‌ای، از [بافت مدار](../components/circuit-backdrop.tsx) با همان [تصویر SVG](../public/circuit-traces.svg) استفاده کنید.
+- For an interactive animated background, use the shared [Canvas particle wave](../components/particle-terrain.tsx).
+- For a static background on forms, cards, and glass panels, use the [circuit texture](../components/circuit-backdrop.tsx) with the same [SVG asset](../public/circuit-traces.svg).
 
-موج و بافت را پشت محتوا قرار دهید و شدت آن‌ها را طوری تنظیم کنید که متن و کنترل‌ها خوانا بمانند. موج در حالت کاهش حرکت ثابت نمایش داده می‌شود.
+Place the wave and texture behind content, and tune their intensity so controls and text remain readable. The wave is static under reduced-motion.
 
-## صفحهٔ حساب
+## Account page
 
-پیوند «فراموشی رمز عبور» در فرم ورود، مودال درخواست ایمیل را باز می‌کند. پیوند ایمیل، صفحهٔ تنظیم رمز جدید را با زبان درخواست باز می‌کند.
+The “Forgot password” link on sign-in opens the email-request modal. The email link opens the set-new-password page in the request locale.
 
-بوم تب ویرایش اطلاعات هنگام ارسال فرم در وضعیت انتظار است، خطای اعتبارسنجی یا ذخیره را با حالت خطا نشان می‌دهد و پس از ذخیره به حالت موفقیت در خلاصهٔ حساب می‌رسد. تیتر مودال تغییر رمز از کامپوننت مشترک Title استفاده می‌کند.
+The Edit profile tab canvas shows a pending state while saving, an error state for validation/save failures, then a success state in the account summary after saving. The password-change modal heading uses the shared Title.
 
-در زبانهٔ ویرایش اطلاعات، دکمهٔ گرادیانی و وسط‌چین «تغییر رمز عبور» زیر جداکننده قرار دارد و فرم را در مودال باز می‌کند. با هر بار بازشدن مودال، سه فیلد و دکمهٔ ذخیره با همان انیمیشن مرحله‌ای فرم ورود ظاهر می‌شوند. هر سه فیلد دکمهٔ مستقل نمایش و پنهان‌کردن رمز دارند. با بستن مودال، مقادیر و خطاهای فرم پاک می‌شوند. خطاهای اعتبارسنجی هنگام تایپ کنار فیلد مربوط نمایش داده می‌شوند. پس از ذخیرهٔ موفق، فرم ورود پیام تغییر رمز را نشان می‌دهد.
+On the Edit profile tab, a centered gradient “Change password” button below a divider opens the modal. Each time it opens, its three fields and save button appear with the sign-in form's staggered animation. Each field has its own show/hide control. Closing clears form values and errors. Validation errors appear beside their field while typing. After successful save, the sign-in form shows the password-change message.
 
-در فرم ویرایش، Zod نام خالی یا فقط شامل فاصله را رد می‌کند و پیام خطا کنار همان فیلد نمایش داده می‌شود. ایمیل برای همهٔ حساب‌ها فقط‌خواندنی و کم‌رنگ است و هنگام قرار گرفتن نشانگر ماوس روی فیلد، نشانگر ممنوع نمایش داده می‌شود.
+In profile editing, Zod rejects an empty or whitespace-only name and displays the error beside that field. Email is read-only and dimmed for all accounts, with a not-allowed cursor on hover.
 
-پس از ورود، زبانه‌های «حساب کاربری» و «ویرایش اطلاعات» از همان برش، گذار و سطح زبانه‌های ورود و ثبت‌نام استفاده می‌کنند. زبانهٔ اول خلاصهٔ حساب را نشان می‌دهد و زبانهٔ دوم فرم نام و ایمیل را باز می‌کند. دکمهٔ ذخیره از `btn-success` و دکمهٔ انصراف از `btn-soft btn-error` استفاده می‌کند. ذخیرهٔ موفق به زبانهٔ حساب برمی‌گردد و داده‌های تازه را همراه پیام وضعیت نشان می‌دهد. انصراف پیش‌نویس فرم را کنار می‌گذارد.
+After sign-in, the Account and Edit profile tabs use the same crop, transition, and tab surfaces as sign-in and registration. The first tab shows the account summary; the second opens name/email fields. Save uses `btn-success`; cancel uses `btn-soft btn-error`. Successful save returns to Account and shows refreshed data with a status message. Cancel discards the draft.
 
-زیرتیتر و تیتر حساب با افکت مشترک صفحهٔ اول اجرا می‌شوند. در بارگذاری اولیه، حرکت اولین ردیف ۴۴۰ میلی‌ثانیه پس از آماده‌شدن فرم شروع می‌شود. پس از هر تعویض زبانه، ورود ردیف‌ها بعد از گذار ۲۷۰ میلی‌ثانیه‌ای قاب دوباره اجرا می‌شود. هر ردیف در ۴۶۰ میلی‌ثانیه، ۱۴ پیکسل از پایین حرکت می‌کند و به‌تدریج از پشت لبهٔ برش نمایان می‌شود. شروع ردیف‌ها ۱۶۰ میلی‌ثانیه فاصله دارد. حرکت دکمه ۲۶۰ میلی‌ثانیه بعد از شروع حرکت آخرین ردیف آغاز می‌شود. با تنظیم کاهش حرکت، فرم بدون انیمیشن نمایش داده می‌شود.
+Account subtitle and heading use the home-page shared effect. On initial load, the first row starts moving 440 ms after form readiness. After each tab change, row entrance restarts after the frame's 270 ms transition. Each row moves up 14 px over 460 ms and is revealed from behind the clipped edge. Rows stagger by 160 ms. Button motion starts 260 ms after the final row begins. Under reduced-motion, the form appears without animation.
 
-فرم‌های ورود و ساخت حساب حداقل ارتفاع مشترک ۳۳٫۵ رم زیر نقطهٔ شکست sm و ۳۶٫۵ رم از sm به بالا دارند. فیلدهای ضروری فرم‌های حساب کنار برچسب خود ستاره‌ای با رنگ اصلی تم دارند. فیلد تأیید رمز دکمهٔ نمایش مستقل دارد و تفاوت رمزها هنگام تایپ زیر همان فیلد نمایش داده می‌شود. محتوای هر فرم عمودی وسط‌چین است. با تعویض زبانه‌ها، لبهٔ مورب، گوشه‌ها و فاصلهٔ کناری فرم در ۲۷۰ میلی‌ثانیه تغییر می‌کنند. اگر محتوای فرم به فضای بیشتری نیاز داشته باشد، قاب می‌تواند بلندتر شود. در تعویض پیاپی، حرکت ارتفاع و لبهٔ مورب از وضعیت همان لحظه ادامه پیدا می‌کند. گرادیان رنگی تم در سراسر قاب مشترک تا حاشیهٔ آن امتداد دارد و زبانه‌های نیمه‌شفاف، نقاط پشت خود را نشان می‌دهند. CircuitBackdrop مسیرهای مورب و گره‌های حلقه‌ای را به‌صورت بافت ثابت و ملایم از سمت راست در باکس فرم و زبانه‌ها نمایش می‌دهد. لایهٔ نیمه‌شفاف شیشه باکس پوشه را می‌پوشاند. بافت مدار روی شیشه و پشت محتوا قرار دارد. زمینهٔ زبانهٔ فعال و فرم زیر آن در تم روشن سفید و در تم تیره مشکی است. زبانهٔ فعال، لبهٔ مورب و فرم زیر آن از رنگ نیمه‌شفاف روی لایهٔ شیشه‌ای قاب استفاده می‌کنند. بلور ۳ پیکسلی روی دکمهٔ زبانهٔ فعال و پنل فرم زیر آن اعمال می‌شود. کدری هر سه در تم روشن ۳۰٪ و در تم تیره ۴۵٪ است. قاب پوشه بدون حاشیه و سایه است. گردی گوشه‌های بیرونی قاب و Canvas با منوی هدر هماهنگ است و تا عرض ۱۰۲۳ پیکسل ۲۰ پیکسل و در عرض‌های بالاتر ۲۴ پیکسل است. تیتر و دکمه‌های اصلی حساب از Title و GradientButton مشترک استفاده می‌کنند. دکمه‌های ورود، ساخت حساب و خروج هر کدام آیکون متناسب دارند و فاصلهٔ آن‌ها از محتوای بالایی در حالت عادی به‌ترتیب ۲۸، ۲۸ و ۲۴ پیکسل است. آیکون ساخت حساب در هر دو زبان رو به بالا نمایش داده می‌شود.
+Sign-in and registration forms share a minimum height of 33.5 rem below the `sm` breakpoint and 36.5 rem from `sm` upward. Required account fields have a theme-primary asterisk beside their labels. Confirm password has a separate visibility control, and a mismatch appears beneath that field while typing. Each form's content is vertically centered. When tabs change, the diagonal edge, corners, and side spacing transition over 270 ms. The frame can grow if content needs more room. Rapid tab changes continue the height and diagonal motion from the current state. Theme gradient spans the shared frame to its border, and translucent tabs reveal the dots behind them. `CircuitBackdrop` shows soft fixed diagonal tracks and ring nodes from the right side of the form box and tabs. A translucent glass layer covers the folder box; circuit texture sits over glass and behind content. Active tab and its form use white in light mode and black in dark mode. The active tab, diagonal edge, and form use translucent color over the frame glass. A 3 px blur is applied to active tab and form panel; opacity is 30% in light and 45% in dark. The folder frame has no border or shadow. Its outer corners and Canvas match the header menu: 20 px through 1023 px and 24 px above. Account headings and primary buttons use shared Title and GradientButton. Sign-in, registration, and sign-out buttons each have a matching icon and normally sit 28, 28, and 24 px from the content above, respectively. The registration icon points upward in both locales.
 
-ParticleTerrain یک Canvas شفاف در قاب مشترک دو بخش حساب است. نقاط در پرسپکتیو با رنگ سفید در تم تیره و مشکی در تم روشن رسم می‌شوند و زیر فرم و زبانه‌ها ادامه دارند. ردیف‌های دور موج تا هر دو گوشهٔ بالای بوم امتداد دارند. بخش تصویری در دسکتاپ، بسته به وضعیت فرم، نشان فروشگاه یا آیکون وضعیت را نمایش می‌دهد. ماوس و لمس موج را در محل تعامل بالا می‌آورند. موج آرام در بخش قابل مشاهدهٔ صفحه جریان دارد و بیرون از دید یا در زبانهٔ غیرفعال متوقف می‌شود. با تنظیم کاهش حرکت، موج ثابت است و تغییر شکل زبانه و ارتفاع قاب فوری انجام می‌شود.
+`ParticleTerrain` is a transparent Canvas in a shared frame behind both account sections. Perspective dots are white in dark mode and black in light mode, continuing beneath the form and tabs. Distant wave rows reach both upper canvas corners. Desktop's visual area shows the store mark or a status icon depending on form state. Mouse and touch raise the wave at the interaction point. The wave moves gently while visible and pauses offscreen or on an inactive tab. Reduced-motion displays a static wave and changes tab shape/frame height immediately.
 
-آیکون و نوشتهٔ نقطه‌ای هر وضعیت روی یک محور عمودی، در مرکز بخش تصویری قرار می‌گیرند. آیکون‌های خطا، هشدار و موفقیت از نشان دایره‌ای با زمینهٔ ملایم daisyUI استفاده می‌کنند. در حالت خطا، ضربدر و واژهٔ نقطه‌ای «خطا» یا «Error» نمایان می‌شوند و نقاط بوم رنگ `error` تم را می‌گیرند. اگر فیلد نامعتبر باشد، پس از ۴۰۰ میلی‌ثانیه مکث در تایپ یا بلافاصله بعد از خروج از فیلد، علامت تعجب دایره‌ای و واژهٔ نقطه‌ای «هشدار» یا «Warning» نمایان می‌شوند و نقاط بوم رنگ هشدار تم را می‌گیرند. پس از ساخت حساب موفق یا هنگام مشاهدهٔ صفحهٔ حساب با نشست فعال، تیک و واژهٔ نقطه‌ای «موفق» یا «Success» نمایان می‌شوند و نقاط بوم رنگ `success` تم را می‌گیرند. همزمان با محوشدن لوگو و تغییر رنگ بوم، تعدادی از نقاط خود بوم در ۱۰۰۰ میلی‌ثانیه از موج جدا می‌شوند و حروف را می‌سازند. نقاط اطراف با کمی اختلاف زمانی و در مسیرهای منحنی به جایگاه‌های پراکندهٔ خالی می‌رسند و موج پشت حروف ثابت ادامه دارد. با تغییر وضعیت، نقاط از موقعیت فعلی به شکل تازه یا جای خود در موج حرکت می‌کنند. در موبایل فضای نشان زیر فرم ثابت است. حداقل ارتفاع کارت در هر دو حالت ورود و حساب کاربری یکسان است. نام کاربر با وزن عادی نمایش داده می‌شود. آیکون‌های نام و ایمیل ۱۶ پیکسل و به رنگ `primary` هستند. ایمیل با جهت چپ به راست، در فارسی راست‌چین و در انگلیسی چپ‌چین نمایش داده می‌شود. هنگام بررسی نشست یا ارسال درخواست، نشانگر چرخان daisyUI جای متن انتظار را می‌گیرد و متن انتظار برای صفحه‌خوان باقی می‌ماند. با تنظیم کاهش حرکت، گذارها فوری و نشانگر ثابت است.
+Each status icon and dotted word is centered on one vertical axis in the visual area. Error, warning, and success icons use a circular badge with a soft daisyUI background. Error shows an X and dotted “Error” label; canvas dots use the theme `error` color. If a field is invalid, after 400 ms without typing or immediately on blur, a circled exclamation and dotted “Warning” label appear; dots use the theme warning color. After successful registration or when viewing the account page with a session, a checkmark and dotted “Success” label appear; dots use `success`. As the logo fades and canvas changes color, some canvas dots detach from the wave over 1,000 ms to form letters. Nearby dots arrive at scattered empty positions with slight delays and curved paths; the wave stays still behind the letters. On status change, dots move from their current position to the new shape or back to the wave. Mobile keeps the status area below the form fixed. Sign-in and account cards share the same minimum height. User name uses normal weight. Name/email icons are 16 px and primary-colored. Email remains LTR and aligns right in Persian and left in English. While checking session or submitting, a daisyUI spinner replaces visible wait text while accessible status text remains. Under reduced-motion, transitions are immediate and the spinner is static.
 
-رنگ هشدار و رنگ متن روی آن در تم روشن TechLight با توکن‌های معنایی daisyUI در `styles/brand-themes.css` تعریف شده‌اند. در فرم حساب، هشدار کنار فیلد نمایش داده می‌شود و پس از معتبر شدن ورودی فوراً پاک می‌شود. ارسال فرم با ورودی نامعتبر، پیام و حاشیهٔ قرمز فیلد را نشان می‌دهد.
+Warning and warning-text colors for light `TechLight` are defined with daisyUI semantic tokens in `styles/brand-themes.css`. In account forms, warning appears beside a field and clears immediately when input becomes valid. Submitting invalid input shows the message and a red field border.
 
-### بارگذاری داده‌های بک‌اند
+### Backend data loading
 
-برای خواندن نشست حساب، `AccountSkeleton` و برای فهرست کاربران، `AdminUsersLoading` مشترک استفاده می‌شوند. آیکون حساب هدر نیز هنگام بررسی نشست skeleton دایره‌ای دارد. skeletonها با کلاس استاندارد daisyUI، رنگ معنایی تم، جهت زبان صفحه، متن ترجمه‌شدهٔ صفحه‌خوان و `aria-busy` ساخته شده‌اند؛ در reduced-motion حرکت آن‌ها متوقف می‌شود.
+Use shared `AccountSkeleton` while reading account session and `AdminUsersLoading` for the user list. The header account icon also shows a circular skeleton while checking session. Skeletons use standard daisyUI classes, semantic theme colors, page direction, translated screen-reader text, and `aria-busy`; they stop moving under reduced-motion.
 
-فهرست کاربران در بارگذاری مسیر و داخل مرز Suspense نمایش موقت دارد. کلید مرز از پارامترهای جست‌وجو ساخته می‌شود تا تغییر فیلتر، مرتب‌سازی و صفحه نیز حالت بارگذاری را نشان دهد. داده‌های قبلی هنگام تازه‌سازی پس‌زمینهٔ نشست حفظ می‌شوند. ارسال فرم‌ها و عملیات ذخیره/حذف از وضعیت انتظار و غیرفعال‌سازی دکمه استفاده می‌کنند؛ skeleton برای خواندن داده است. محصولات فعلی صفحهٔ اصلی ثابت‌اند و skeleton درخواست بک‌اند ندارند.
+The users list has a route-loading and Suspense fallback. The boundary key uses search params so filter, sort, and page changes also show loading. Previous data remains during background session refresh. Form submission and save/delete actions use pending states and disabled buttons; skeletons are for data reads. Current home-page products are static and do not have backend-request skeletons.
 
-اسکلتون خلاصهٔ حساب، همان ترتیب و فاصله‌های محتوای نهایی را دارد: آواتار ۶۴/۹۶ پیکسل کنار تیتر ثابت، ردیف نام، ایمیل، نقش و دکمه‌های ۴۰ پیکسلی. جای تب‌ها در خواندن اولیهٔ نشست حفظ می‌شود و تب‌ها تا آماده‌شدن داده غیرفعال‌اند. هنگام نمایش آزمایشی، عکس واقعی هم با placeholder جایگزین می‌شود. ارتفاع حداقل قاب مشترک مانع تغییر ارتفاع کلی صفحه می‌شود؛ متن‌های طولانی یا تغییر از وضعیت نامشخص به فرم مهمان می‌توانند چیدمان داخلی متفاوتی داشته باشند.
+Account summary skeleton preserves the final content order and spacing: 64/96 px avatar beside a fixed heading, name/email/role rows, and 40 px buttons. Tab positions remain while reading the initial session; tabs are disabled until data is ready. In preview mode, a real photo is also replaced by a placeholder. Shared minimum frame height prevents overall page-height changes; long text or transition from unknown state to guest form can still change internal layout.
 
-اسکلتون جدول کاربران از خود `AdminUsers` و همان table، سرستون، عرض ستون‌ها، فیلترها و صفحه‌بندی استفاده می‌کند؛ قاب یا جدول موازی ندارد. فقط محتوای سلول‌ها جایگزین می‌شود: آواتار ۴۰ پیکسلی، نام/ایمیل، badge نقش و وضعیت، تاریخ و دکمه‌های ۳۲ پیکسلی. padding ردیف‌ها و رفتار ستون ثابت و جمع‌شوندهٔ موبایل مشترک است. در سوییچ dev، تعداد ردیف‌ها، تعداد خط‌های نام/ایمیل، صفحه‌بندی و محل اسکرول حفظ می‌شوند؛ برای نگه‌داشتن ارتفاع متن چندخطی، اندازهٔ متن موجود زیر placeholder نامرئی و خارج از درخت دسترس‌پذیری باقی می‌ماند. کنترل‌های فیلتر، مرتب‌سازی و صفحه‌بندی هنگام بارگذاری inert هستند.
+The users table skeleton comes from `AdminUsers` and uses the same table, headers, column widths, filters, and pagination; there is no parallel frame or table. Only cell content is replaced: 40 px avatar, name/email, role/status badges, date, and 32 px buttons. Row padding and pinned/compact mobile-column behavior are shared. The dev switch preserves row count, name/email line count, pagination, and scroll position. To preserve multiline height, existing text remains invisible beneath the placeholder and outside the accessibility tree. Filters, sorting, and pagination are inert while loading.
 
-در بارگذاری اولیه که نتیجه و تعداد کل هنوز مشخص نیست، حداکثر پنج ردیف موقت (برای pageSize=1 یک ردیف) نمایش داده می‌شود؛ پس از رسیدن نتیجه، تعداد واقعی جایگزین می‌شود. تعداد ردیف‌ها و صفحات اولیه تخمینی‌اند و تضمین صفر جابه‌جایی در تغییر تعداد نتیجه نیستند. فیلترها و مرتب‌سازیِ fallback داخلی از همان پارامترهای معتبر صفحه گرفته می‌شوند و ستون مدیریت مطابق نقش نشست نمایش داده می‌شود.
+On initial loading, before result and total are known, show at most five temporary rows (one when `pageSize=1`); replace them with the actual count when it arrives. Initial row and page counts are estimates and do not guarantee zero layout shift when the result count changes. Internal fallback filters and sort use the same valid route parameters; the management column follows the session role.

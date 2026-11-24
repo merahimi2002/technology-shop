@@ -1,43 +1,43 @@
-# مستندات Tech Shop
+# Tech Shop Documentation
 
-Tech Shop فروشگاهی با Next.js App Router، React، TypeScript و رابط فارسی/RTL و انگلیسی/LTR است. صفحه اصلی، پوسته فروشگاه، تم، دیتابیس Supabase با Prisma و ورود ایمیل/رمز با NextAuth فعال‌اند. آپلود عکس پروفایل فعال است. APIهای فروش و پرداخت در برنامهٔ آینده‌اند.
+Tech Shop is a bilingual Persian/English storefront built with Next.js App Router, React, and TypeScript. The home page, storefront shell, themes, Supabase database access through Prisma, and email/password authentication with NextAuth are active. Profile photo uploads are active. Sales and payment APIs are planned for the future.
 
-## راهنمای مطالعه
+## Reading guide
 
-| سند                             | موضوع                                                            |
-| ------------------------------- | ---------------------------------------------------------------- |
-| [توسعه](DEVELOPMENT.md)         | راه‌اندازی، دستورها، تست، بررسی مرورگر و قواعد مشارکت            |
-| [معماری](ARCHITECTURE.md)       | ساختار برنامه، مسئولیت‌ها، جریان تعامل و وضعیت سرویس‌ها          |
-| [سیستم طراحی](DESIGN_SYSTEM.md) | Tailwind و daisyUI، تم، هویت بصری، تایپوگرافی، حرکت و رابط مشترک |
-| [پشته فنی](TECH_STACK.md)       | فناوری‌های انتخاب‌شده، نسخه‌های ثبت‌شده و تصمیم‌های وابستگی      |
-| [امنیت](SECURITY.md)            | گزارش تاریخ‌دار بررسی وابستگی‌ها و محدودیت‌های شناخته‌شده        |
-| [کارهای فنی آینده](TODO.md)     | کارهای باقی‌ماندهٔ ذخیره‌سازی و آپلود تصاویر محصول               |
-| [نقشه راه](ROADMAP.md)          | کارهای باقی‌ماندهٔ صفحه‌ها و پنل فروشگاه                         |
+| Document                          | Topic                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------- |
+| [Development](DEVELOPMENT.md)     | Setup, commands, tests, browser checks, and contribution rules                  |
+| [Architecture](ARCHITECTURE.md)   | Application structure, responsibilities, interaction flows, and service status  |
+| [Design system](DESIGN_SYSTEM.md) | Tailwind and daisyUI, themes, brand identity, typography, motion, and shared UI |
+| [Technology stack](TECH_STACK.md) | Selected technologies, recorded versions, and dependency decisions              |
+| [Security](SECURITY.md)           | Dated dependency review and known limitations                                   |
+| [Technical backlog](TODO.md)      | Remaining storage and product image upload work                                 |
+| [Roadmap](ROADMAP.md)             | Remaining storefront pages and admin tools                                      |
 
-برای شروع کار DEVELOPMENT.md و TECH_STACK.md خوانده شوند. هنگام تغییر رفتار، ARCHITECTURE.md و هنگام تغییر ظاهر، DESIGN_SYSTEM.md به‌روز شود.
+Start with `DEVELOPMENT.md` and `TECH_STACK.md`. Update `ARCHITECTURE.md` when behavior changes and `DESIGN_SYSTEM.md` when appearance changes.
 
-## قرارداد مستندات
+## Documentation conventions
 
-تمام مستندات پروژه در پوشه ریشه md نگه‌داری می‌شوند. فایل‌ها بر اساس موضوع و مسئولیت ساخته می‌شوند، نه نام صفحه یا کامپوننت. برای اجزایی مثل تیتر، دکمه یا هدر، بخش مرتبط یک سند موجود را تکمیل کنید. مقادیر جاری یک‌بار و در مرجع اصلی ثبت شوند؛ اسناد دیگر به آن لینک بدهند. نتایج بررسی تاریخی با تاریخ و دامنه مشخص از وضعیت فعلی جدا شوند.
+Keep all project documentation in the root `md` directory. Organize files by topic and responsibility, not by page or component name. Add guidance for shared parts such as headings, buttons, or headers to the relevant existing document. Record current values once in their source of truth and link to them from other documents. Keep dated review results separate from current behavior, with their date and scope clearly stated.
 
-مدیر بسته فقط npm است و package-lock.json نگه‌داری می‌شود. دستورهای عامل در AGENTS.md ریشه پروژه قرار دارند؛ README.md ریشه فقط نقطه ورود سریع است.
+Use npm as the only package manager and keep `package-lock.json`. Agent instructions live in the root `AGENTS.md`; the root `README.md` is only a quick entry point.
 
-## وضعیت جاری رابط
+## Current UI status
 
-آخرین بازبینی مستندات: ۲۰۲۶/۱۱/۲۴. آخرین بررسی‌ها و دامنهٔ آن‌ها در [توسعه: رنگ‌بندی](DEVELOPMENT.md#بررسی-تنظیمات-رنگ‌بندی) و [توسعه: کاربران](DEVELOPMENT.md#بررسی-پنل-مدیریت) آمده‌اند. ROADMAP و TODO فقط کارهای باقی‌مانده را نگه می‌دارند.
+Last documentation review: 2026-11-24. Recent checks and their scope are recorded in [Development: theme settings](DEVELOPMENT.md#theme-settings-review) and [Development: users](DEVELOPMENT.md#admin-users-review). `ROADMAP.md` and `TODO.md` contain only remaining work.
 
-قواعد سراسری رابط در سیستم طراحی ثبت شده‌اند: [مشخص‌کردن فیلدهای ضروری و خطاها](DESIGN_SYSTEM.md#قرارداد-مشترک-فرم‌ها)، [استفاده از کامپوننت‌های مشترک عکس و تصویر NO IMAGE متناسب با تم](DESIGN_SYSTEM.md#ویرایش-و-نمایش-عکس-مشترک) و [استفاده از جدول مشترک در همهٔ بخش‌ها](DESIGN_SYSTEM.md#جدول-مشترک). این قراردادها برای بخش‌های موجود و توسعه‌های بعدی‌اند.
+Global UI rules live in the design system: [required fields and errors](DESIGN_SYSTEM.md#shared-form-conventions), [shared image editing and theme-aware NO IMAGE artwork](DESIGN_SYSTEM.md#shared-image-editing-and-display), and [the shared table](DESIGN_SYSTEM.md#shared-table). These conventions apply to existing areas and future work.
 
-صفحه‌بندی فهرست‌ها از کامپوننت مشترک خوانده می‌شود. قرارداد مرکزی در [سیستم طراحی، صفحه‌بندی مشترک](DESIGN_SYSTEM.md#صفحه‌بندی-مشترک) است.
+Lists use the shared pagination component. The central contract is in [Design system: shared pagination](DESIGN_SYSTEM.md#shared-pagination).
 
-عکس دسته‌بندی در Storage خصوصی فعال است و آزمون واقعی آپلود، تعویض و حذف آن در ۲۰۲۶/۱۱/۲۴ انجام شد. نتیجهٔ بررسی فارسی/انگلیسی و دو تم و محدودیت آزمون انتخاب‌گر فایل در [توسعه، عکس دسته‌بندی](DEVELOPMENT.md#عکس-دسته‌بندی) ثبت شده است.
+Category image storage is active in a private bucket. A real upload, replacement, and deletion flow was tested on 2026-11-24. The Persian/English and light/dark review, along with the file picker test limitation, is recorded in [Development: category images](DEVELOPMENT.md#category-images).
 
-پنل مدیریت پوستهٔ تمام‌صفحهٔ مستقل، سایدبار جمع‌شونده و نوار بالایی شیشه‌ای دارد. «تنظیمات» گروه باز و بسته‌شوندهٔ سایدبار است و «رنگ‌بندی» زیرمجموعهٔ آن؛ والد صفحهٔ مستقل ندارد. انیمیشن تیتر و زیرتیتر هنگام ورود اجرا می‌شود و با تبدیل اسکلتون به محتوا تکرار نمی‌شود. داشبورد فعلاً خالی است و کاربران در مسیر جداگانهٔ `/[locale]/admin/users` نمایش داده می‌شوند. فهرست کاربران جست‌وجو، فیلتر، مرتب‌سازی نقش/وضعیت و صفحه‌بندی دارد. مالک می‌تواند نقش، وضعیت و حذف حساب‌های غیرمالک را با تأیید مستقل مدیریت کند. قرارداد ظاهر، تولتیپ‌های رنگی، موج‌ها و حرکت تغییر زبان در [سیستم طراحی](DESIGN_SYSTEM.md#پنل-مدیریت) و کنترل دسترسی در [معماری](ARCHITECTURE.md#دسترسی-به-پنل-مدیریت) ثبت شده است.
+The admin panel has an independent full-screen shell, collapsible sidebar, and glass top bar. “Settings” is a collapsible sidebar group; “Theme” is its child and has no standalone parent page. Heading and subtitle animations run on entry and do not replay when a skeleton becomes content. The dashboard is currently empty. Users appear at `/[locale]/admin/users`, with search, filters, role/status sorting, and pagination. The owner can manage roles and account status, and delete non-owner accounts; each operation has its own confirmation. Appearance, colored tooltips, particle effects, and locale transitions are documented in the [design system](DESIGN_SYSTEM.md#admin-panel); access control is documented in [architecture](ARCHITECTURE.md#admin-panel-access).
 
-آیکون حساب در هدر برای مهمان صفحهٔ حساب و برای کاربر واردشده مودال خلاصهٔ حساب را باز می‌کند. ورود و ساخت حساب در زبانه‌های صفحهٔ حساب قرار دارند. پس از ورود موفق، کاربر به مقصد داخلی درخواست ورود یا به صفحهٔ اصلی زبان جاری می‌رود. مدیر و مالک از مودال و صفحهٔ حساب به پنل مدیریت و فهرست کاربران دسترسی دارند. جزئیات در [معماری](ARCHITECTURE.md#دسترسی-به-پنل-مدیریت) و [سیستم طراحی](DESIGN_SYSTEM.md#پنل-مدیریت) آمده است.
+For guests, the header account icon opens the account page; for signed-in users, it opens an account summary modal. Sign-in and registration are tabs on the account page. After a successful sign-in, users go to the requested internal destination or the home page in the current locale. Admins and owners can reach the admin panel and user list from the modal and account page. Details are in [architecture](ARCHITECTURE.md#admin-panel-access) and the [design system](DESIGN_SYSTEM.md#admin-panel).
 
-وضعیت سرویس‌ها در ۲۰۲۶/۱۱/۰۶: سه migration روی پروژه موجود tech-shop اعمال شده‌اند؛ ثبت‌نام، ورود، نشست و خروج واقعی تست شده‌اند. نقش‌های CUSTOMER، ADMIN و OWNER وجود دارند؛ حداکثر یک OWNER مجاز است و حساب مالک با اطلاعات env خصوصی ساخته شده است. محدودیت رمز ۸ تا ۱۲۸ نویسه است. در همان تاریخ check با ۴۴ تست و بیلد Webpack موفق بود؛ محدودیت شناخته‌شده Turbopack و روش اجرا در [توسعه](DEVELOPMENT.md#اتصال-دیتابیس) آمده است. امکانات عکس پروفایل در [معماری](ARCHITECTURE.md#تصاویر-و-فایل‌های-آپلودی) و برنامهٔ ذخیره‌سازی تصاویر محصول در [TODO](TODO.md#ذخیره-و-آپلود-عکس) آمده‌اند.
+Service status as of 2026-11-06: three migrations were applied to the existing `tech-shop` project. Real registration, sign-in, sessions, and sign-out were tested. Roles are `CUSTOMER`, `ADMIN`, and `OWNER`; at most one `OWNER` is allowed, and the owner account was created using private environment variables. Passwords must be 8–128 characters. On that date, checks passed with 44 tests and a Webpack build. The known Turbopack limitation and workaround are documented in [Development: database connection](DEVELOPMENT.md#database-connection). Profile photos are documented in [Architecture: uploaded images and files](ARCHITECTURE.md#uploaded-images-and-files); product image storage is planned in [TODO](TODO.md#storage-and-image-uploads).
 
-پنجرهٔ تم کاربران شامل شش گزینه است: تم اصلی ثابت (TechLight/TechDark)، چهار تم تعیین‌شده توسط مدیر و رنگ دلخواه کاربر. صفحهٔ رنگ‌بندی پنل ۳۵ تم رسمی با نام ترجمه‌شده دارد؛ چهار انتخاب مستقیم بالای فهرست‌اند و انتخاب جدید، قدیمی‌ترین را خودکار جایگزین می‌کند. دکمهٔ «تم اصلی سایت» ظاهر را بدون تغییر چهار انتخاب برمی‌گرداند. مرجع رفتار [معماری](ARCHITECTURE.md#ناوبری-و-پوسته) و ظاهر [سیستم طراحی](DESIGN_SYSTEM.md#تم-و-رنگ) است.
+The user theme dialog has six options: the fixed site theme (`TechLight`/`TechDark`), four themes selected by an admin, and the user's custom color. The admin theme page lists 35 official themes with translated names. Four direct selections appear above the list; choosing another theme automatically replaces the oldest selection. “Site default theme” restores the appearance without changing those four selections. Behavior is documented in [Architecture](ARCHITECTURE.md#navigation-and-shell) and appearance in [Design system: themes and color](DESIGN_SYSTEM.md#themes-and-color).
 
-ممیزی متن‌های رابط در ۲۰۲۶/۱۱/۰۵ تکمیل شد؛ منبع نوشته‌ها کاتالوگ‌های فارسی/انگلیسی است. قرارداد ترجمه در [معماری](ARCHITECTURE.md#مرز-متن-قابل-ترجمه) و کنترل جلوگیری از متن مستقیم در [توسعه](DEVELOPMENT.md#کنترل-متن‌های-رابط) آمده است.
+The UI copy audit was completed on 2026-11-05. Translation catalogs in Persian and English are the source for interface text. The translation contract is in [Architecture: translatable text boundary](ARCHITECTURE.md#translatable-text-boundary), and the check against hardcoded UI text is in [Development: UI copy check](DEVELOPMENT.md#ui-copy-check).

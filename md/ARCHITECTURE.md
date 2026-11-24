@@ -1,249 +1,249 @@
-# معماری و وضعیت پیاده‌سازی
+# Architecture and Implementation Status
 
-این سند ساختار برنامه، مسئولیت بخش‌ها، جریان تعامل‌ها و وضعیت اتصال سرویس‌ها را توضیح می‌دهد. قواعد ظاهر و حرکت در [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)، اجرای پروژه در [DEVELOPMENT.md](DEVELOPMENT.md) و نسخه وابستگی‌ها در [TECH_STACK.md](TECH_STACK.md) هستند.
+This document describes the application structure, component responsibilities, interaction flows, and service status. Appearance and motion rules are in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), project workflows in [DEVELOPMENT.md](DEVELOPMENT.md), and dependency versions in [TECH_STACK.md](TECH_STACK.md).
 
-## ساختار برنامه
+## Application structure
 
-### مدیریت کاتالوگ
+### Catalog management
 
-`categories/loading.tsx` همان `AdminCategories` را با `loading` و دادهٔ خالی می‌سازد؛ سوییچ dev نیز همان شاخهٔ skeleton را فعال می‌کند. هیچ جدول موازی برای بارگذاری ساخته نشده است. شمارندهٔ نامعلوم در loading اولیه به Pagination داده نمی‌شود.
+`categories/loading.tsx` renders the same `AdminCategories` component with `loading` and empty data; the dev switch activates that same skeleton branch. No parallel loading table is created. Initial loading does not pass an unknown count to Pagination.
 
-بازسازی تصویر بدون عکس با `node scripts/generate-no-image.mjs` انجام می‌شود. اسکریپت لوگوی فعلی را از `public/logo.svg` می‌خواند و فقط طرح منتخب مدار با متن `NO IMAGE` را در مسیرهای `public/images/no-image{,-dark}.{svg,png}` تولید می‌کند؛ طرح‌های جایگزین و صفحهٔ مقایسه تولید نمی‌شوند.
+Regenerate the no-image artwork with `node scripts/generate-no-image.mjs`. The script reads the current logo from `public/logo.svg` and produces only the selected circuit design with `NO IMAGE` text at `public/images/no-image{,-dark}.{svg,png}`. It does not create alternate designs or a comparison page.
 
-بارگذاری مسیر `/[locale]/admin/categories/new` (ساخت و ویرایش) از `new/loading.tsx` و `CategoryEditorSkeleton` استفاده می‌کند؛ سوییچ `DevSkeletonPreview` نیز همین کامپوننت را نشان می‌دهد و وضعیت نام‌ها/عکس در والد حفظ می‌شود. این اسکلتونِ فرم از اسکلتون فهرست دسته‌بندی مستقل است.
+Route loading for `/[locale]/admin/categories/new` (create and edit) uses `new/loading.tsx` and `CategoryEditorSkeleton`. The `DevSkeletonPreview` switch displays the same component, and the parent preserves name/image state. This form skeleton is independent of the category-list skeleton.
 
-تصویر بدون عکس، طرح محلی برند با لوگوی `public/logo.svg`، متن `NO IMAGE` و خروجی شفاف ۵۱۲×۵۱۲ روشن/تیره است؛ جایگزین فایل دانلودی قبلی شده و وابستگی خارجی ندارد. `ImagePreview` برای قاب غیردایره‌ایِ بدون عکس یا عکس خراب از `components/ui/no-image.tsx` استفاده می‌کند؛ این کامپوننت با `useTheme` و نگاشت `SITE_THEMES` نسخهٔ مناسب تم جاری را انتخاب می‌کند. تصویر placeholder به‌عنوان عکس انتخاب‌شده یا دادهٔ Storage ذخیره نمی‌شود.
+The no-image artwork is a local brand design with the `public/logo.svg` logo, `NO IMAGE` text, and transparent 512×512 light/dark outputs. It replaces the previous downloaded asset and has no external dependency. `ImagePreview` uses `components/ui/no-image.tsx` for missing or broken images in non-circular frames; this component selects the current theme asset through `useTheme` and the `SITE_THEMES` mapping. The placeholder is not stored as a selected image or Storage data.
 
-عنوان رابط فیلد `slug`، «نام اختصاصی / Unique name» است؛ کلید دیتابیس و قرارداد API همان `slug` باقی می‌ماند. در ساخت محصول و دسته‌بندی، پیشنهاد نام اختصاصی با تبدیل نام انگلیسی به حروف کوچک، حذف علائم و جایگزینی فاصله‌ها با خط تیره ساخته می‌شود (حداکثر ۱۲۰ نویسه). این دو فیلد state مستقل دارند: تا قبل از ویرایش دستی، تغییر نام انگلیسی پیشنهاد را تازه می‌کند؛ بعد از ویرایش دستی، از جمله پاک‌کردن مقدار، دیگر بازنویسی خودکار نمی‌شود. در ویرایش رکورد موجود از ابتدا نام اختصاصی ذخیره‌شده حفظ می‌شود. یکتایی همچنان با constraint و اکشن سرور کنترل می‌شود؛ پیشنهاد خودکار تضمین یکتایی نیست.
+The UI label for `slug` is “Unique name”; the database key and API contract remain `slug`. On product and category creation, a suggested unique name is generated from the English name by lowercasing, removing punctuation, and replacing spaces with hyphens, up to 120 characters. Each field has independent state: until manual editing, changes to the English name refresh the suggestion; after manual editing, including clearing the value, it is no longer overwritten automatically. Editing an existing record preserves its saved unique name from the start. Uniqueness is still enforced by the constraint and server action; the suggestion does not guarantee uniqueness.
 
-ویرایشگر عکس مشترک `ImageEditor` در اکانت و دسته‌بندی استفاده می‌شود. مقدار `undefined` یعنی حفظ عکس، `null` یعنی حذف و رشتهٔ Base64 یعنی برش PNG جدید. خروجی اکانت ۱۶۰×۱۶۰ و دسته‌بندی ۶۴۰×۶۴۰ است. آداپتور دسته‌بندی هنگام ارسال فرم، خروجی محلی را به File تبدیل می‌کند؛ API پروفایل قرارداد قبلی خود را نگه می‌دارد. Base64 فقط وضعیت موقت رابط است و در دیتابیس دسته‌بندی ثبت نمی‌شود. نمایش مشترک در `ImagePreview` و تنظیم نوع/حجم ورودی در `lib/image-input.ts` قرار دارد. اعتبارسنجی واقعی سرور مستقل و الزامی است.
+The shared `ImageEditor` is used for accounts and categories. `undefined` means keep the image, `null` means delete it, and a Base64 string means a new PNG crop. Account output is 160×160 and category output is 640×640. The category adapter turns the local output into a `File` on form submission; the profile API keeps its existing contract. Base64 is temporary UI state and is not saved in the category database. Shared display uses `ImagePreview`, and accepted input types/size are configured in `lib/image-input.ts`. Server validation remains independent and mandatory.
 
-فرم ساخت و ویرایش دسته‌بندی یک عکس اختیاری دارد. عکس انتخاب‌شده فقط با تأیید فرم به سرور فرستاده می‌شود؛ انصراف، انتخاب و حذف محلی را ثبت نمی‌کند. سرور پس از کنترل نشست ADMIN/OWNER، نوع واقعی فایل را با Sharp بررسی و به WebP حداکثر ۶۴۰×۶۴۰ تبدیل می‌کند. فقط مسیر تصادفی فایل در `Category.imagePath` ذخیره می‌شود، نه بایت یا Base64.
+The category create/edit form has one optional image. The selected image is sent to the server only after form confirmation; cancelling does not save local selection or deletion. After checking an ADMIN/OWNER session, the server validates the actual file with Sharp and converts it to WebP up to 640×640. Only the random file path is stored in `Category.imagePath`, not image bytes or Base64.
 
-فایل‌های دسته‌بندی در bucket خصوصی `category-images` در Supabase Storage قرار می‌گیرند. SDK سروری با `SUPABASE_URL` و `SUPABASE_SECRET_KEY` (یا `SUPABASE_SERVICE_ROLE_KEY` قدیمی) کار می‌کند؛ کلید وارد کلاینت نمی‌شود. bucket در اولین آپلود معتبر ساخته می‌شود و bucket عمومی با همین نام رد می‌شود. دریافت عکس فعلاً فقط از `/api/admin/categories/[id]/image` با نشست مدیر و `private, no-store` مجاز است؛ انتشار عکس دسته‌بندی برای فروشگاه هنوز مسیر جدا ندارد.
+Category files live in the private `category-images` bucket in Supabase Storage. The server SDK uses `SUPABASE_URL` and `SUPABASE_SECRET_KEY` (or the legacy `SUPABASE_SERVICE_ROLE_KEY`); the key never reaches the client. The bucket is created on the first valid upload, and an existing public bucket with that name is rejected. Retrieval is currently allowed only through `/api/admin/categories/[id]/image` with an admin session and `private, no-store`; there is no separate storefront publication route for category images yet.
 
-تعویض/حذف عکس به snapshot نام‌ها، نامک و مسیر قبلی وابسته است؛ تداخل، عکس فعلی را حذف نمی‌کند. بعد از ثبت موفق، فایل قبلی پاک می‌شود و در شکست ثبت دیتابیس، پاک‌سازی فایل تازه تلاش می‌شود. پاک‌سازی best effort است؛ شکست سرویس Storage ممکن است فایل بدون ارجاع خصوصی باقی بگذارد و retry پایدار هنوز پیاده‌سازی نشده است.
+Image replacement/deletion depends on a snapshot of the previous names, slug, and path; a conflict does not delete the current image. After a successful save, the previous file is removed. If the database save fails, cleanup of the new file is attempted. Cleanup is best effort; a Storage failure may leave a private unreferenced file, and durable retry is not implemented yet.
 
-فهرست محصولات در `/[locale]/admin/products`، ساخت محصول در `/[locale]/admin/products/new` و ویرایش هر محصول در `/[locale]/admin/products/[id]` قرار دارد. دسته‌بندی‌ها صفحهٔ مستقل `/[locale]/admin/categories` و پیوند سایدبار دارند؛ فهرست نام‌های دوزبانه، نامک و تعداد محصولات در این صفحه است و فرم ساخت در `/[locale]/admin/categories/new` قرار دارد. دکمهٔ ساخت کنار تیتر فهرست به این مسیر می‌رود. فهرست دسته‌بندی‌ها صفحه‌بندی مشترک دارد. فرم محصول صفحهٔ کامل است و مودال ندارد. ذخیرهٔ موفق یا انصراف از فرم به فهرست مربوط برمی‌گردد.
+The product list is at `/[locale]/admin/products`, product creation at `/[locale]/admin/products/new`, and product editing at `/[locale]/admin/products/[id]`. Categories have a standalone page at `/[locale]/admin/categories` and a sidebar link. It lists bilingual names, slug, and product count; category creation is at `/[locale]/admin/categories/new`, reached from the list's create button. Product editing uses a full page, not a modal. Successful saves and cancellations return to the relevant list.
 
-هر صفحه پیش از خواندن داده، نشست ADMIN/OWNER را بررسی می‌کند و اکشن‌های ذخیره نیز مستقل مجوز را کنترل می‌کنند. شناسهٔ محصول ناموجود به ۴۰۴ می‌رسد. قیمت تنوع‌ها رشتهٔ صحیح ریالی باقی می‌ماند؛ کنترل نسخهٔ محصول و حفظ تنوع‌های موجود در ویرایش، از بازنویسی هم‌زمان و شکستن ارجاع سفارش جلوگیری می‌کند.
+Every page checks an ADMIN/OWNER session before reading data, and save actions check authorization independently. A missing product ID returns 404. Variant prices remain integer IRR strings. Product version checks and preserving existing variants during edits prevent concurrent overwrites and broken order references.
 
-ویرایش دسته‌بندی از `/[locale]/admin/categories/new?edit=<id>` همان فرم ساخت را با فیلدهای پرشده باز می‌کند؛ شناسهٔ نامعتبر یا ناموجود ۴۰۴ می‌دهد. اکشن‌های ویرایش و حذف در `app/[locale]/admin/categories/actions.ts` مستقل مجوز را بررسی می‌کنند. شرط تغییر شامل شناسه و مقادیر قبلی نام‌ها و نامک است تا فرم قدیمی تغییر جدید را بازنویسی نکند. حذف فقط برای دسته‌بندی بدون محصول مجاز است؛ شرط رابطه و کلید خارجی، افزودن هم‌زمان محصول را هم محافظت می‌کنند. پیش از حذف، مودال نام دسته‌بندی و غیرقابل‌بازگشت‌بودن عملیات را نمایش می‌دهد.
+Category editing opens the create form with values populated at `/[locale]/admin/categories/new?edit=<id>`; invalid or missing IDs return 404. Edit and delete actions in `app/[locale]/admin/categories/actions.ts` check authorization independently. Update conditions include the ID and previous name/slug values so an old form cannot overwrite a newer change. Deletion is allowed only when no products reference the category; the relationship condition and foreign key also protect against a concurrent product addition. Before deletion, a modal shows the category name and explains that the operation cannot be undone.
 
-| مسیر       | مسئولیت                                                 |
-| ---------- | ------------------------------------------------------- |
-| app        | مسیرهای App Router و API، layout، metadata و CSS ورودی  |
-| components | اجزای مشترک رابط و ترکیب‌های فروشگاه                    |
-| hooks      | منطق مشترک کلاینت و انیمیشن                             |
-| lib        | اتصال دیتابیس، احراز هویت، ابزارها، تم و داده ناوبری    |
-| styles     | تنظیم تم برند و افکت‌های خاص                            |
-| public     | فایل‌های عمومی، لوگو و تصاویر محصولات                   |
-| tests      | تست‌های سبک Vitest                                      |
-| scripts    | تولید دارایی، تست اتصال و احراز هویت و ساخت آفلاین مالک |
-| prisma     | مدل‌های دیتابیس و migrationهای نسخه‌بندی‌شده            |
-| generated  | Prisma Client تولیدی؛ خارج از Git و بدون ویرایش دستی    |
-| certs      | گواهی عمومی CA برای اعتبارسنجی TLS دیتابیس              |
-| md         | مستندات موضوعی پروژه                                    |
+| Path         | Responsibility                                                              |
+| ------------ | --------------------------------------------------------------------------- |
+| `app`        | App Router routes and APIs, layouts, metadata, and entry CSS                |
+| `components` | Shared UI components and storefront compositions                            |
+| `hooks`      | Shared client and animation logic                                           |
+| `lib`        | Database connection, authentication, utilities, themes, and navigation data |
+| `styles`     | Brand theme settings and special effects                                    |
+| `public`     | Public files, logo, and product images                                      |
+| `tests`      | Lightweight Vitest tests                                                    |
+| `scripts`    | Asset generation, connection/auth checks, and offline owner provisioning    |
+| `prisma`     | Database models and versioned migrations                                    |
+| `generated`  | Generated Prisma Client; not in Git and not edited manually                 |
+| `certs`      | Public CA certificate for database TLS validation                           |
+| `md`         | Topic-based project documentation                                           |
 
-## مرزهای فعلی
+## Current boundaries
 
-صفحه اصلی و پوسته فروشگاه پیاده‌سازی شده‌اند. اتصال PostgreSQL با Prisma تأیید شده است. مدل‌های اولیه فروشگاه و هر سه migration روی Supabase اعمال شده‌اند و ثبت‌نام، ورود، نشست و خروج NextAuth از API و مرورگر واقعی تأیید شده‌اند. رابط کاتالوگ، API موجودی و سبد، پرداخت، تأیید ایمیل و پیامک هنوز پیاده‌سازی نشده‌اند. نصب وابستگی به معنی آماده بودن سرویس نیست؛ انتخاب فناوری‌ها در TECH_STACK.md ثبت شده است.
+The home page and storefront shell are implemented. PostgreSQL connectivity through Prisma has been confirmed. The initial storefront models and all three migrations have been applied to Supabase, and real NextAuth registration, sign-in, sessions, and sign-out were confirmed through API and browser flows. The catalog UI, inventory and cart APIs, payments, email verification, and SMS are not implemented yet. Installing a dependency does not mean its service is ready; technology choices are recorded in `TECH_STACK.md`.
 
-## زیرساخت دیتابیس
+## Database infrastructure
 
-### تصاویر و فایل‌های آپلودی
+### Uploaded images and files
 
-عکس پروفایل هنگام ساخت حساب اختیاری است. درخواست احرازشدهٔ PATCH حساب می‌تواند عکس را تعویض یا حذف کند. انتخاب‌گر فرم فایل JPEG، PNG یا WebP تا ۲ مگابایت را می‌پذیرد و برش ۱۶۰×۱۶۰ را به API می‌فرستد. سرور نوع و حجم واقعی تصویر را بررسی و نسخهٔ WebP با ابعاد ۱۶۰×۱۶۰ را در فیلد image کاربر ذخیره می‌کند. نشست NextAuth فقط نشانی نسخه‌دار را برای عکس آپلودشده دریافت می‌کند. مسیر عکس فقط تصویر صاحب نشست را برمی‌گرداند. بعد از ذخیره، ویرایشگر نشست را تازه می‌کند تا هدر و مودال حساب عکس جدید را نمایش دهند. تصاویر محصولات از public هستند. طراحی آینده با Supabase Storage، مرحله خصوصی اعتبارسنجی و انتشار عکس تأییدشده در [TODO](TODO.md#ذخیره-و-آپلود-عکس) ثبت شده است. این برنامه به بعد موکول شده و بخشی از قابلیت‌های فعال فعلی نیست.
+Profile photos are optional during registration. An authenticated PATCH to the account endpoint can replace or delete a photo. The form accepts JPEG, PNG, or WebP files up to 2 MB and sends a 160×160 crop to the API. The server checks the actual image type and size, then stores a 160×160 WebP in the user's `image` field. The NextAuth session receives only a versioned URL for uploaded photos. The image route returns only the current session owner's image. After saving, the editor refreshes the session so the header and account modal show the new photo. Product images are public. Future Supabase Storage work for private validation and publication of approved images is tracked in [TODO](TODO.md#storage-and-image-uploads). That plan is not part of the active feature set.
 
-### اتصال و کد تولیدی
+### Connection and generated code
 
-`lib/db.ts` مرز server-only و دسترسی مشترک به Prisma است. `getDb()` به‌صورت lazy یک client با adapter-pg می‌سازد؛ در توسعه از global برای جلوگیری از ایجاد pool در hot reload استفاده می‌شود. pool فعلاً حداکثر ۳ اتصال، timeout اتصال ۱۰ ثانیه و idle برابر ۳۰ ثانیه دارد. ساخت صفحات ثابت اتصال دیتابیس باز نمی‌کند. schema و تنظیم CLI در prisma/schema.prisma و prisma.config.ts هستند؛ client تولیدی در generated/prisma از Git خارج است.
+`lib/db.ts` is the server-only boundary and shared Prisma entry point. `getDb()` lazily creates a client with the pg adapter; in development it uses a global to avoid creating pools during hot reload. The pool currently allows at most three connections, with a 10-second connection timeout and 30-second idle timeout. Static page generation does not open a database connection. The schema and CLI configuration are in `prisma/schema.prisma` and `prisma.config.ts`; generated client code in `generated/prisma` is excluded from Git.
 
-هیچ جدول Supabase-managed به Prisma سپرده نشده و Supabase Auth جایگزین NextAuth نشده است. دستورهای بررسی و وضعیت اتصال در [توسعه](DEVELOPMENT.md#اتصال-دیتابیس) هستند.
+Prisma does not own any Supabase-managed tables, and Supabase Auth has not replaced NextAuth. Check commands and connection status are in [Development: database connection](DEVELOPMENT.md#database-connection).
 
-### مدل‌های پایه
+### Base models
 
-User، Account، Session و VerificationToken با adapter رسمی NextAuth 4 سازگارند. User نقش CUSTOMER پیش‌فرض، passwordHash اختیاری، disabledAt و sessionVersion برای ابطال نشست دارد. AuthRateLimit شمارنده مشترک دیتابیسی ورود و ثبت‌نام است. Category و Product متن فارسی/انگلیسی دارند؛ ProductVariant صاحب SKU، قیمت، موجودی و وضعیت فعال است. Cart به کاربر یکتا و CartItem به ترکیب سبد/گونه یکتا متصل است. Order و OrderItem تصویر ثابتی از نشانی، نام، SKU و قیمت زمان خرید نگه می‌دارند. حذف کاربر دارای سفارش یا محصول مرجع محدود شده است.
+`User`, `Account`, `Session`, and `VerificationToken` are compatible with the official NextAuth 4 adapter. `User` has a default `CUSTOMER` role, optional `passwordHash`, `disabledAt`, and `sessionVersion` for session revocation. `AuthRateLimit` stores shared database counters for sign-in and registration. `Category` and `Product` have Persian/English text; `ProductVariant` owns SKU, price, stock, and enabled status. `Cart` is unique per user and `CartItem` is unique per cart/variant pair. `Order` and `OrderItem` preserve snapshots of address, name, SKU, and price at purchase time. Deletion is restricted for a user with orders or a referenced product.
 
-پول Decimal(18,0) و واحد پیش‌فرض IRR (ریال) است؛ نمایش تومان باید صریحاً تبدیل شود. این مدل‌ها هنوز API فروش یا محاسبه موجودی و پرداخت نیستند. قیود SQL قیمت و موجودی غیرمنفی، تعداد مثبت و ایمیل نرمال‌شده را کنترل می‌کنند. migration جدول‌ها را با RLS و بدون مجوز Data API برای anon/authenticated ایجاد می‌کند؛ دسترسی فعلی از سرور انجام می‌شود.
+Money uses `Decimal(18,0)` and defaults to IRR (rial); display in toman requires an explicit conversion. These models do not yet implement sales APIs, inventory calculation, or payment. SQL constraints enforce non-negative price and stock, positive quantity, and normalized email. The migrations create tables with RLS and no Data API grants to `anon`/`authenticated`; current access is server-side.
 
-### مالک و مدیران
+### Owner and admins
 
-UserRole شامل CUSTOMER، ADMIN و OWNER است. محدودیت SQL `User_single_owner` تنها ردیف OWNER را unique می‌کند؛ ADMINها چند نفر می‌توانند باشند. افزودن مقدار enum و ایجاد index/trigger در دو migration جدا انجام می‌شود تا مقدار جدید پیش از استفاده commit شود. ثبت‌نام عمومی همچنان فقط CUSTOMER ایجاد می‌کند و هیچ endpoint عمومی برای انتخاب مالک یا تغییر نقش وجود ندارد.
+`UserRole` includes `CUSTOMER`, `ADMIN`, and `OWNER`. SQL constraint `User_single_owner` makes only the OWNER row unique; there may be multiple admins. Adding the enum value and creating the index/trigger happen in separate migrations so the new value is committed before use. Public registration still creates only CUSTOMER accounts, and no public endpoint lets users choose or change their role.
 
-`canManageUserRole` قاعده مجوز تغییر نقش را مرکزی نگه می‌دارد: فقط OWNER می‌تواند نقش کاربران غیرمالک را میان CUSTOMER و ADMIN تغییر دهد یا حساب آن‌ها را فعال و غیرفعال کند. نقش و وضعیت حساب مالک از پنل تغییر نمی‌کند. نقش نشست هر بار از DB تازه می‌شود؛ نقش قدیمی یا ارسالی کلاینت مرجع دسترسی نیست.
+`canManageUserRole` centralizes authorization for role changes: only OWNER can change non-owner users between CUSTOMER and ADMIN, or enable/disable their accounts. The owner's role and status cannot be changed in the panel. The session role is refreshed from the database each time; an old or client-supplied role is never an authorization source.
 
-trigger دیتابیس حذف مالک و تغییر id، role، email، passwordHash یا disabledAt او را رد می‌کند. تغییر نام/تصویر و افزایش sessionVersion برای ابطال نشست ممکن است. تعیین نخستین مالک فقط با عملیات مدیریتی خارج از برنامه انجام می‌شود؛ حساب مالک با دستور آفلاین owner:provision و اطلاعات خصوصی env ساخته و ورود آن تأیید شده است. نگهبان دیتابیس مانع تغییر توسط نقش دارای اختیار تغییر schema یا غیرفعال‌کردن trigger نیست؛ رمز اتصال فعلی postgres باید پیش از استقرار تجاری با نقش runtime محدود جایگزین شود.
+The database trigger rejects deleting the owner or changing the owner's `id`, role, email, password hash, or enabled state. Name/image changes and `sessionVersion` increments for revocation are allowed. The first owner is assigned only through an administrative operation outside the application; the owner account was created with the offline `owner:provision` command and private environment values, and sign-in was confirmed. The database guard cannot prevent a role with schema privileges from changing or disabling the trigger; the current postgres connection must be replaced by a restricted runtime role before commercial deployment.
 
-### احراز هویت
+### Authentication
 
-فرم ورود پیوند بازیابی رمز را از طریق ایمیل می‌فرستد. توکن یک‌بارمصرف ۳۰ دقیقه‌ای به‌صورت هش در جدول موجود VerificationToken ذخیره می‌شود. پیوند، توکن را در fragment نگه می‌دارد. ثبت رمز جدید توکن را مصرف و نشست‌های قبلی را بی‌اعتبار می‌کند. بازیابی رمز مالک در فرایند نگه‌داری حساب انجام می‌شود.
+The sign-in form sends a password-recovery link by email. A single-use 30-minute token is stored as a hash in the existing `VerificationToken` table. The link keeps the token in the URL fragment. Setting a new password consumes the token and invalidates previous sessions. Owner password recovery is part of account maintenance.
 
-در زبانهٔ ویرایش اطلاعات، `PATCH /api/account/password` رمز فعلی، رمز جدید و تکرار آن را با Zod اعتبارسنجی می‌کند. بعد از تأیید رمز فعلی، سرور هش جدید و افزایش نسخهٔ نشست را در یک به‌روزرسانی مشروط ذخیره می‌کند. همهٔ نشست‌های قبلی بی‌اعتبار می‌شوند و کاربر پس از ورود دوباره با رمز جدید به زبانهٔ حساب کاربری برمی‌گردد. تغییر رمز مالک از فرایند نگه‌داری حساب انجام می‌شود.
+On the Edit profile tab, `PATCH /api/account/password` validates the current password, new password, and confirmation with Zod. After confirming the current password, the server stores the new hash and increments the session version in one conditional update. All previous sessions become invalid, and the user signs in again with the new password before returning to the account tab. Owner password changes are part of account maintenance.
 
-`/api/register` ورودی نام، ایمیل و رمز را اعتبارسنجی، رمز را با scrypt و salt تصادفی هش، و کاربر CUSTOMER ایجاد می‌کند. ایمیل trim/lowercase می‌شود؛ نقش و سایر فیلدهای اضافی ورودی نادیده گرفته می‌شوند. پاسخ ثبت‌نام برای ایمیل جدید و تکراری یکسان است. این endpoint فقط JSON با Origin مطابق NEXTAUTH_URL و بدنه حداکثر ۸ کیلوبایت می‌پذیرد.
+`/api/register` validates the name, email, and password, hashes the password with scrypt and a random salt, then creates a CUSTOMER. Email is trimmed and lowercased; input role and other extra fields are ignored. New and duplicate email registration return the same response. This endpoint accepts only JSON from an Origin matching `NEXTAUTH_URL`, with a body up to 8 KB.
 
-فرم‌های ورود و ساخت حساب از همان schemaهای Zod سرور در `lib/auth/validation.ts` استفاده می‌کنند. هنگام تایپ یا خروج از فیلد، فقط همان فیلد بررسی می‌شود و با معتبر شدن مقدار، هشدار آن فوراً پاک می‌شود. هنگام ارسال، کل فرم بررسی می‌شود. اگر ورودی نامعتبر باشد، درخواست ارسال نمی‌شود، خطای ترجمه‌شده کنار هر فیلد نمایش داده می‌شود و فوکوس به اولین فیلد نامعتبر می‌رود. ورود به ایمیل معتبر و رمز غیرخالی نیاز دارد؛ ساخت حساب علاوه بر این نام و رمز حداقل ۸ کاراکتری می‌خواهد. زمان نمایش هشدار و جزئیات بصری در [سیستم طراحی](DESIGN_SYSTEM.md#صفحهٔ-حساب) ثبت شده‌اند.
+Sign-in and registration forms use the same Zod schemas as the server in `lib/auth/validation.ts`. On typing or blur, only that field is checked, and its warning clears as soon as the value becomes valid. Submission validates the full form. Invalid input is not submitted; translated errors appear beside their fields and focus moves to the first invalid field. Sign-in requires a valid email and non-empty password; registration also requires a name and a password of at least 8 characters. Warning timing and visual details are in the [design system: account page](DESIGN_SYSTEM.md#account-page).
 
-`/api/auth/[...nextauth]` از NextAuth 4، Credentials و PrismaAdapter استفاده می‌کند. طبق قرارداد Credentials، نشست JWT با maxAge برابر ۲۴ ساعت است؛ جدول Session برای adapter آماده است ولی ورود رمز عبوری در آن نشست نمی‌نویسد. callback هر بار وجود کاربر، disabledAt و sessionVersion را از DB بررسی و نقش را تازه می‌کند. تغییر sessionVersion نشست‌های قبلی را بی‌اعتبار می‌کند. رمز یا hash در نشست کلاینت برنمی‌گردد.
+`/api/auth/[...nextauth]` uses NextAuth 4, Credentials, and PrismaAdapter. Under the Credentials contract, JWT sessions have a max age of 24 hours; the Session table is ready for the adapter, but password sign-in does not write to it. The callback checks the user, `disabledAt`, and `sessionVersion` against the database each time and refreshes the role. Incrementing `sessionVersion` invalidates previous sessions. Passwords and hashes are not returned in the client session.
 
-`getCurrentUser()` پیش از ساخت تنظیمات NextAuth و فراخوانی `getServerSession()`، منتظر `connection()` از `next/server` می‌ماند؛ با فعال‌بودن Cache Components، خواندن نشست و تولید مقدار تصادفی داخلی NextAuth در زمان درخواست انجام می‌شود و وارد پیش‌رندر نمی‌شود. این helper باید در زمینهٔ درخواست Next.js فراخوانی شود.
+Before building NextAuth options and calling `getServerSession()`, `getCurrentUser()` waits for `connection()` from `next/server`. With Cache Components enabled, session reads and NextAuth's internal random value are deferred to the request and excluded from prerendering. Call this helper within a Next.js request context.
 
-`getCurrentUser()` مرجع دسترسی سروری و `/api/account` نمونه endpoint محافظت‌شده با پاسخ 401 برای مهمان است. نقش را در هر قابلیت مدیریتی باید در همان endpoint بررسی کرد؛ نمایش کلاینت مجوز نیست. AuthProvider کلاینت، SessionProvider را بدون پویاکردن layout سروری فراهم می‌کند. آیکون حساب در هدر برای مهمان به صفحهٔ حساب در زبان جاری پیوند دارد. برای کاربر واردشده، نام و ایمیل از نشست NextAuth در مودال نمایش داده می‌شوند و دکمه‌های مودال امکان رفتن به همان صفحه و خروج از حساب را فراهم می‌کنند. AccountPanel در این صفحه ورود، ثبت‌نام، وضعیت نشست و خروج را نمایش می‌دهد. نشانی قدیمی `?account=signin` همچنان کاربر را به صفحهٔ حساب هدایت می‌کند. تأیید ایمیل و provider خارجی در این مرحله فعال نیستند.
+`getCurrentUser()` is the server-side authorization source; `/api/account` is a protected endpoint that returns 401 for guests. Check the role again in each admin endpoint; client-side display is not authorization. The client `AuthProvider` provides `SessionProvider` without making the server layout dynamic. For guests, the header account icon links to the account page in the current locale. For signed-in users, the modal displays the name and email from the NextAuth session and offers navigation to the same page and sign-out. `AccountPanel` displays sign-in, registration, session status, and sign-out on that page. The legacy address `?account=signin` still redirects the user to the account page. Email verification and external providers are not active at this stage.
 
-فرم ورود برای ایمیل ناشناخته یا رمز اشتباه پیام «ایمیل یا رمز عبور اشتباه است» را نشان می‌دهد. فقط پس از تأیید رمز صحیحِ حساب غیرفعال، پیام «حساب شما غیرفعال است» نمایش داده می‌شود. پس از رسیدن به سقف تلاش‌ها، پیام محدودیت ورود نمایش داده می‌شود.
+Sign-in shows “Incorrect email or password” for an unknown email or incorrect password. It shows “Your account is disabled” only after verifying the correct password for a disabled account. Reaching the attempt limit shows the sign-in rate-limit message.
 
-پس از ورود موفق، مقصد پیش‌فرض صفحهٔ اصلی زبان جاری است. برای درخواست ورود از یک صفحهٔ دیگر، به `/{locale}/account?callbackUrl=...` پیوند بدهید و مسیر داخلی مقصد را با `URLSearchParams` کدگذاری کنید. مسیر، پارامترهای جست‌وجو و هش مقصد حفظ می‌شوند. مقصد خارجی یا نامعتبر به صفحهٔ اصلی برمی‌گردد.
+After successful sign-in, the default destination is the home page in the current locale. To request sign-in from another page, link to `/{locale}/account?callbackUrl=...` and encode the internal destination with `URLSearchParams`. The path, query parameters, and destination hash are preserved. External or invalid destinations return to the home page.
 
-پس از پاسخ موفق ثبت‌نام، فرم ورود با ایمیل و رمز واردشده پر می‌شود و کاربر دکمهٔ ورود را می‌زند. این جابه‌جایی در همان صفحه انجام می‌شود تا مقصد بازگشت حفظ شود.
+After successful registration, the sign-in form is populated with the submitted email and password, and the user clicks the sign-in button. This transition occurs on the same page so the return destination is preserved.
 
-تطابق رمز و تأیید آن در فرم ثبت‌نام بررسی می‌شود. درخواست ثبت‌نام فقط نام، ایمیل و رمز را ارسال می‌کند.
+The registration form checks that the password and confirmation match. Registration sends only the name, email, and password.
 
-کاربر واردشده می‌تواند نام حساب خود را با `PATCH /api/account` ویرایش کند. سرور شناسه را از نشست می‌خواند، Origin، نوع JSON و حجم بدنه را بررسی می‌کند و فقط فیلد نام را می‌پذیرد. پس از ذخیره، نشست تازه می‌شود تا صفحه و مودال حساب نام جدید را نشان دهند.
+A signed-in user can update their account name with `PATCH /api/account`. The server reads the ID from the session, checks Origin, JSON content type, and body size, and accepts only the name field. After saving, the session is refreshed so the page and account modal show the new name.
 
-### دسترسی به پنل مدیریت
+### Admin panel access
 
-برای بینندهٔ ADMIN، ایمیل حساب‌های ADMIN و OWNER پیش از ارسال فهرست به کلاینت حذف می‌شود؛ جست‌وجوی ایمیل نیز فقط حساب‌های CUSTOMER را برای او تطبیق می‌دهد. OWNER ایمیل همهٔ نقش‌ها را می‌بیند.
+For an ADMIN viewer, emails of ADMIN and OWNER accounts are removed before the user list is sent to the client. Email search matches only CUSTOMER accounts for that viewer. OWNER can see emails for all roles.
 
-مرتب‌سازی کاربران با پارامترهای محدودشدهٔ `sort=role|status` و `direction=asc|desc` در دیتابیس و پیش از صفحه‌بندی انجام می‌شود؛ تاریخ ایجاد و شناسه، ترتیب پایدار ردیف‌های هم‌گروه را تعیین می‌کنند. نقش صعودی از کاربر به مالک و وضعیت صعودی از فعال به غیرفعال است. جست‌وجو، فیلترها، پاک‌کردن فیلتر و صفحه‌بندی، مرتب‌سازی را حفظ می‌کنند. شناسهٔ حساب جاری از نشست سروری برای مشخص‌کردن ردیف او به جدول داده می‌شود.
+User sorting uses bounded `sort=role|status` and `direction=asc|desc` parameters in the database before pagination; creation date and ID provide a stable order within tied groups. Ascending role order is customer to owner, and ascending status order is active to disabled. Search, filters, clearing filters, and pagination preserve sorting. The server session provides the current account ID to mark its row in the table.
 
-تمام فهرست‌های صفحه‌بندی‌شده از `components/pagination.tsx` و منطق `lib/pagination.ts` استفاده می‌کنند. داده و تعداد کل صفحات در سرور هر فهرست محاسبه می‌شود. قرارداد واحد در [صفحه‌بندی مشترک](DESIGN_SYSTEM.md#صفحه‌بندی-مشترک) است.
+All paginated lists use `components/pagination.tsx` and the `lib/pagination.ts` range logic. Each list's data and total page count are computed on the server. The single contract is in [shared pagination](DESIGN_SYSTEM.md#shared-pagination).
 
-گروه مسیر `(store)` هدر فروشگاه را در صفحهٔ اصلی و حساب نمایش می‌دهد. مسیر مدیریت چیدمان مستقل با سایدبار و محتوای تمام‌صفحه دارد. هر دو چیدمان تنظیمات زبان، تم و نشست را از چیدمان زبان می‌گیرند.
+The `(store)` route group displays the storefront header on the home and account pages. Admin routes use an independent full-page layout with a sidebar and content area. Both layouts receive locale, theme, and session settings from the locale layout.
 
-وضعیت جمع‌شدن سایدبار با `useSyncExternalStore` در حافظهٔ سند مرورگر نگه‌داری می‌شود تا بازسازی چیدمان در نخستین ناوبری پس از تغییر زبان، انتخاب کاربر را بازنشانی نکند. بارگذاری مجدد سند آن را به حالت باز پیش‌فرض برمی‌گرداند.
+Sidebar collapsed state is held in the browser document's memory with `useSyncExternalStore`, so rebuilding the layout on the first navigation after a locale change does not reset the user's choice. A full document reload returns it to the open default.
 
-مسیر `/[locale]/admin` فعلاً داشبوردی با محتوای خالی است. فهرست و جست‌وجوی کاربران در `/[locale]/admin/users` قرار دارند و هر دو صفحه نشست و نقش را در سرور بررسی می‌کنند.
+`/[locale]/admin` is currently an empty dashboard. The user list and search are at `/[locale]/admin/users`; both pages check the session and role on the server.
 
-تصویر ذخیره‌شدهٔ کاربران از endpoint محافظت‌شدهٔ `/api/admin/users/[id]/avatar` با دسترسی مدیر یا مالک و سیاست `private, no-store` بارگیری می‌شود. فهرست به‌جای رشتهٔ تصویر ذخیره‌شده، URL این endpoint را به کلاینت می‌دهد.
+Saved user images load from the protected `/api/admin/users/[id]/avatar` endpoint, which requires an admin or owner and uses `private, no-store`. The list gives the client this endpoint URL instead of the stored image string.
 
-کاربران سایت اولین بخش پنل است. فهرست با جست‌وجوی نام و ایمیل، فیلتر نقش و وضعیت و صفحه‌بندی با تعداد قابل انتخاب ۱، ۱۰، ۲۰، ۵۰ یا ۱۰۰ ردیف از Prisma خوانده می‌شود. مقدار پیش‌فرض ۲۰ است و مقدار نامعتبر در سرور به همین پیش‌فرض برمی‌گردد. مدیر و مالک آن را می‌بینند؛ فقط مالک دکمه‌های تغییر نقش، وضعیت و حذف حساب‌های غیرمالک را دارد. حذف دائمی با تأیید مستقل و کنترل نسخهٔ updatedAt انجام می‌شود؛ حساب مالک و حساب دارای سفارش قابل حذف نیستند. ارتباط‌های نشست، اتصال ورود و سبد خرید با قواعد Cascade حذف می‌شوند و تاریخچهٔ سفارش با Restrict حفظ می‌شود. هر عملیات مودال تأیید مستقل دارد؛ تغییر نقش وضعیت فعلی را حفظ می‌کند و تغییر وضعیت نقش فعلی را. عملیات ذخیره نشست و نقش را دوباره در سرور بررسی می‌کند و فرم قدیمی را رد می‌کند. تغییر واقعی، نسخه نشست حساب مقصد را افزایش می‌دهد تا نشست‌های قبلی پس از تغییر نقش یا وضعیت دوباره معتبر نشوند.
+Site users are the first admin area. Prisma returns the list with name/email search, role/status filters, and pagination with selectable page sizes of 1, 10, 20, 50, or 100 rows. The default is 20; invalid values fall back to this default on the server. ADMIN and OWNER can view the list; only OWNER has controls to change roles/status or delete non-owner accounts. Permanent deletion requires a separate confirmation and an `updatedAt` version check; owner accounts and accounts with orders cannot be deleted. Sessions, sign-in accounts, and carts are removed by cascade rules; order history is preserved by `Restrict`. Each operation has its own confirmation modal. Changing role preserves the current status, and changing status preserves the current role. Each save action rechecks session and role and rejects a stale form. A real change increments the target account's session version so previous sessions are no longer valid after a role/status change.
 
-مسیرهای `/fa/admin` و `/en/admin` ورودی اولیهٔ پنل هستند. سرور نشست را با `getCurrentUser()` می‌خواند و با `canAccessAdmin` فقط نقش‌های `ADMIN` و `OWNER` را می‌پذیرد. مهمان به فرم ورود با مقصد بازگشت پنل هدایت می‌شود و کاربر عادی به صفحهٔ حساب برمی‌گردد. مودال و صفحهٔ حساب از همان قاعده برای نمایش پیوند پنل استفاده می‌کنند. ابزارهای مدیریت فروشگاه در [نقشه راه](ROADMAP.md) ثبت شده‌اند.
+`/fa/admin` and `/en/admin` are admin panel entry points. The server reads the session with `getCurrentUser()` and `canAccessAdmin` accepts only `ADMIN` and `OWNER`. Guests are sent to sign-in with the panel as the return destination; regular users return to the account page. The account modal and page use the same rule to display the admin link. Store-management tools are listed in the [roadmap](ROADMAP.md).
 
-## ناوبری و پوسته
+## Navigation and shell
 
-قاب مشترک کاربران و رنگ‌بندی در `components/admin/admin-page-frame.tsx` قرار دارد و layoutهای همان مسیرها آن را نصب می‌کنند. تیتر، زیرتیتر و توضیح ثابت بیرون از مرز بارگذاری داده هستند؛ Suspense فقط محتوای زیر سربرگ را بین اسکلتون و داده جابه‌جا می‌کند. به‌روزرسانی فیلتر، مرتب‌سازی و صفحه‌بندی نیز این سربرگ را دوباره mount نمی‌کند. قرارداد حرکت و فضای رزروشده در [پنل مدیریت](DESIGN_SYSTEM.md#پنل-مدیریت) ثبت شده است.
+The shared frame for users and theme settings is `components/admin/admin-page-frame.tsx`; their layouts install it. Heading, subtitle, and static description are outside the data-loading boundary. Suspense swaps only the content below the header between skeleton and data. Filter, sorting, and pagination updates do not remount the header. Motion rules and reserved space are documented in the [admin panel design](DESIGN_SYSTEM.md#admin-panel).
 
-آیتم‌های سایدبار پنل به‌صورت درخت تعریف می‌شوند. آیتم دارای فرزند کنترل باز و بسته‌شدن گروه است و مقصد صفحه ندارد؛ فقط برگ‌ها لینک هستند. مسیر قدیمی `/[locale]/admin/settings` صرفاً به `/[locale]/admin/settings/theme` هدایت می‌شود و نمای مستقل تنظیمات حذف شده است. بررسی دسترسی در مقصد رنگ‌بندی باقی می‌ماند.
+Admin sidebar items are defined as a tree. An item with children controls a group and has no page destination; only leaf items are links. The legacy `/[locale]/admin/settings` route redirects to `/[locale]/admin/settings/theme`, and the standalone settings view was removed. Access checks remain on the theme destination.
 
-### ساختار فعلی
+### Current structure
 
-هدر شیشه‌ای و RTL در دسکتاپ یک ردیف دارد: لوگو و نام فارسی، دسته‌بندی و منوها، سپس کنترل‌ها. نوشته انگلیسی زیر لوگو حذف شده است. در موبایل منوی جانبی و ردیف مستقل کنترل‌ها وجود دارد؛ کادر جست‌وجوی ثابت حذف شده است.
+The desktop glass header is one row with the logo and Persian name, categories and menus, then controls. The English text beneath the logo was removed. Mobile uses a side menu and a separate controls row; the fixed search box was removed.
 
-- components/store/site-header.tsx: ناوبری، میان‌بر /، جست‌وجو و مودال‌های هدر.
-- lib/store-navigation.ts: فهرست مرکزی دسته‌ها.
-- components/theme-toggle.tsx: کنترل مشترک روشن/تیره در هدر فروشگاه و نوار بالای پنل.
-- components/theme-switcher.tsx: شش گزینهٔ تم اصلی ثابت، چهار تم مدیر و رنگ دلخواه در مودال ظاهر.
-- components/theme-provider.tsx و lib/site-theme.ts: اعمال انتخاب کاربر از شش گزینه، نگاشت روشن/تیره و ذخیرهٔ محلی تنظیمات.
-- components/modal-close-button.tsx: کنترل بستن مشترک مودال‌های عمومی و منوی موبایل؛ form با method=dialog.
-- styles/header.css: شیشه و fallback مرورگر؛ چیدمان در Tailwind است.
+- `components/store/site-header.tsx`: navigation, `/` shortcut, search, and header modals.
+- `lib/store-navigation.ts`: central category list.
+- `components/theme-toggle.tsx`: shared light/dark control in the storefront header and admin top bar.
+- `components/theme-switcher.tsx`: the six theme choices (fixed site theme, four admin themes, and custom color) in the appearance modal.
+- `components/theme-provider.tsx` and `lib/site-theme.ts`: apply the user's selection, map light/dark modes, and store preferences locally.
+- `components/modal-close-button.tsx`: shared close control for common modals and mobile menu; form uses `method=dialog`.
+- `styles/header.css`: glass effect and browser fallback; layout is implemented with Tailwind.
 
-### تعامل‌ها
+### Interactions
 
-گروه کنترل‌ها به ترتیب تاگل، پالت، سبد خرید، علاقه‌مندی، حساب و جست‌وجو است. آیکون‌ها نام دسترس‌پذیر و tooltip دارند. جست‌وجو با دکمه آخر هدر یا کلید / مودال را باز می‌کند و فیلد فوکوس می‌گیرد؛ میان‌بر هنگام تایپ در فیلد یا وجود dialog باز فعال نمی‌شود. ارسال فرم، مودال جست‌وجو را می‌بندد و وضعیت نتایج را نشان می‌دهد.
+The control group order is theme toggle, palette, cart, wishlist, account, and search. Icons have accessible names and tooltips. Search opens from the final header button or `/` key and focuses its field; the shortcut is disabled while typing in a field or while a dialog is open. Submitting the form closes the search modal and shows the result state.
 
-دسته‌بندی با details بومی، کیبورد، Escape و خروج فوکوس کار می‌کند. مودال‌ها از dialog بومی و modal daisyUI استفاده می‌کنند؛ Escape، دکمه بستن و backdrop مسیرهای بستن هستند. skip-link، focus و reduced-motion حفظ شده‌اند.
+Categories use native `details`, keyboard interaction, Escape, and focus exit. Modals use native `dialog` and daisyUI `modal`; Escape, the close button, and the backdrop close them. Skip link, focus behavior, and reduced-motion support are preserved.
 
-آرایهٔ `SiteSettings.themes` رکورد `site` فقط چهار تم رسمی daisyUI را نگه می‌دارد. TechLight و TechDark گزینه‌های ثابت برندند و در فهرست مدیریت یا ورودی معتبر ذخیره‌سازی نیستند. migration ششم، تم‌های برند را از آرایه‌های قبلی حذف و با حفظ ترتیب تم‌های رسمی، جای خالی را از پیش‌فرض night، lemonade، halloween و bumblebee پر می‌کند؛ default دیتابیس نیز همین چهار تم است. ستون تکی `theme` قبلی برای سازگاری باقی است و خوانده نمی‌شود.
+The `site` record in `SiteSettings.themes` stores only the four official daisyUI themes. `TechLight` and `TechDark` are fixed brand options and are not valid in the admin list or stored input. Migration six removes brand themes from previous arrays and fills the space, while preserving official theme order, with `night`, `lemonade`, `halloween`, and `bumblebee`; the database default is also those four themes. The previous single `theme` column remains for compatibility but is not read.
 
-صفحه با `requireAdminUser` و Server Action با بررسی مجدد نشست ADMIN/OWNER محافظت می‌شوند. ذخیره فقط دقیقاً چهار نام رسمی متفاوت را می‌پذیرد. رابط روی هر کارت انتخاب مستقیم گرد دارد؛ چهار تم منتخب اول فهرست‌اند. انتخاب کمتر از چهار فقط پیش‌نویس محلی است؛ با کامل‌شدن چهار تم، ذخیره خودکار اجرا می‌شود. انتخاب پنجم، قدیمی‌ترین عضو آرایه را حذف و تم جدید را به انتها اضافه می‌کند؛ ترتیب آرایه در دیتابیس حفظ می‌شود. رابط پیش از پاسخ سرور تم را اعمال، هنگام انتظار از ارسال هم‌زمان جلوگیری و در خطا آخرین مجموعهٔ ذخیره‌شده را بازیابی می‌کند. پس از upsert، `revalidatePath('/', 'layout')` دادهٔ چیدمان‌ها را تازه می‌کند. خواندن دیتابیس پس از `connection()` و با React cache در همان درخواست مشترک است.
+The page is protected by `requireAdminUser`, and its Server Action rechecks the ADMIN/OWNER session. Saving accepts exactly four distinct official names. The UI shows a direct-selection circle on each card; the four selected themes appear first. Fewer than four choices remain a local draft; saving runs automatically when the fourth is selected. A fifth choice removes the oldest array entry and appends the new theme; array order is preserved in the database. The UI applies the theme before the server response, prevents concurrent submission while pending, and restores the last saved set on error. After upsert, `revalidatePath('/', 'layout')` refreshes layout data. Database reads are shared in the same request through React cache after `connection()`.
 
-دکمهٔ «تم اصلی سایت» در پنل، setTheme(brand) را فراخوانی می‌کند؛ فقط انتخاب محلی ظاهر تغییر می‌کند و Server Action ذخیرهٔ چهار تم اجرا نمی‌شود. نام‌های نمایشی از siteSettings.themeNames می‌آیند؛ شناسهٔ رسمی تم در دیتابیس، ورودی فرم و data-theme ثابت می‌ماند. قرارداد ظاهر، هاور و شمارنده در [سیستم طراحی](DESIGN_SYSTEM.md#تم-و-رنگ) است.
+The admin “Site default theme” button calls `setTheme(brand)`; only the local appearance changes and the Server Action for saving the four themes does not run. Display names come from `siteSettings.themeNames`; the official theme ID remains stable in the database, form, and `data-theme`. Appearance, hover, and counter rules are in the [design system](DESIGN_SYSTEM.md#themes-and-color).
 
-پنجرهٔ کاربر شش گزینه دارد: `brand` ثابت، چهار تم مدیر، `custom` ثابت. `brand` و `custom` با حالت روشن/تیره به TechLight/TechDark نگاشت می‌شوند. تم رسمی در حالت اصلی خودش نمایش داده و در حالت مخالف از همتای برند استفاده می‌کند؛ انتخاب پالت عوض نمی‌شود. مقدار اولیه همیشه brand با حالت system است.
+The user dialog has six choices: fixed `brand`, four admin themes, and fixed `custom`. `brand` and `custom` map to TechLight/TechDark based on light/dark mode. An official theme appears in its native mode and uses the paired brand theme in the opposite mode; the selected palette does not change. Initial choice is always brand with system mode.
 
-انتخاب، حالت و چهار رنگ دلخواه در `tech-shop:theme-choice` ذخیره می‌شوند. رنگ‌ها با parseCustomColors فقط hex شش‌رقمی معتبر می‌پذیرند و پیش‌فرض آن‌ها DEFAULT_CUSTOM_COLORS برند است. bootstrap پیش از hydration و provider انتخاب معتبر، حالت سیستم و رنگ دلخواه را اعمال می‌کنند. انتخاب رسمی حذف‌شده به brand برمی‌گردد؛ دو گزینهٔ ثابت مستقل از تنظیم مدیر می‌مانند. بازنشانی چهار رنگ برند را برمی‌گرداند. favicon ثابت و متن‌ها کلاینتی ترجمه می‌شوند.
+The user's selection, mode, and four custom colors are stored in `tech-shop:theme-choice`. `parseCustomColors` accepts only six-digit hex values, with brand `DEFAULT_CUSTOM_COLORS` as its default. Bootstrap runs before hydration and the provider applies a valid choice, system mode, and custom colors. A removed official selection falls back to brand; the two fixed choices remain independent of admin settings. Resetting restores the four brand colors. The favicon is fixed, and text is translated on the client.
 
-### محدودیت‌ها و مرجع ظاهر
+### Limitations and appearance reference
 
-جست‌وجو، دسته‌ها، سبد و علاقه‌مندی‌ها هنوز به کاتالوگ یا سرویس متصل نیستند و وضعیت خالی/آماده‌سازی دارند. صفحهٔ حساب به مسیرهای واقعی ثبت‌نام و NextAuth متصل است. ثبت‌نام، ورود و خروج روی دیتابیس واقعی بررسی شده‌اند.
+Search, categories, cart, and wishlist are not connected to a catalog or service and show empty/preparation states. The account page is connected to real registration and NextAuth routes. Registration, sign-in, and sign-out have been tested against the real database.
 
-جزئیات اندازه، رنگ و چیدمان در [سیستم طراحی](DESIGN_SYSTEM.md#چیدمان-هدر-و-جست‌وجو) ثبت شده است. پنل‌های موقت NavyPreview و TealPreview، اسلایدرهای آزمایشی و overrideهایشان حذف شده‌اند؛ انتخاب سراسری تم در پنل مدیریت انجام می‌شود.
+Sizing, color, and layout details are in the [design system: header and search](DESIGN_SYSTEM.md#header-and-search-layout). Temporary NavyPreview and TealPreview panels, test sliders, and their overrides have been removed; site-wide theme selection is managed in the admin panel.
 
-## صفحه اصلی و نمایش محصول
+## Home page and product display
 
-این سند وضعیت فعلی هیروی صفحه اصلی است؛ تنظیمات آزمایشی قبلی جایگزین شده‌اند. قرارداد کامپوننت‌ها و مقادیر نهایی حرکت در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) ثبت شده‌اند.
+This describes the current home page hero; earlier experimental settings have been replaced. Component and final motion contracts are in [DESIGN_SYSTEM.md: UI and motion rules](DESIGN_SYSTEM.md#ui-and-motion-rules).
 
-### محتوا و کنترل‌ها
+### Content and controls
 
-هیرو سه محصول دارد: هدفون اپل ایرپاد مکس، ماوس لاجیتک ام‌ایکس مستر ۳ اس و کیبورد لاجیتک ام‌ایکس کیز اس. تیتر اصلی با زبان رابط تغییر می‌کند؛ نام لاتین در پنجره معرفی از کاتالوگ همان زبان خوانده می‌شود. تصاویر از public/products بارگیری می‌شوند؛ قیمت و موجودی تا اتصال کاتالوگ نمایش داده نمی‌شوند.
+The hero has three products: Apple AirPods Max, Logitech MX Master 3S mouse, and Logitech MX Keys S keyboard. The main heading follows the UI language; the Latin name in the introduction modal comes from that locale's catalog. Images load from `public/products`; price and stock remain hidden until the catalog is connected.
 
-هر اسلاید از Subtitle با آیکون Store، تیتر Title، توضیح فارسی و یک GradientButton با گرادیانت مخروطی و فلش افقی استفاده می‌کند. دکمه پخش/توقف، پلاس کنار تصویر، کپشن زیر عکس، خط تزئینی استند و دکمه آزمایشی linear حذف شده‌اند.
+Each slide uses a Subtitle with a Store icon, a Title, a Persian description, and a GradientButton with a conic gradient and horizontal arrow. The play/pause button, plus sign beside the image, caption below the image, decorative stand line, and experimental linear button were removed.
 
-سه دات پایین به استند نزدیک شده‌اند؛ هر دکمه ۲۸ پیکسل و نقطه داخلی ۹ پیکسل است و فاصله دکمه‌ها ۲ پیکسل است. نقطه و حلقه پیشرفت هم‌مرکزند. انتخاب دستی با aria-label و aria-pressed مشخص شده است.
+The three dots are closer to the stand: each button is 28 px, its inner dot is 9 px, and the buttons are 2 px apart. The dot and progress ring are concentric. Manual selection uses `aria-label` and `aria-pressed`.
 
-### چیدمان و استند
+### Layout and stand
 
-پس‌زمینه تمام‌عرض است و دو گوشه پایین شعاع ۴۰ پیکسل دارند. عکس بدون blur دیده می‌شود. یک conic-gradient با سهم ملایم primary و secondary و radial mask، پشت متن و تا زیر هدر امتداد دارد تا خوانایی در تم روشن و تیره حفظ شود. گرادیانت تیتر مستقل و فقط از طیف primary است.
+The background spans the full width and has 40 px radii on its lower corners. The product image is shown without blur. A subtle conic gradient with primary and secondary colors and a radial mask extends behind the text and beneath the header to preserve readability in light and dark themes. The heading gradient is separate and uses only the primary palette.
 
-ارتفاع صحنه دسکتاپ ۵۲۰ و تبلت ۴۱۰ پیکسل است؛ در موبایل نسبت صحنه ۰٫۹ است. صحنه دسکتاپ با margin-top برابر ‎-۳۵ پیکسل هم‌راستا شده است. محصول scale برابر ۰٫۹ با نقطه اتکای پایین دارد. قاب‌بندی تصاویر مستقل است و فضای شفاف تصویر کیبورد لحاظ شده است.
+The desktop scene is 520 px high and the tablet scene is 410 px; on mobile the scene ratio is 0.9. The desktop scene aligns with a `-35px` top margin. The product is scaled to 0.9 with a bottom transform origin. Each image has independent framing, including the keyboard image's transparent space.
 
-استند سطح بیضی شیشه‌ای با عرض ۹۴٪ و ارتفاع ۶۴ پیکسل، بدنه ۵۸ پیکسلی، سایه تماس و نور ثابت primary/secondary دارد. خط تزئینی اضافه روی بدنه ندارد. CSS خام برای شیشه، نور، mask و قاب‌بندی باقی مانده است؛ چیدمان، اندازه و responsive با Tailwind هستند.
+The stand is an elliptical glass surface 94% wide and 64 px high, with a 58 px body, contact shadow, and fixed primary/secondary light. It has no additional decorative line. Raw CSS remains for glass, lighting, masks, and image framing; layout, sizing, and responsive behavior use Tailwind.
 
-### پخش خودکار و تعویض
+### Autoplay and transitions
 
-- تعویض خودکار هر ۶ ثانیه متن، تصویر و معرفی را با محصول منتخب هماهنگ می‌کند. تصاویر از ابتدا بارگیری می‌شوند.
-- hover، فوکوس، کشیدن محصول، بازبودن dialog، خارج‌شدن هیرو از دید، مخفی‌شدن برگه و reduced-motion پخش خودکار را متوقف می‌کنند.
-- محصول جدید از بالا-چپ وارد و محصول قبلی به پایین-چپ خارج می‌شود. تایم‌لاین مشترک ۱٫۶۵ ثانیه و منحنی power2.inOut است؛ دامنه به اندازه صحنه وابسته است و حداکثر به ۲۳۰ پیکسل افقی و ۲۸۰ پیکسل عمودی می‌رسد.
-- انتخاب سریع بعدی صف می‌شود و پس از پایان تعویض اجرا می‌شود. لایه قبلی پس از پایان حذف می‌شود؛ متن خروجی inert و aria-hidden است.
-- متن گروهی از بالا-راست وارد و به پایین-راست خارج می‌شود. ورود جدید پس از خروج متن قبلی شروع می‌شود؛ تیتر اصلی ورود مستقل SplitText دارد و در ورود گروهی دوباره محو نمی‌شود.
-- Title حرکت scatter و گرادیانت پیوسته primary دارد؛ Subtitle حرکت special با جابه‌جایی ۱۰ پیکسلی، چرخش ۲۵ درجه و منحنی فنری دارد. جزئیات در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) است.
-- دکمه conic در هاور، گرادیانت را در ۳۰۰ میلی‌ثانیه می‌چرخاند. فلش در ۵۰۰ میلی‌ثانیه از چپ خارج و از راست وارد می‌شود و متن ۲۴ پیکسل جلو می‌آید؛ عرض دکمه ثابت است.
+- Every 6 seconds, automatic transitions coordinate text, image, and introduction with the selected product. Images are loaded in advance.
+- Hover, focus, product dragging, an open dialog, the hero leaving the viewport, a hidden document, and reduced motion pause autoplay.
+- A new product enters from the upper left and the previous product exits at the lower left. The shared timeline lasts 1.65 seconds with `power2.inOut`; travel depends on scene size and is capped at 230 px horizontally and 280 px vertically.
+- A quick next selection is queued and runs after the current transition. The previous layer is removed at the end; outgoing text is `inert` and `aria-hidden`.
+- Text groups enter from upper right and exit lower right. The next entrance begins after the previous text exits. The main heading has its own SplitText entrance and does not fade again with the group.
+- Title uses scatter motion and a continuous primary gradient. Subtitle uses a special motion with 10 px translation, 25-degree rotation, and a spring curve. Details are in [DESIGN_SYSTEM.md: UI and motion rules](DESIGN_SYSTEM.md#ui-and-motion-rules).
+- On hover, the button's conic gradient rotates for 300 ms. The arrow exits left and enters right over 500 ms while the text moves forward 24 px; the button width stays fixed.
 
-### تعامل با محصول
+### Product interaction
 
-محصول با Pointer Events و pointer capture، با موس یا لمس قابل کشیدن است؛ دامنه محدود است تا به متن وارد نشود. چرخش متناسب با جابه‌جایی افقی و حداکثر ۶ درجه است. سایه تماس همراه محصول حرکت می‌کند و هنگام بالا بردن آن، پهن‌تر و کم‌رنگ‌تر می‌شود؛ blur ثابت است.
+Pointer Events and pointer capture allow dragging by mouse or touch; travel is limited so the product does not overlap the text. Rotation follows horizontal movement and is capped at six degrees. The contact shadow moves with the product and becomes wider and fainter as it is raised; blur stays fixed.
 
-رهاکردن، pointercancel و lostpointercapture، محصول و سایه را در ۰٫۸ ثانیه با power3.out برمی‌گردانند. کلیدهای جهت جابه‌جا می‌کنند و Home/Escape به مرکز بازمی‌گردانند. در reduced-motion چرخش حذف و بازگشت آنی است.
+On release, `pointercancel`, or `lostpointercapture`, the product and shadow return in 0.8 seconds with `power3.out`. Arrow keys move the product, and Home/Escape return it to center. Rotation is removed and return is immediate in reduced-motion mode.
 
-### ساختار
+### Structure
 
-| فایل                              | مسئولیت                                                  |
-| --------------------------------- | -------------------------------------------------------- |
-| components/store/product-hero.tsx | اطلاعات محصولات، انتخاب، تعویض، drag و dialog            |
-| components/title.tsx              | تیتر فارسی/انگلیسی با گرادیانت یکپارچه                   |
-| components/subtitle.tsx           | زیرتیتر همراه آیکون قابل تغییر                           |
-| components/gradient-button.tsx    | دکمه مخروطی با هاور گرادیانت، فلش و متن                  |
-| hooks/use-text-reveal.ts          | انیمیشن مشترک GSAP و SplitText، cleanup و reduced-motion |
-| styles/hero.css                   | افکت‌های ویژه و قاب‌بندی تصاویر                          |
-| public/products                   | تصاویر محلی محصولات و پس‌زمینه                           |
+| File                                | Responsibility                                                           |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| `components/store/product-hero.tsx` | Product data, selection, transitions, drag, and dialog                   |
+| `components/title.tsx`              | Persian/English heading with continuous gradient                         |
+| `components/subtitle.tsx`           | Subtitle with replaceable icon                                           |
+| `components/gradient-button.tsx`    | Conic-gradient button with gradient hover, arrow, and text               |
+| `hooks/use-text-reveal.ts`          | Shared GSAP and SplitText animation, cleanup, and reduced-motion support |
+| `styles/hero.css`                   | Special effects and image framing                                        |
+| `public/products`                   | Local product images and background                                      |
 
-### تصاویر و منشأ
+### Images and provenance
 
-- پس‌زمینه hero-workspace.png با imagegen ساخته شده است: استودیوی خلوت با رنگ‌های sage/navy، نور پنجره، میز سنگی و گیاه؛ بدون محصول، نوشته یا لوگو.
-- AirPods Max: تصویر رسمی دانلودشده در مرحله اولیه؛ در رابط درخواست به سایت سازنده وجود ندارد.
-- MX Master 3S: [تصویر رسمی Logitech](https://resource.logitech.com/content/dam/logitech/en/products/mice/mx-master-3s/gallery/mx-master-3s-mouse-top-view-graphite.png).
-- MX Keys S: [تصویر رسمی Logitech](https://resource.logitech.com/content/dam/logitech/en/products/keyboards/mx-keys-s/migration-assets-for-delorean-2025/gallery/mx-keys-s-top-view-graphite-us.png).
+- The `hero-workspace.png` background was generated with imagegen: a quiet studio with sage/navy colors, window light, a stone desk, and a plant; no product, text, or logo.
+- AirPods Max: official image downloaded during the initial implementation; the interface does not request it from the manufacturer's site.
+- MX Master 3S: [official Logitech image](https://resource.logitech.com/content/dam/logitech/en/products/mice/mx-master-3s/gallery/mx-master-3s-mouse-top-view-graphite.png).
+- MX Keys S: [official Logitech image](https://resource.logitech.com/content/dam/logitech/en/products/keyboards/mx-keys-s/migration-assets-for-delorean-2025/gallery/mx-keys-s-top-view-graphite-us.png).
 
-### بررسی و محدودیت‌ها
+### Review and limitations
 
-تعویض دستی و خودکار، تصاویر هر سه محصول، معرفی، drag و بازگشت سایه در مرورگر بررسی شده‌اند. در بازنگری Tailwind، چیدمان موبایل ۳۹۰ و هم‌مرکزی حلقه دات‌ها بررسی شد. پس از اصلاح گرادیانت، شش تعویض میان هر سه محصول با بررسی فریم‌های میانی انجام شد؛ فلش مشکی و رسم تکراری کلمه‌ها رفع شدند. هاور نهایی دکمه، جابه‌جایی ۲۴ پیکسلی متن و خروج کامل و ورود مجدد فلش نیز در مرورگر تأیید شدند.
+Manual and automatic transitions, all three product images, introductions, dragging, and shadow return were checked in the browser. In a Tailwind review, the 390 px mobile layout and centered dot rings were checked. After gradient fixes, six transitions among all three products were checked, including intermediate frames; a black arrow and repeated text rendering were fixed. Final button hover, 24 px text movement, and the arrow's full exit and re-entry were also confirmed in the browser.
 
-lint و TypeScript پس از آخرین تغییر دکمه موفق بودند. بیلد تولیدی پس از افزودن نوع conic موفق بود؛ آخرین تغییر حرکت فلش پس از آن با مرورگر، lint و TypeScript بررسی شد. تست‌های موجود پروژه در بازنگری کامپوننت‌های متن ۲۱ مورد بودند و پاس شدند. گوشی فیزیکی و بررسی جامع دسترس‌پذیری انجام نشده‌اند.
+Lint and TypeScript passed after the last button change. The production build succeeded after adding the conic type; the final arrow motion was checked in the browser, with lint and TypeScript, afterward. Existing project tests numbered 21 during the text-component review and passed. No physical phone or comprehensive accessibility review was performed.
 
-### ادغام CSS با Next.js
+### CSS integration with Next.js
 
-ادغام Tailwind از @tailwindcss/postcss نسخه 4.3.3 و postcss.config.mjs استفاده می‌کند؛ loader مستقیم قدیمی از next.config.ts حذف شده است. مرجع راهنمای محلی Next.js: node_modules/next/dist/docs/01-app/01-getting-started/11-css.md. Turbopack همچنان موتور dev و build است.
+Tailwind integration uses `@tailwindcss/postcss` 4.3.3 and `postcss.config.mjs`; the old direct loader was removed from `next.config.ts`. Local Next.js guide: `node_modules/next/dist/docs/01-app/01-getting-started/11-css.md`. Turbopack remains the dev and build engine.
 
-## زبان‌های رابط
+## UI locales
 
-نسخه فارسی در `/` (و `/fa`) با `lang=fa` و `dir=rtl` و نسخه انگلیسی در `/en` با `lang=en` و `dir=ltr` ارائه می‌شود. `proxy.ts` فقط مسیر ریشه را به `/fa` بازنویسی می‌کند؛ زبان مرورگر مسیر فارسی را خودکار تغییر نمی‌دهد. دکمه پرچم دایره‌ای در هدر زبان مقصد را نشان می‌دهد و بدون بارگذاری مجدد سند، زبان را انتخاب می‌کند و تنظیم تم در هر دو زبان مشترک می‌ماند.
+The Persian version is served at `/` (and `/fa`) with `lang=fa` and `dir=rtl`; English is at `/en` with `lang=en` and `dir=ltr`. `proxy.ts` rewrites only the root path to `/fa`; browser language does not automatically change the route. The circular flag button in the header shows the destination locale and switches language without reloading the document; theme settings are shared by both locales.
 
-چیدمان ریشه در `app/[locale]/layout.tsx` زبان را اعتبارسنجی و هر دو نسخه را پیش‌رندر می‌کند. `LocaleProvider` مرز کلاینت next-intl است؛ کاتالوگ‌ها در `messages/fa.json` و `messages/en.json` با گروه‌های موضوعی و کلیدهای معنادار هستند. ترجمه متن‌های محصول، منوها، جست‌وجو، پنجره‌ها، تنظیم تم و برچسب‌های دسترس‌پذیری را پوشش می‌دهد. هنگام افزودن متن، هر دو کاتالوگ باید تکمیل شوند. قیمت، موجودی، ورود و خرید همچنان به سرویس تجاری متصل نیستند.
+The root layout in `app/[locale]/layout.tsx` validates the locale and prerenders both versions. `LocaleProvider` is the next-intl client boundary. Catalogs in `messages/fa.json` and `messages/en.json` use topic groups and meaningful keys. Translations cover product text, menus, search, dialogs, theme settings, and accessible labels. Complete both catalogs when adding text. Price, inventory, sign-in, and checkout are not connected to commercial services yet.
 
-برچسب `ModalCloseButton` اجباری است و در محل استفاده از کاتالوگ زبان گرفته می‌شود؛ این جزء ترجمه یا متن پیش‌فرض مستقل ندارد. اسکریپت اولیه تم با `next/script` و راهبرد `beforeInteractive` اجرا می‌شود. LanguageSwitcher با History API سازگار با Next.js و usePathname مسیر و کاتالوگ زبان را در همان سند عوض می‌کند؛ برگشت/جلو مرورگر نیز زبان را همگام می‌کنند. ThemeProvider بیرون از LocaleProvider پایدار می‌ماند، بنابراین زبان تم یا رنگ دلخواه را بازنشانی نمی‌کند. lang و dir پیش از paint در useLayoutEffect همگام می‌شوند. تغییر زبان در همان صفحه انجام می‌شود و پارامترهای جست‌وجو و هش را حفظ می‌کند. متن صفحه‌های داخلی نیز در LocaleProvider ترجمه می‌شود؛ کنترل دسترسی پنل مدیریت هنگام ورود به مسیر در سرور اجرا می‌شود.
+`ModalCloseButton` requires a translated label passed from its call site; it has no internal translation or fallback text. The initial theme script uses `next/script` with the `beforeInteractive` strategy. `LanguageSwitcher` uses the Next.js-compatible History API and `usePathname` to change route and locale catalog in the same document; browser Back/Forward also keeps the locale in sync. `ThemeProvider` remains outside `LocaleProvider`, so changing locale does not reset the theme or custom color. `lang` and `dir` are synchronized in `useLayoutEffect` before paint. Locale switching stays on the same page and preserves query parameters and hash. Internal page text is translated by `LocaleProvider`; admin access is checked on the server when entering the route.
 
-حرکت چیدمان تغییر زبان در `lib/locale-motion.ts` هماهنگ می‌شود: LanguageSwitcher موقعیت‌ها را ثبت می‌کند و LocaleProvider پس از commit ترجمه و اعمال dir در layout effect حرکت را آغاز می‌کند. وضعیت موقت localeMoving مانع تداخل reveal حروف با جابه‌جایی می‌شود و پس از پایان همه حرکت‌ها پاک می‌شود.
+Locale layout motion is coordinated in `lib/locale-motion.ts`: `LanguageSwitcher` records positions, and `LocaleProvider` starts the motion after translation commit and `dir` application in a layout effect. Temporary `localeMoving` state prevents text reveals from conflicting with layout movement and clears after all motion completes.
 
-### سازمان‌دهی ترجمه‌ها
+### Translation organization
 
-کاتالوگ هر زبان شامل گروه‌های brand، common، header، navigation، search، categories، cart، wishlist، account، theme، hero، products و language است. نمونه کلیدها: `common.closeDialog`، `theme.palettes.navy` و `products.airpods.description`. کامپوننت‌ها مستقیماً از `useTranslations` استفاده می‌کنند؛ متن‌های دارای متغیر مثل `hero.moveProduct` و `search.resultsTitle` از پارامترهای ICU استفاده می‌کنند. `messages/types.d.ts` ساختار کاتالوگ انگلیسی را به AppConfig در next-intl متصل می‌کند تا کلیدها در TypeScript بررسی شوند. تست‌ها برابری کلیدهای تو‌در‌تو، متن‌های غیرخالی و یکسان‌بودن متغیرهای هر دو زبان را بررسی می‌کنند.
+Each locale catalog has groups for brand, common, header, navigation, search, categories, cart, wishlist, account, theme, hero, products, and language. Example keys include `common.closeDialog`, `theme.palettes.navy`, and `products.airpods.description`. Components use `useTranslations` directly; messages with variables such as `hero.moveProduct` and `search.resultsTitle` use ICU parameters. `messages/types.d.ts` connects the English catalog shape to next-intl `AppConfig` so TypeScript checks keys. Tests verify nested key parity, non-empty text, and matching parameters in both locales.
 
-### مرز متن قابل ترجمه
+### Translatable text boundary
 
-تمام نوشته‌های رابط در `messages/fa.json` و `messages/en.json` هستند: متن بدنه، نام برند و محصولات، برچسب لوگو، alt تصاویر، title و placeholder و برچسب‌های دسترس‌پذیری، نشانه برند، راهنمای کلید جست‌وجو و قالب‌های ترکیبی. `Logo` و `ModalCloseButton` برچسب ترجمه‌شده را به‌صورت prop اجباری می‌گیرند. قالب عنوان دسته هیرو و برچسب کامل انتخاب رنگ نیز در کاتالوگ هستند. نام‌های تجاری لاتین با وجود یکسان‌بودن در دو زبان در کاتالوگ هر دو ثبت می‌شوند.
+All interface copy lives in `messages/fa.json` and `messages/en.json`: body text, brand and product names, logo labels, image alt text, titles, placeholders, accessible labels, brand markers, search keyboard help, and composite formats. `Logo` and `ModalCloseButton` require a translated label prop. The hero category heading template and full color-selection label are also in the catalogs. Latin brand names are listed in both locale catalogs even when they are identical.
 
-عنوان تب در بارگذاری سروری با generateMetadata از brand.name زبان مسیر و هنگام تغییر زبان داخل صفحه از همان کاتالوگ تعیین می‌شود. مولد لوگو نیز مقدار پیش‌فرض متنی در کامپوننت تولید نمی‌کند. شناسه‌ها، مسیرها، کلاس‌های CSS، نام eventها و کلیدهای API متن رابط نیستند؛ پیام خطای برنامه‌نویسی ThemeProvider نیز پیام داخلی توسعه است. ورودی جست‌وجوی کاربر ترجمه نمی‌شود و در قالب ترجمه‌شده قرار می‌گیرد.
+The tab title is set on the server by `generateMetadata` from the locale's `brand.name`, and during in-page locale changes from the same catalog. The logo generator also emits no default display text in the component. IDs, routes, CSS classes, event names, and API keys are not UI text; the ThemeProvider's programming error is an internal development message. User-entered search text is not translated and is placed inside a translated format.
 
-تغییر دستی حالت در ThemeProvider فقط وضعیت و تم daisyUI را به‌روز می‌کند و برای ۱۰۰۰ میلی‌ثانیه data-theme-changing را فعال نگه می‌دارد. CSS رنگ‌ها را مستقل از transformهای تغییر زبان انیمیت می‌کند؛ کلیک بعدی تایمر پاک‌سازی قبلی را جایگزین می‌کند. پس از پایان، نشانگر موقت حذف و رنگ نوار مرورگر با رنگ نهایی همگام می‌شود. این گذار از View Transition و snapshot استفاده نمی‌کند.
+Manual mode changes in `ThemeProvider` update only the state and daisyUI theme and keep `data-theme-changing` active for 1,000 ms. CSS animates colors independently from locale layout transforms; a later click replaces the previous cleanup timer. At the end, the temporary marker is removed and the browser toolbar color is synced to the final color. This transition does not use View Transition or a snapshot.

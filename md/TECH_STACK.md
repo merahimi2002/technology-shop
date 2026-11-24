@@ -1,43 +1,43 @@
-# پشته فنی تأییدشده
+# Approved Technology Stack
 
-بازبینی پیاده‌سازی: ۲۰۲۶/۱۱/۲۰؛ فهرست نسخه‌های ثبت‌شده مربوط به ۲۰۲۶/۱۱/۰۶ است. مرجع نسخه‌های ثبت‌شده package.json و package-lock.json همین پروژه است؛ بررسی اولیه npm registry در ۲۰۲۶/۱۱/۰۲ انجام شده است.
+Implementation review: 2026-11-20. Recorded package versions are from 2026-11-06. The authoritative version list is the repository's `package.json` and `package-lock.json`; the initial npm registry review was performed on 2026-11-02.
 
-NextAuth جایگزین Better Auth شده و مدیر پکیج فقط npm است.
+NextAuth replaced Better Auth, and npm is the only package manager.
 
-Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً روی آخرین نسخه پایدار 7.10.1 هماهنگ با client و adapter انتخاب شد.
+Although Prisma CLI labels the latest release as an RC, the project deliberately uses stable version 7.10.1 to match the client and adapter.
 
-## نسخه‌های نصب‌شده
+## Installed versions
 
-| پکیج                      | نسخه ثبت‌شده |
-| ------------------------- | ------------ |
-| @fontsource/vazirmatn     | 5.3.0        |
-| @gsap/react               | 2.1.2        |
-| @hookform/resolvers       | 7.0.1        |
-| @next/env                 | 16.4.6       |
-| @next-auth/prisma-adapter | 1.0.7        |
-| @prisma/adapter-pg        | 7.10.1       |
-| @prisma/client            | 7.10.1       |
-| @radix-ui/react-slot      | 1.5.0        |
-| @tanstack/react-query     | 5.105.1      |
-| class-variance-authority  | 0.7.1        |
-| clsx                      | 2.1.1        |
-| gsap                      | 3.15.0       |
-| lenis                     | 1.3.27       |
-| lucide-react              | 1.66.0       |
-| next                      | 16.4.6       |
-| next-auth                 | 4.24.15      |
-| next-intl                 | 4.14.9       |
-| pg                        | 8.23.1       |
-| react                     | 19.3.1       |
-| react-dom                 | 19.3.1       |
-| react-hook-form           | 7.91.0       |
-| server-only               | 0.0.1        |
-| tailwind-merge            | 3.7.0        |
-| zod                       | 4.6.7        |
+| Package                   | Recorded version |
+| ------------------------- | ---------------: |
+| @fontsource/vazirmatn     |            5.3.0 |
+| @gsap/react               |            2.1.2 |
+| @hookform/resolvers       |            7.0.1 |
+| @next/env                 |           16.4.6 |
+| @next-auth/prisma-adapter |            1.0.7 |
+| @prisma/adapter-pg        |           7.10.1 |
+| @prisma/client            |           7.10.1 |
+| @radix-ui/react-slot      |            1.5.0 |
+| @tanstack/react-query     |          5.105.1 |
+| class-variance-authority  |            0.7.1 |
+| clsx                      |            2.1.1 |
+| gsap                      |           3.15.0 |
+| lenis                     |           1.3.27 |
+| lucide-react              |           1.66.0 |
+| next                      |           16.4.6 |
+| next-auth                 |          4.24.15 |
+| next-intl                 |           4.14.9 |
+| pg                        |           8.23.1 |
+| react                     |           19.3.1 |
+| react-dom                 |           19.3.1 |
+| react-hook-form           |           7.91.0 |
+| server-only               |            0.0.1 |
+| tailwind-merge            |            3.7.0 |
+| zod                       |            4.6.7 |
 
-## ابزارهای توسعه
+## Development tools
 
-| پکیج                 | نسخه ثبت‌شده                      |
+| Package              | Recorded version                  |
 | -------------------- | --------------------------------- |
 | @tailwindcss/postcss | 4.3.3                             |
 | @types/node          | 24.19.2                           |
@@ -55,39 +55,39 @@ Prisma CLI با وجود برچسب latest روی نسخه RC، عمداً رو�
 | typescript           | npm:@typescript/typescript6@6.0.2 |
 | vitest               | 5.0.5                             |
 
-## تصمیم‌ها
+## Decisions
 
-برای عکس دسته‌بندی SDK رسمی `@supabase/supabase-js` نسخهٔ ثابت 2.119.2 اضافه شد. تبدیل تصویر با Sharp موجود و ذخیره در bucket خصوصی انجام می‌شود؛ جزئیات در [معماری، مدیریت کاتالوگ](ARCHITECTURE.md#مدیریت-کاتالوگ) است. فعال‌شدن ذخیره‌سازی به کلید سروری Storage وابسته است.
+The official `@supabase/supabase-js` SDK is pinned to 2.119.2 for category images. Existing Sharp support converts images before they are stored in a private bucket. See [Architecture: catalog management](ARCHITECTURE.md#catalog-management). Storage activation depends on a server-side key.
 
-صفحه‌بندی از Next Link، فرم Next.js و اجزای استاندارد daisyUI در یک کامپوننت مشترک استفاده می‌کند. مرجع [صفحه‌بندی مشترک](DESIGN_SYSTEM.md#صفحه‌بندی-مشترک) است.
+Pagination uses Next Link, the Next.js Form component, and standard daisyUI elements in one shared component. See [shared pagination](DESIGN_SYSTEM.md#shared-pagination).
 
-پنل از وابستگی‌های موجود استفاده می‌کند: daisyUI برای جدول، badgeهای نقش، کنترل‌ها، tooltipهای رنگی و گروه‌های بومی details/summary سایدبار؛ dialog بومی و useActionState برای تأیید عملیات؛ GSAP برای گذار opacity نتایج و ورود کشوی موبایل؛ SplitText برای تیتر و زیرتیتر در layout ثابت هر مسیر؛ Web Animations API مشترک برای جابه‌جایی زبان. موج‌های نقطه‌ای همان Canvas مشترک صفحهٔ حساب هستند. مشخصات ظاهر در [سیستم طراحی](DESIGN_SYSTEM.md#پنل-مدیریت) ثبت شده است.
+The admin panel uses existing dependencies: daisyUI for tables, role badges, controls, colored tooltips, and native `details`/`summary` sidebar groups; native dialogs and `useActionState` for confirming operations; GSAP for results opacity transitions and the mobile drawer; SplitText for headings and subtitles in each route's stable layout; and the shared Web Animations API for locale transitions. Its particle waves reuse the account page's Canvas. Appearance specifications are in the [design system](DESIGN_SYSTEM.md#admin-panel).
 
-- Next.js App Router و React با TypeScript strict.
-- Tailwind و daisyUI برای تم و اجزای استاندارد؛ Lucide و فونت فارسی Vazirmatn. ابزار shadcn فعلاً نصب مانده است.
-- Tailwind روش اصلی استایل‌نویسی مستقیم در JSX است؛ CSS خام فقط برای موارد خاص و پیچیده استفاده می‌شود. قرارداد کامل در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) است.
-- GSAP و useGSAP برای تعویض محصولات و drag، و SplitText برای Title/Subtitle فعال‌اند. هاور دکمه با transitionهای Tailwind اجرا می‌شود. ScrollTrigger و Lenis نصب‌اند ولی در هیروی فعلی استفاده نمی‌شوند؛ جزئیات در [DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت](DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت) و [ARCHITECTURE.md#صفحه-اصلی-و-نمایش-محصول](ARCHITECTURE.md#صفحه-اصلی-و-نمایش-محصول) است.
-- next-intl برای فارسی/انگلیسی و RTL/LTR؛ کاتالوگ‌های موضوعی در messages، کلیدهای بررسی‌شده با TypeScript، قالب‌های ICU و کنترل AST متن مستقیم در تست Vitest. قرارداد در [ARCHITECTURE.md#مرز-متن-قابل-ترجمه](ARCHITECTURE.md#مرز-متن-قابل-ترجمه) ثبت شده است.
-- TanStack Query، React Hook Form و Zod.
-- PostgreSQL روی پروژه موجود Supabase در Frankfurt؛ اتصال سروری Prisma 7.10.1 و pg با Session pooler و اعتبارسنجی کامل TLS با SELECT 1 تأیید شد. سه migration اولیه و حفاظت مالک روی همین Supabase اعمال شده‌اند؛ ۱۲ جدول کاربردی و متادیتای Prisma ایجاد شده و تست واقعی ثبت‌نام، ورود، نشست و خروج موفق است. دستورها و نتایج در [DEVELOPMENT.md](DEVELOPMENT.md#اتصال-دیتابیس) هستند.
-- NextAuth پایدار 4.24.15؛ نسخه ۵ هنوز beta است و نصب نشده.
-- adapter رسمی @next-auth/prisma-adapter نسخه 1.0.7 برای NextAuth 4 نصب شده است. ورود ایمیل/رمز با Credentials، نشست JWT و هش scrypt داخلی Node اجرا می‌شود؛ سرویس Supabase Auth استفاده نشده است.
-- Oxlint و Prettier؛ ESLint اولیه حذف شد.
-- تست سبک Vitest؛ بدون Playwright و axe در نصب پایه.
-- Nodemailer فعلاً به علت تعارض نسخه امن با peer dependency احراز هویت حذف شد.
-- Sharp نسخه 0.35.5 برای اعتبارسنجی و تبدیل عکس پروفایل به WebP استفاده می‌شود. ذخیره‌سازی تصاویر محصول با Supabase Storage در برنامه آینده قرار دارد. دامنه کار در [TODO.md](TODO.md#ذخیره-و-آپلود-عکس) ثبت شده است.
-- میزبانی برنامه، پیامک، درگاه و AI هنوز انتخاب نشده‌اند.
+- Next.js App Router and React with strict TypeScript.
+- Tailwind and daisyUI for themes and standard components; Lucide icons and the Vazirmatn Persian font. shadcn tooling remains installed.
+- Tailwind utilities are the primary way to style JSX directly. Use raw CSS only for specific complex cases. The full contract is in [DESIGN_SYSTEM.md: UI and motion rules](DESIGN_SYSTEM.md#ui-and-motion-rules).
+- GSAP and `useGSAP` power product transitions and drag interactions; SplitText powers active Title/Subtitle animations. Button hover uses Tailwind transitions. ScrollTrigger and Lenis are installed but not used in the current hero. See [DESIGN_SYSTEM.md: UI and motion rules](DESIGN_SYSTEM.md#ui-and-motion-rules) and [Architecture: home page and product display](ARCHITECTURE.md#home-page-and-product-display).
+- next-intl handles Persian/English and RTL/LTR. Topic-based catalogs live in `messages`; TypeScript checks keys, ICU formats messages, and Vitest checks the AST for hardcoded UI text. See [Architecture: translatable text boundary](ARCHITECTURE.md#translatable-text-boundary).
+- TanStack Query, React Hook Form, and Zod.
+- PostgreSQL on the existing Supabase project in Frankfurt. Server connections use Prisma 7.10.1 and `pg` with the Session pooler and full TLS validation; `SELECT 1` succeeded. Three initial migrations and owner protections have been applied. Twelve application tables and Prisma metadata exist, and real registration, sign-in, sessions, and sign-out have been tested. Commands and results are in [DEVELOPMENT.md: database connection](DEVELOPMENT.md#database-connection).
+- Stable NextAuth 4.24.15; version 5 is still beta and is not installed.
+- The official `@next-auth/prisma-adapter` 1.0.7 is installed for NextAuth 4. Email/password sign-in uses Credentials, JWT sessions, and Node's built-in scrypt hashing. Supabase Auth is not used.
+- Oxlint and Prettier; the initial ESLint setup was removed.
+- Lightweight Vitest setup; Playwright and axe are not part of the base installation.
+- Nodemailer was removed because of a secure-version conflict with the authentication package's peer dependency.
+- Sharp 0.35.5 validates and converts profile photos to WebP. Product image storage with Supabase Storage is planned in [TODO](TODO.md#storage-and-image-uploads).
+- Application hosting, SMS, payment gateway, and AI provider have not been selected.
 
-## منابع
+## References
 
 - https://next-auth.js.org/getting-started/example
 - https://authjs.dev/getting-started/installation
-- نسخه دقیق نصب‌شده و وابستگی‌های انتقالی: package-lock.json
+- Exact installed versions and transitive dependencies: `package-lock.json`
 
-## هویت و تم سایت
+## Site identity and themes
 
-تمام ۳۵ تم رسمی daisyUI 5.7.50 برای انتخاب مستقیم چهار تم در پنل در دسترس‌اند؛ TechLight/TechDark از این صفحه و ورودی ذخیرهٔ مدیر حذف شده‌اند. پنجرهٔ کاربر همیشه با تم اصلی ثابت شروع و با رنگ دلخواه ختم می‌شود؛ چهار انتخاب مدیر بین آن‌ها هستند. رنگ دلخواه برای روشن/تیره از پیش‌فرض برند شروع می‌شود. نام‌ها با next-intl ترجمه می‌شوند؛ تعامل و جایگزینی قدیمی‌ترین انتخاب با React و گذار opacity با Tailwind انجام می‌شود و وابستگی تازه‌ای اضافه نشده است. مرجع [DESIGN_SYSTEM.md#تم-و-رنگ](DESIGN_SYSTEM.md#تم-و-رنگ) است.
+All 35 official themes in daisyUI 5.7.50 are available for direct selection of the four admin themes; `TechLight`/`TechDark` are excluded from that page and the admin's saved choices. The user theme dialog always starts with the fixed site theme and ends with the custom color; the four admin choices appear between them. A custom color starts from the brand default for light or dark mode. next-intl translates theme names; React handles interaction and replacement of the oldest choice, while Tailwind handles opacity transitions. No new dependency was added. See [DESIGN_SYSTEM.md: themes and color](DESIGN_SYSTEM.md#themes-and-color).
 
-## مهاجرت به daisyUI
+## Migration to daisyUI
 
-daisyUI نسخه 5.7.50 به devDependencies اضافه شد. برای فهرست تم‌ها و نگاشت حالت روشن و تیره به مرجع جاری رجوع کنید. مرجع جاری [DESIGN_SYSTEM.md#تم-و-رنگ](DESIGN_SYSTEM.md#تم-و-رنگ) است.
+daisyUI 5.7.50 was added to `devDependencies`. Refer to the current design system for the theme list and light/dark mapping: [DESIGN_SYSTEM.md: themes and color](DESIGN_SYSTEM.md#themes-and-color).
