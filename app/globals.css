@@ -130,7 +130,7 @@
       --color-info, --color-info-content, --color-success,
       --color-success-content, --color-warning, --color-warning-content,
       --color-error, --color-error-content;
-    transition-duration: 1000ms;
-    transition-timing-function: ease;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.7, 0.5, 0.8, 0.5);
   }
 }

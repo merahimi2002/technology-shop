@@ -41,12 +41,11 @@ This document describes the current implementation; earlier experiments have bee
 - Prefer shared project components and standard daisyUI components. If they do not cover a needed component, use shadcn with the page direction and daisyUI semantic colors.
 - By default, follow the page locale: Persian is RTL/right-aligned and English is LTR/left-aligned. Use logical Tailwind utilities such as `text-start`, `justify-start`, and `ms-*`. Keep email readable LTR in both languages.
 - Every UI change must work in light and dark modes. Use daisyUI semantic colors for text, background, borders, and states. Prefer standard daisyUI components and shared project components for buttons, forms, and modals.
-- Check layout and readability in the browser in both locales and themes.
 - Implement layout, spacing, sizing, typography, color, responsive behavior, and interaction states with Tailwind. Custom values and variants are allowed when needed.
 - Keep raw CSS for complex effects, masks, glass surfaces, browser compatibility, and image framing. Do not hide ordinary layout in CSS classes or `@apply`.
 - Keep `styles/brand-themes.css` for theme settings and brand color overrides only; do not create a parallel token system or global button/input styles.
 - Preserve semantic classes used by GSAP and custom selectors.
-- Review visual and animation changes in the browser before delivery. For a slider, switch among every product several times and inspect intermediate and final frames.
+- Follow the [pre-commit UI checks](DEVELOPMENT.md#pre-commit-ui-checks) for browser verification of visual and motion changes.
 
 ### Shared pagination
 
@@ -55,7 +54,7 @@ All site lists use `components/pagination.tsx` and the range logic in `lib/pagin
 - Required props are `page`, `pageCount`, and `pathname`. `query` carries URL filters, `pageParam` names the page parameter, `scroll` controls scrolling, and `className` sets placement layout.
 - Optional `pageSize` enables row-count selection; `pageSizeOptions` supplies choices and `pageSizeParam` names its URL parameter. Shared options are 1, 10, 20, 50, and 100; the default in `lib/pagination.ts` is 20. Changing page size resets to page 1 and preserves search and filters.
 - `total` displays the total result count for the current filter. All admin lists (users, products, categories) pass it to pagination. The counter is at the start, page numbers in the middle, and page-size selector at the end; at narrow widths these sections stack. Do not add a separate counter above the table.
-- Show the current page and up to two pages on each side; every gap outside that range uses an ellipsis, even if it represents only one page. On page 1, the visible range is 1, 2, 3, and an ellipsis.
+- Show the current page and its immediate previous and next pages when available. Every gap outside that range uses an ellipsis, even if it represents only one page. On page 1 of a longer list, the visible range is 1, 2, and an ellipsis.
 - First/last use double arrows; previous/next use single arrows. Boundary buttons are disabled. Empty and single-page lists retain page 1 and four disabled arrows.
 - Number and navigation buttons use `btn-soft btn-primary`. Mark the current page with `aria-current="page"` and the shared primary/secondary/primary conic gradient. Links have accessible names; numbers and arrow directions follow the locale.
 - Keep numbers centered and allow them to wrap when narrow. On wide screens the page-size selector sits beside the numbers; at smaller widths it moves to a separate centered row. The consuming page sets distance from the frame edge.
@@ -341,7 +340,7 @@ Locale changes use WAAPI and the FLIP pattern: positions of animated sections ar
 
 ### Light/dark transition
 
-Manual light/dark changes, palette selection, and custom-color updates all transition over 1,000 ms with ease. The photo-free avatar gradient uses the same changing colors and has no separate instant color path. Standard daisyUI colors are registered with `@property` as `color` and transition only on the root; colors move continuously in the UI, gradients, text, and logo. No fixed image or View Transition snapshot exists, so product motion and locale FLIP stay live at the same time. A rapid mode change redirects the CSS transition from its current intermediate color to the new target. Reduced-motion changes directly, and initial theme restoration does not animate. Property registration supports transition behavior only; values and brand colors remain in `brand-themes.css`.
+Manual light/dark changes, palette selection, and custom-color updates all transition over 300 ms with `cubic-bezier(0.7, 0.5, 0.8, 0.5)`. The photo-free avatar gradient uses the same changing colors and has no separate instant color path. Standard daisyUI colors are registered with `@property` as `color` and transition only on the root; colors move continuously in the UI, gradients, text, and logo. No fixed image or View Transition snapshot exists, so product motion and locale FLIP stay live at the same time. A rapid mode change redirects the CSS transition from its current intermediate color to the new target. Reduced-motion changes directly, and initial theme restoration does not animate. Property registration supports transition behavior only; values and brand colors remain in `brand-themes.css`.
 
 ## Shared backgrounds
 

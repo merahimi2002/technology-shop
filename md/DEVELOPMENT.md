@@ -122,7 +122,16 @@ npm run build
 
 The lightweight Vitest setup uses the Node environment and one worker, without parallel test files. Tests live in `tests` and cover themes, bootstrap, color and contrast, translations, validation and password hashing, registration, session callbacks, and role authorization. The latest current result is recorded in [Admin panel review](#admin-panel-review); dated reports below describe results from their stated dates. The authentication integration test runs separately with `auth:check`; purchasing has not yet been implemented or tested.
 
-Real browser checks are required for visual and animation changes. Check the initial state, motion in progress, final state, repeated interactions, and the main button path. For product transitions, switch between all three products several times. For responsive changes, check relevant widths and horizontal scrolling. Browser review does not replace physical-device testing or a comprehensive accessibility audit.
+### Pre-commit UI checks
+
+Run this browser checklist once the affected UI is ready and before committing a substantial set of UI changes, including a new page or flow, changes to shared UI, or significant changes to layout, motion, or loading. Group related edits across messages into one review.
+
+- **Persian and English.** Check translations, RTL/LTR direction, alignment, and text wrapping in the affected UI.
+- **Light and dark.** Check both modes in each language for readable text and visible controls and states.
+- **Responsive layout.** Check mobile and desktop widths and any affected breakpoints. Verify that controls remain usable and scrolling works where intended.
+- **Loading skeletons.** Where the affected UI has a loading state, use the [development skeleton switch](#development-skeleton-test-switch) where supported, or trigger actual loading. Compare the skeleton with the loaded UI and check that content appears without unexpected layout shifts.
+
+For animation changes, inspect the initial state, intermediate frames, final state, and repeated interactions in the same review. For product transitions, navigate among all products several times.
 
 Playwright, axe, jsdom, and multi-stage CI are not part of the base dependencies. Add automated browser tests when implementing essential sign-in or purchase flows, based on their real behavior.
 
@@ -211,6 +220,8 @@ Previously confirmed build limitation: `npm run build` with Turbopack failed bef
 ## Owner role review
 
 The OWNER account was created on 2026-11-06 using private local environment values. Exactly one owner, enabled status, hash match, and real sign-in/sign-out with an OWNER session role on ports 3000 and 3100 were confirmed. No email or password was recorded in output or documentation.
+
+For local admin browser checks, use the existing owner session if available. Otherwise, read `OWNER_EMAIL` and `OWNER_PASSWORD` directly from the project's local environment file (`.env.local` in this checkout) and sign in through the normal account flow. Ask for help only if the configuration is missing or sign-in fails after checking the local configuration. Keep credential values out of messages, command output, screenshots, and version control.
 
 For provisioning outside the application, set `OWNER_EMAIL` and `OWNER_PASSWORD` only in the local environment, then run `npm run owner:provision -- --check` followed by `npm run owner:provision`. The script does not allow a second owner or overwrite a password. If the email already has an account, its password must match and it must be enabled; upgrading it increments `sessionVersion`. Rerunning for the same owner only validates it. After changing the schema and regenerating Prisma, restart the dev server so the client cached in `global` does not keep the old schema.
 

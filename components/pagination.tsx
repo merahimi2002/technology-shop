@@ -127,7 +127,7 @@ export function Pagination({
             </span>
           )}
         </li>
-        {getPaginationItems(current, pages, 2).map((item) => (
+        {getPaginationItems(current, pages).map((item) => (
           <li key={item}>
             {typeof item === 'number' ? (
               item === current ? (

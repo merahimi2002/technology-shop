@@ -21,10 +21,10 @@ Use Tailwind utilities as the primary styling approach directly in JSX. Use stan
 For all UI changes, follow the [design system rules](md/DESIGN_SYSTEM.md#قواعد-رابط-و-حرکت):
 
 - Follow the page locale by default. Persian uses RTL and right alignment. English uses LTR and left alignment. Use logical Tailwind utilities so layout follows the locale. Keep email addresses readable left to right in both languages.
-- Support light and dark modes with semantic daisyUI theme colors. Verify visual changes in the browser in both languages and both modes.
+- Support light and dark modes with semantic daisyUI theme colors.
 - Reuse shared project components and standard daisyUI components first. When a needed component is not covered, use shadcn components that follow the project's direction and daisyUI theme colors.
 
-Verify visual and animation changes in the browser before reporting completion. For product transitions, test repeated navigation between all products and inspect intermediate frames as well as the final state.
+Run the [pre-commit UI checks](md/DEVELOPMENT.md#pre-commit-ui-checks) in the browser once the affected UI is ready and before committing a substantial set of UI changes. Group related edits across messages into one review.
 
 <!-- BEGIN:nextjs-agent-feedback -->
 

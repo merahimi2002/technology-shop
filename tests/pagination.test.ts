@@ -1,32 +1,22 @@
 import { expect, it } from 'vitest';
 import { getPaginationItems } from '@/lib/pagination';
 
-it('shows exactly two neighbors and gaps outside the current range', () => {
+it('shows one neighbor on each available side and gaps outside the current range', () => {
   expect(getPaginationItems(50, 100)).toEqual([
     'start-gap',
-    48,
     49,
     50,
     51,
-    52,
     'end-gap',
   ]);
-  expect(getPaginationItems(1, 100)).toEqual([1, 2, 3, 'end-gap']);
-  expect(getPaginationItems(100, 100)).toEqual(['start-gap', 98, 99, 100]);
+  expect(getPaginationItems(1, 100)).toEqual([1, 2, 'end-gap']);
+  expect(getPaginationItems(100, 100)).toEqual(['start-gap', 99, 100]);
 });
 
 it('does not expose a page outside the range even for a single missing page', () => {
-  expect(getPaginationItems(3, 5)).toEqual([1, 2, 3, 4, 5]);
-  expect(getPaginationItems(1, 4)).toEqual([1, 2, 3, 'end-gap']);
-  expect(getPaginationItems(4, 7)).toEqual([
-    'start-gap',
-    2,
-    3,
-    4,
-    5,
-    6,
-    'end-gap',
-  ]);
+  expect(getPaginationItems(2, 3)).toEqual([1, 2, 3]);
+  expect(getPaginationItems(1, 3)).toEqual([1, 2, 'end-gap']);
+  expect(getPaginationItems(3, 5)).toEqual(['start-gap', 2, 3, 4, 'end-gap']);
 });
 
 it('keeps compact ranges ordered and bounded for mobile', () => {

@@ -5,7 +5,7 @@ export const DEFAULT_PAGE_SIZE = 20;
 export function getPaginationItems(
   page: number,
   pageCount: number,
-  siblings = 2,
+  siblings = 1,
 ): PaginationItem[] {
   if (pageCount <= 1) return [1];
   const start = Math.max(1, page - siblings);
