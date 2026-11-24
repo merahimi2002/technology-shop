@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 export function ImageEditor({
   value,
   onChange,
+  onRemove,
   name,
   image,
   previewTarget,
@@ -21,11 +22,14 @@ export function ImageEditor({
   fileLabel,
   round = false,
   outputSize = 640,
+  outputType = 'image/png',
+  initiallyOpen = false,
   accept = IMAGE_FILE_TYPES.join(','),
   maxBytes = MAX_IMAGE_BYTES,
 }: {
   value?: string | null;
   onChange: (value?: string | null) => void;
+  onRemove?: () => void;
   name?: string | null;
   image?: string | null;
   previewTarget?: HTMLElement | null;
@@ -33,6 +37,8 @@ export function ImageEditor({
   fileLabel?: string;
   round?: boolean;
   outputSize?: number;
+  outputType?: 'image/png' | 'image/webp';
+  initiallyOpen?: boolean;
   accept?: string;
   maxBytes?: number;
 }) {
@@ -41,7 +47,7 @@ export function ImageEditor({
   const [removePhoto, setRemovePhoto] = useState(false);
   const [preview, setPreview] = useState<string>();
   const [photoError, setPhotoError] = useState(false);
-  const [photoEditorOpen, setPhotoEditorOpen] = useState(false);
+  const [photoEditorOpen, setPhotoEditorOpen] = useState(initiallyOpen);
   const [cropReady, setCropReady] = useState(false);
   const [cropTarget, setCropTarget] = useState<HTMLDivElement | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -50,13 +56,13 @@ export function ImageEditor({
     value === undefined
       ? image
       : value
-        ? `data:image/png;base64,${value}`
+        ? `data:${outputType};base64,${value}`
         : null;
   const cropSource = photoError
     ? undefined
     : (preview ??
       (effectiveImage?.startsWith('/api/') ||
-      effectiveImage?.startsWith('data:image/png;')
+      effectiveImage?.startsWith('data:image/')
         ? effectiveImage
         : undefined));
   useEffect(() => {
@@ -97,8 +103,12 @@ export function ImageEditor({
               className="btn btn-circle btn-soft btn-error btn-sm"
               aria-label={t(removePhoto ? 'undoRemovePhoto' : 'removePhoto')}
               title={t(removePhoto ? 'undoRemovePhoto' : 'removePhoto')}
-              disabled={busy || (!effectiveImage && !removePhoto)}
+              disabled={busy || (!onRemove && !effectiveImage && !removePhoto)}
               onClick={() => {
+                if (onRemove) {
+                  onRemove();
+                  return;
+                }
                 onChange(removePhoto ? undefined : null);
                 setRemovePhoto(!removePhoto && Boolean(image));
               }}
@@ -209,7 +219,9 @@ export function ImageEditor({
                     const canvas = cropTarget?.querySelector<HTMLCanvasElement>(
                       'canvas[data-image-crop][data-ready]',
                     );
-                    const crop = canvas?.toDataURL('image/png').split(',')[1];
+                    const crop = canvas
+                      ?.toDataURL(outputType, 0.88)
+                      .split(',')[1];
                     if (!crop) return;
                     onChange(crop);
                     setRemovePhoto(false);

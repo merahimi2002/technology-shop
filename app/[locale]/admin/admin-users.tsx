@@ -172,9 +172,7 @@ function UserChangeButton({
               value={field === 'status' ? nextStatus : status}
             />
             {result && result !== 'saved' && (
-              <FormError className="mt-3">
-                {t(`results.${result}`)}
-              </FormError>
+              <FormError className="mt-3">{t(`results.${result}`)}</FormError>
             )}
             <div className="modal-action justify-end">
               <button

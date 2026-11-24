@@ -75,7 +75,7 @@ The admin panel uses existing dependencies: daisyUI for tables, role badges, con
 - Oxlint and Prettier; the initial ESLint setup was removed.
 - Lightweight Vitest setup; Playwright and axe are not part of the base installation.
 - Nodemailer was removed because of a secure-version conflict with the authentication package's peer dependency.
-- Sharp 0.35.5 validates and converts profile photos to WebP. Product image storage with Supabase Storage is planned in [TODO](TODO.md#storage-and-image-uploads).
+- Sharp 0.35.5 validates and converts profile photos to WebP. Product images are validated with Sharp and stored in a private Supabase bucket. See [Architecture: catalog management](ARCHITECTURE.md#catalog-management).
 - Application hosting, SMS, payment gateway, and AI provider have not been selected.
 
 ## References

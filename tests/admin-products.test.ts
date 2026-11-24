@@ -3,6 +3,7 @@ import { productSchema, parseProductFilters } from '@/lib/admin/product-input';
 import {
   saveProduct,
   saveCategory,
+  deleteProduct,
 } from '@/app/[locale]/admin/products/actions';
 
 const mocks = vi.hoisted(() => ({
@@ -13,29 +14,89 @@ const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   variantUpdate: vi.fn(),
   variantCreate: vi.fn(),
+  deleteProduct: vi.fn(),
+  deleteVariants: vi.fn(),
+  referencedVariant: vi.fn(),
   revalidatePath: vi.fn(),
+  listImages: vi.fn(),
+  deleteImages: vi.fn(),
+  createImages: vi.fn(),
+  uploadImage: vi.fn(),
+  removeImage: vi.fn(),
+  findProductBySlug: vi.fn(),
+  findVariantsBySku: vi.fn(),
 }));
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth/session', () => ({ getCurrentUser: mocks.actor }));
 vi.mock('next/cache', () => ({ revalidatePath: mocks.revalidatePath }));
+vi.mock(import('@/lib/category-image'), async (original) => ({
+  ...(await original()),
+  encodeCategoryImage: vi.fn().mockResolvedValue(Buffer.from('image')),
+  uploadCategoryImage: mocks.uploadImage,
+  removeCategoryImage: mocks.removeImage,
+}));
 vi.mock('@/lib/db', () => ({
   getDb: () => ({
     category: { create: mocks.categoryCreate },
+    product: { findUnique: mocks.findProductBySlug },
+    productVariant: { findMany: mocks.findVariantsBySku },
     $transaction: async (fn: (tx: unknown) => unknown) =>
       fn({
         product: {
           create: mocks.create,
           findUnique: mocks.find,
           updateMany: mocks.update,
+          delete: mocks.deleteProduct,
         },
         productVariant: {
           update: mocks.variantUpdate,
           create: mocks.variantCreate,
+          findFirst: mocks.referencedVariant,
+          deleteMany: mocks.deleteVariants,
+        },
+        productImage: {
+          findMany: mocks.listImages,
+          deleteMany: mocks.deleteImages,
+          createMany: mocks.createImages,
         },
       }),
   }),
 }));
 const version = '2026-11-23T10:00:00.000Z';
+
+it('deletes unreferenced products and refreshes both catalog lists', async () => {
+  expect(await deleteProduct({ id: 'product', updatedAt: version })).toBe(
+    'saved',
+  );
+  expect(mocks.deleteVariants).toHaveBeenCalledWith({
+    where: {
+      productId: 'product',
+      cartItems: { none: {} },
+      orderItems: { none: {} },
+    },
+  });
+  expect(mocks.deleteProduct).toHaveBeenCalledWith({
+    where: { id: 'product', updatedAt: new Date(version) },
+  });
+  expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
+});
+
+it('blocks referenced, stale and unauthorized product deletes', async () => {
+  mocks.referencedVariant.mockResolvedValue({ id: 'v1' });
+  expect(await deleteProduct({ id: 'product', updatedAt: version })).toBe(
+    'referenced',
+  );
+  expect(
+    await deleteProduct({ id: 'product', updatedAt: '2026-11-22T00:00:00Z' }),
+  ).toBe('conflict');
+  mocks.actor.mockResolvedValue({ role: 'CUSTOMER' });
+  expect(await deleteProduct({ id: 'product', updatedAt: version })).toBe(
+    'forbidden',
+  );
+  expect(mocks.deleteVariants).not.toHaveBeenCalled();
+  expect(mocks.deleteProduct).not.toHaveBeenCalled();
+  expect(mocks.revalidatePath).not.toHaveBeenCalled();
+});
 const input = () => ({
   id: '',
   updatedAt: '',
@@ -65,7 +126,65 @@ beforeEach(() => {
   mocks.find.mockResolvedValue({
     updatedAt: new Date(version),
     variants: [{ id: 'v1' }],
+    images: [],
   });
+});
+
+it('saves multiple uploaded product images in order', async () => {
+  const first = '00000000-0000-4000-8000-000000000001.webp';
+  const second = '00000000-0000-4000-8000-000000000002.webp';
+  mocks.create.mockResolvedValue({ id: 'product' });
+  mocks.uploadImage.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
+  const form = new FormData();
+  form.append('image', new File(['first'], 'first.webp'));
+  form.append('image', new File(['second'], 'second.webp'));
+  expect(await saveProduct(input(), form)).toBe('saved');
+  expect(mocks.createImages).toHaveBeenCalledWith({
+    data: [
+      { productId: 'product', position: 0, path: first },
+      { productId: 'product', position: 1, path: second },
+    ],
+  });
+  expect(mocks.removeImage).not.toHaveBeenCalled();
+});
+
+it('rejects image paths from another product and cleans up uploads on conflict', async () => {
+  const path = '00000000-0000-4000-8000-000000000001.webp';
+  const edited = { ...input(), id: 'product', updatedAt: version };
+  mocks.listImages.mockResolvedValue([]);
+  const foreign = new FormData();
+  foreign.append('image', path);
+  expect(await saveProduct(edited, foreign)).toBe('invalidImage');
+  expect(mocks.update).not.toHaveBeenCalled();
+
+  const upload = new FormData();
+  upload.append('image', new File(['first'], 'first.webp'));
+  mocks.uploadImage.mockResolvedValue(path);
+  mocks.find.mockResolvedValue(null);
+  expect(await saveProduct(edited, upload)).toBe('conflict');
+  expect(mocks.removeImage).toHaveBeenCalledWith(path, 'product-images');
+});
+
+it('locates persisted slug and SKU conflicts after a unique constraint failure', async () => {
+  mocks.create.mockRejectedValue({ code: 'P2002' });
+  mocks.findProductBySlug.mockResolvedValue({ id: 'other-product' });
+  mocks.findVariantsBySku.mockResolvedValue([
+    { id: 'other-variant', sku: 'TEST-1' },
+  ]);
+  expect(await saveProduct(input())).toEqual({
+    slug: 'test-product',
+    skus: ['TEST-1'],
+  });
+});
+
+it('attaches draft SKU conflicts to both variant fields', () => {
+  const product = input();
+  product.variants.push({ ...product.variants[0] });
+  const result = productSchema.safeParse(product);
+  expect(result.error?.issues.map((issue) => issue.path)).toEqual([
+    ['variants', 0, 'sku'],
+    ['variants', 1, 'sku'],
+  ]);
 });
 
 it('validates integer rial prices without losing decimal precision', () => {

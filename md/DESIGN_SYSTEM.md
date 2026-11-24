@@ -6,6 +6,12 @@ This is the topic reference for appearance, color, brand identity, typography, m
 
 ### Shared form conventions
 
+Product create and edit forms validate with the shared Zod schema on Save. The form uses `noValidate` so browser popups do not intercept submission. Required attributes and asterisks remain. Localized `FormError` messages appear beside invalid fields or in the variants section for cross-field rules, and update as the user corrects the form. An empty stock field stays empty for validation. The server validates the same schema again. A conflicting unique name is shown under its field, and duplicate SKUs are shown under each affected variant's SKU field, including duplicates within the draft and conflicts with saved variants.
+
+Product fields allow typing and pasting past the limit. Zod shows an inline message as soon as a field exceeds its maximum length or value. Only that message includes the numeric limit. Required and format messages explain the actual problem without listing the limit. The limit message clears when the value returns within range, and saving still requires all values to pass validation.
+
+Category create and edit forms use the same behavior for Persian name, English name, and unique name. They validate with the shared category Zod schema on the client and server. Required and format errors appear on submit, length errors appear as soon as the limit is exceeded, and a conflicting unique name is shown under its field.
+
 These rules are required for every existing and new project form:
 
 - Mark required fields with a `primary`-colored asterisk beside the label. Use the shared `RequiredFieldLabel` and the native `required` attribute. Server validation must also enforce required values.
@@ -13,6 +19,10 @@ These rules are required for every existing and new project form:
 - Validation errors and warnings use the shared `FormError`, with a soft appearance, an icon the same size as the text, and content-sized width. Errors use the `error` color and `alert` role; correctable typing warnings use the `warning` color and `status` role.
 
 ### Shared image editing and display
+
+The product create and edit forms show an optional gallery above the name fields. Up to six slots use the shared `ImageEditor` and theme-aware preview. The numbered selector moves a slot to its chosen position. The editor's optional `onRemove` callback removes the entire slot from the draft using the standard trash button. Edits, order changes, and removals are applied when the product is saved. Gallery slots wrap at narrow widths, and the development skeleton mirrors the current slot count.
+
+The add-image tile sits beside the gallery slots and opens the shared editor. The products table shows the first saved image at 40 px beside the name, using the same theme-aware fallback as the categories table. The list skeleton reserves the thumbnail space.
 
 Keep the selected circuit artwork with brand logo and `NO IMAGE` text in light and dark versions at `public/images/no-image{,-dark}.{svg,png}`. Outputs are transparent and 512×512, and logo geometry comes from `public/logo.svg`. Unselected designs and duplicate versions were removed. Artwork is native SVG with no external source.
 
@@ -69,7 +79,15 @@ Category table cells and headers follow locale direction: Persian is right-align
 
 ### Admin panel
 
-Categories have a separate list page; the products-return link and create form were removed from the list. An icon-bearing GradientButton opposite the heading links to the standalone category creation page. Product creation and editing also use a full page in the shared admin frame; the new-product and row-pencil controls are real links. The bilingual product form has two columns on large screens and one on narrow screens; descriptions and variants span the full width. A back link is above the form and save/cancel buttons are at the end. This flow does not use a modal.
+In product forms, center the status radios vertically against the category select and the active variant toggle against the stock input when they share a row. Cancel uses `btn-soft btn-error rounded-full` with an X icon. Save uses `btn-success rounded-full` with a check icon and shows a spinner while saving. The action group aligns to the inline end.
+
+The product create and edit routes use the same skeleton as the development preview. It follows the responsive layout of the name fields, category, status radios, descriptions, variant controls, and action buttons. Route loading shows one variant. The development preview preserves the current number of variants. A translated loading message is available to screen readers, and reduced-motion mode disables the skeleton animation.
+
+The product list uses a GradientButton beside the heading and a primary tooltip for each row's edit link. Route loading and the development skeleton switch render placeholders inside the same product table. The preview keeps the current row count and pagination summary. Initial loading shows up to five rows based on page size. Pagination is inert while the skeleton is visible.
+
+The product list uses the admin search field style for its catalog search and the users page's daisyUI radio filters for status and category. The rounded search field has a magnifying-glass submit button and searches product names, unique names, and SKUs. Status and category use separate labeled groups with desktop dividers, immediate submission, and individual reset buttons. Search, selecting a filter, or resetting a group returns to page 1 and preserves the other active criteria and page size. Clear filters removes the search and both selections while preserving page size. Category labels follow the current locale.
+
+Categories have a separate list page; the products-return link and create form were removed from the list. An icon-bearing GradientButton opposite the heading links to the standalone category creation page. Product creation and editing also use a full page in the shared admin frame; the new-product and row-pencil controls are real links. The bilingual product form places the Persian, English, and unique names in one row at medium widths and above. Category and the required status radio group sit side by side when space allows. On narrow screens the fields stack. Descriptions and variants span the full width. Save and cancel buttons are at the end, and the admin breadcrumb links back to the product list. This flow does not use a modal.
 
 The sidebar is a tree. Parent nodes use daisyUI's standard `details/summary` menu behavior and are not links. Click or Enter/Space toggles the group without changing the URL. The active route's group opens on entry or child navigation. In collapsed mode, parent and child remain accessible by icon and tooltip; the parent control does not close the mobile drawer, while selecting a child link does. “Theme” is a child of “Settings”; the vertical gap between parent and submenu is 8 px.
 

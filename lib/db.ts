@@ -11,7 +11,7 @@ let client: PrismaClient | undefined;
 
 export function getDb(): PrismaClient {
   if (client) return client;
-  if (globalForPrisma.prisma && globalForPrisma.schemaVersion === 3)
+  if (globalForPrisma.prisma && globalForPrisma.schemaVersion === 4)
     return globalForPrisma.prisma;
 
   const connectionString = process.env.DATABASE_URL;
@@ -38,7 +38,7 @@ export function getDb(): PrismaClient {
 
   if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = client;
-    globalForPrisma.schemaVersion = 3;
+    globalForPrisma.schemaVersion = 4;
   }
   return client;
 }

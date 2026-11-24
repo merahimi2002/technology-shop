@@ -22,7 +22,9 @@ export function AdminPageFrame({
   const pathname = usePathname();
   const editing = useSearchParams().has('edit');
   const locale = useLocale();
-  const categoryList = page === 'categories' && !pathname.endsWith('/new');
+  const catalogList =
+    (page === 'categories' || page === 'products') &&
+    pathname === `/${locale}/admin/${page}`;
   const headingKey =
     page === 'categories'
       ? pathname.endsWith('/categories/new')
@@ -73,10 +75,14 @@ export function AdminPageFrame({
                     : 'siteSettings.theme',
               )}
             </Title>
-            {categoryList && (
-              <GradientButton href={`/${locale}/admin/categories/new`}>
+            {catalogList && (
+              <GradientButton href={`/${locale}/admin/${page}/new`}>
                 <Plus size={18} aria-hidden="true" />
-                {t('adminProducts.newCategory')}
+                {t(
+                  page === 'categories'
+                    ? 'adminProducts.newCategory'
+                    : 'adminProducts.newProduct',
+                )}
               </GradientButton>
             )}
           </div>

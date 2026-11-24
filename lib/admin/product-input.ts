@@ -31,7 +31,7 @@ export const productSchema = z
           sku: text,
           nameFa: text,
           nameEn: text,
-          price: z.string().regex(/^\d{1,18}$/),
+          price: z.string().max(18).regex(/^\d+$/),
           stock: z.number().int().min(0).max(2147483647),
           isActive: z.boolean(),
         }),
@@ -41,16 +41,25 @@ export const productSchema = z
   })
   .superRefine((value, ctx) => {
     if (
-      new Set(value.variants.map((v) => v.sku)).size !==
-        value.variants.length ||
       new Set(value.variants.filter((v) => v.id).map((v) => v.id)).size !==
-        value.variants.filter((v) => v.id).length
+      value.variants.filter((v) => v.id).length
     )
       ctx.addIssue({
         code: 'custom',
         message: 'duplicate',
         path: ['variants'],
       });
+    const skuCounts = new Map<string, number>();
+    for (const { sku } of value.variants)
+      skuCounts.set(sku, (skuCounts.get(sku) ?? 0) + 1);
+    value.variants.forEach(({ sku }, index) => {
+      if ((skuCounts.get(sku) ?? 0) > 1)
+        ctx.addIssue({
+          code: 'custom',
+          message: 'duplicate',
+          path: ['variants', index, 'sku'],
+        });
+    });
     if (value.id && !z.iso.datetime().safeParse(value.updatedAt).success)
       ctx.addIssue({ code: 'custom', message: 'version', path: ['updatedAt'] });
     if (value.status === 'ACTIVE' && !value.variants.some((v) => v.isActive))

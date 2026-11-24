@@ -115,8 +115,18 @@ model Product {
   updatedAt     DateTime         @updatedAt @db.Timestamptz(3)
   category      Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   variants      ProductVariant[]
+  images        ProductImage[]
 
   @@index([categoryId, status])
+}
+
+model ProductImage {
+  path      String  @id
+  productId String
+  position  Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, position])
 }
 
 model ProductVariant {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useId, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Check, X } from 'lucide-react';
@@ -11,6 +11,7 @@ import {
 import { CategoryImageField } from './category-image-field';
 import { RequiredFieldLabel } from '@/components/store/required-field-label';
 import { FormError } from '@/components/ui/form-error';
+import { categorySchema } from '@/lib/admin/product-input';
 import { uniqueNameFromEnglish } from '@/lib/admin/unique-name';
 import {
   CategoryEditorSkeleton,
@@ -32,7 +33,9 @@ export function AdminCategoryEditor({
   const t = useTranslations('adminProducts');
   const locale = useLocale();
   const router = useRouter();
+  const fieldId = useId();
   const [result, setResult] = useState<CategoryImageResult | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [image, setImage] = useState<string | null>();
   const [names, setNames] = useState({
     nameFa: category?.nameFa ?? '',
@@ -44,12 +47,24 @@ export function AdminCategoryEditor({
   const path = `/${locale}/admin/categories`;
   const skeletonPreview = useSkeletonPreview();
   if (skeletonPreview) return <CategoryEditorSkeleton />;
+  const validation = categorySchema.safeParse(names);
+  const issues = validation.success
+    ? []
+    : validation.error.issues.filter(
+        (issue) => submitted || issue.code === 'too_big',
+      );
   return (
     <form
+      noValidate
       className="p-4 sm:p-5"
       onSubmit={(event) => {
         event.preventDefault();
+        setSubmitted(true);
+        setResult(null);
+        if (!validation.success) return;
         const input = new FormData(event.currentTarget);
+        for (const [key, value] of Object.entries(validation.data))
+          input.set(key, value);
         if (image) {
           const bytes = Uint8Array.from(atob(image), (character) =>
             character.charCodeAt(0),
@@ -71,33 +86,53 @@ export function AdminCategoryEditor({
       }}
     >
       <fieldset disabled={pending} className={categoryEditorGrid}>
-        {(['nameFa', 'nameEn', 'slug'] as const).map((key) => (
-          <label className="fieldset min-w-0" key={key}>
-            <span className="fieldset-legend">
-              <RequiredFieldLabel>{t(key)}</RequiredFieldLabel>
-            </span>
-            <input
-              className="input w-full"
-              name={key}
-              value={names[key]}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                if (key === 'slug') setCustomName(true);
-                setNames((current) => ({
-                  ...current,
-                  [key]: value,
-                  ...(key === 'nameEn' && !customName
-                    ? { slug: uniqueNameFromEnglish(value) }
-                    : {}),
-                }));
-              }}
-              required
-              maxLength={key === 'slug' ? 120 : 160}
-              pattern={key === 'slug' ? '[a-z0-9]+(-[a-z0-9]+)*' : undefined}
-              dir={key === 'nameFa' ? 'rtl' : 'ltr'}
-            />
-          </label>
-        ))}
+        {(['nameFa', 'nameEn', 'slug'] as const).map((key) => {
+          const id = `${fieldId}-${key}`;
+          const fieldIssues = issues.filter((issue) => issue.path[0] === key);
+          const limit = fieldIssues.find((issue) => issue.code === 'too_big');
+          const message = limit
+            ? t('validation.lengthLimit', { max: Number(limit.maximum) })
+            : fieldIssues.length
+              ? t(key === 'slug' ? 'validation.slug' : 'validation.name')
+              : key === 'slug' && result === 'duplicate'
+                ? t('validation.categoryDuplicate')
+                : null;
+          return (
+            <div className="fieldset min-w-0" key={key}>
+              <label htmlFor={id} className="fieldset-legend">
+                <RequiredFieldLabel>{t(key)}</RequiredFieldLabel>
+              </label>
+              <input
+                id={id}
+                aria-invalid={Boolean(message) || undefined}
+                aria-describedby={message ? `${id}-error` : undefined}
+                className="input w-full aria-invalid:input-error"
+                name={key}
+                value={names[key]}
+                onChange={(event) => {
+                  const value = event.currentTarget.value;
+                  if (key === 'slug') setCustomName(true);
+                  if (key === 'slug' || (key === 'nameEn' && !customName)) {
+                    setResult((current) =>
+                      current === 'duplicate' ? null : current,
+                    );
+                  }
+                  setNames((current) => ({
+                    ...current,
+                    [key]: value,
+                    ...(key === 'nameEn' && !customName
+                      ? { slug: uniqueNameFromEnglish(value) }
+                      : {}),
+                  }));
+                }}
+                required
+                pattern={key === 'slug' ? '[a-z0-9]+(-[a-z0-9]+)*' : undefined}
+                dir={key === 'nameFa' ? 'rtl' : 'ltr'}
+              />
+              {message && <FormError id={`${id}-error`}>{message}</FormError>}
+            </div>
+          );
+        })}
         <CategoryImageField
           category={category}
           disabled={pending}
@@ -105,7 +140,10 @@ export function AdminCategoryEditor({
           onChange={setImage}
         />
       </fieldset>
-      {result && result !== 'saved' && (
+      {submitted && issues.length > 0 && (
+        <FormError className="mt-4">{t('validation.review')}</FormError>
+      )}
+      {result && result !== 'saved' && result !== 'duplicate' && (
         <FormError className="mt-4">{t(`results.${result}`)}</FormError>
       )}
       <div className="mt-6 flex flex-wrap justify-end gap-2">

@@ -28,6 +28,10 @@ The product list is at `/[locale]/admin/products`, product creation at `/[locale
 
 Every page checks an ADMIN/OWNER session before reading data, and save actions check authorization independently. A missing product ID returns 404. Variant prices remain integer IRR strings. Product version checks and preserving existing variants during edits prevent concurrent overwrites and broken order references.
 
+The product list has a delete action with a confirmation dialog that names the product. The server verifies ADMIN/OWNER access and the displayed product version. A serializable transaction deletes the product and its variants only when no cart or order references them. Archive products with references from the edit page. Successful deletion refreshes the product list and category product counts.
+
+Product forms accept up to six optional images. The shared editor crops JPEG, PNG, or WebP input. The server limits each cropped upload to 400 KiB, validates the decoded image, and writes a normalized WebP to the private `product-images` bucket. Each `ProductImage` stores only its path, product, and position. The first saved image is the cover. The admin image endpoint requires an ADMIN/OWNER session and a database reference before downloading an object. Product saves commit images and catalog data together in PostgreSQL after the upload. Failed saves clean up new uploads, and successful replacement, removal, or product deletion cleans up old objects on a best-effort basis.
+
 Category editing opens the create form with values populated at `/[locale]/admin/categories/new?edit=<id>`; invalid or missing IDs return 404. Edit and delete actions in `app/[locale]/admin/categories/actions.ts` check authorization independently. Update conditions include the ID and previous name/slug values so an old form cannot overwrite a newer change. Deletion is allowed only when no products reference the category; the relationship condition and foreign key also protect against a concurrent product addition. Before deletion, a modal shows the category name and explains that the operation cannot be undone.
 
 | Path         | Responsibility                                                              |
@@ -53,7 +57,7 @@ The home page and storefront shell are implemented. PostgreSQL connectivity thro
 
 ### Uploaded images and files
 
-Profile photos are optional during registration. An authenticated PATCH to the account endpoint can replace or delete a photo. The form accepts JPEG, PNG, or WebP files up to 2 MB and sends a 160×160 crop to the API. The server checks the actual image type and size, then stores a 160×160 WebP in the user's `image` field. The NextAuth session receives only a versioned URL for uploaded photos. The image route returns only the current session owner's image. After saving, the editor refreshes the session so the header and account modal show the new photo. Product images are public. Future Supabase Storage work for private validation and publication of approved images is tracked in [TODO](TODO.md#storage-and-image-uploads). That plan is not part of the active feature set.
+Profile photos are optional during registration. An authenticated PATCH to the account endpoint can replace or delete a photo. The form accepts JPEG, PNG, or WebP files up to 2 MB and sends a 160×160 crop to the API. The server checks the actual image type and size, then stores a 160×160 WebP in the user's `image` field. The NextAuth session receives only a versioned URL for uploaded photos. The image route returns only the current session owner's image. After saving, the editor refreshes the session so the header and account modal show the new photo. The storefront hero uses static public images. Admin product galleries are private, as described under [Catalog management](#catalog-management). Storefront publication is tracked in [TODO](TODO.md#storage-and-image-uploads).
 
 ### Connection and generated code
 
