@@ -9,6 +9,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ShoppingBag,
+  FolderTree,
   Users,
   Settings,
   Palette,
@@ -31,6 +32,8 @@ type SidebarSection = {
   labelKey:
     | 'admin.dashboard'
     | 'admin.heading'
+    | 'adminProducts.heading'
+    | 'adminProducts.categories'
     | 'siteSettings.title'
     | 'siteSettings.theme';
   Icon: LucideIcon;
@@ -40,6 +43,12 @@ type SidebarSection = {
 const sections: readonly SidebarSection[] = [
   { path: '', labelKey: 'admin.dashboard', Icon: LayoutDashboard },
   { path: '/users', labelKey: 'admin.heading', Icon: Users },
+  { path: '/products', labelKey: 'adminProducts.heading', Icon: ShoppingBag },
+  {
+    path: '/categories',
+    labelKey: 'adminProducts.categories',
+    Icon: FolderTree,
+  },
   {
     path: '/settings',
     labelKey: 'siteSettings.title',

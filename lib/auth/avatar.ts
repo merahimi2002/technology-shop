@@ -1,6 +1,8 @@
-export const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+import { IMAGE_FILE_TYPES, MAX_IMAGE_BYTES } from '@/lib/image-input';
+
+export const MAX_AVATAR_BYTES = MAX_IMAGE_BYTES;
 export const MAX_AVATAR_BASE64_LENGTH = 4 * Math.ceil(MAX_AVATAR_BYTES / 3);
-export const AVATAR_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const AVATAR_FILE_TYPES = IMAGE_FILE_TYPES;
 
 export function isValidAvatarFile(file: File) {
   return (
@@ -8,10 +10,4 @@ export function isValidAvatarFile(file: File) {
     file.size <= MAX_AVATAR_BYTES &&
     AVATAR_FILE_TYPES.includes(file.type)
   );
-}
-export function readAvatarCrop(previewTarget: HTMLElement | null) {
-  const canvas = previewTarget?.querySelector<HTMLCanvasElement>(
-    'canvas[data-avatar-crop][data-ready]',
-  );
-  return canvas?.toDataURL('image/png').split(',')[1];
 }

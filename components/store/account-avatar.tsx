@@ -1,9 +1,6 @@
 'use client';
-
-import Image from 'next/image';
-import { useState } from 'react';
 import { UserRound } from 'lucide-react';
-
+import { ImagePreview } from '@/components/ui/image-preview';
 export function AccountAvatar({
   name,
   image,
@@ -13,34 +10,24 @@ export function AccountAvatar({
   image?: string | null;
   size: number;
 }) {
-  const [imageFailed, setImageFailed] = useState(false);
   const initial = name?.trim().match(/^./u)?.[0].toUpperCase();
-
   return (
-    <span
-      aria-hidden="true"
-      className="grid size-full place-items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--color-primary),var(--color-secondary))] font-semibold"
-    >
-      {image && !imageFailed ? (
-        <Image
-          src={image}
-          alt=""
-          width={size}
-          height={size}
-          unoptimized
-          className="size-full object-cover"
-          onError={() => setImageFailed(true)}
-        />
-      ) : (
-        <span
-          data-avatar-fallback
-          className="text-primary-content motion-safe:transition-colors motion-safe:duration-1000"
-        >
-          {initial || (
-            <UserRound size={size === 32 ? 18 : 26} strokeWidth={1.7} />
-          )}
-        </span>
-      )}
+    <span aria-hidden="true" className="block size-full">
+      <ImagePreview
+        image={image}
+        size={size}
+        round
+        fallback={
+          <span
+            data-avatar-fallback
+            className="text-primary-content motion-safe:transition-colors motion-safe:duration-1000"
+          >
+            {initial || (
+              <UserRound size={size === 32 ? 18 : 26} strokeWidth={1.7} />
+            )}
+          </span>
+        }
+      />
     </span>
   );
 }

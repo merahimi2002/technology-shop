@@ -102,9 +102,13 @@ export function AdminToolbar({
               ? 'siteSettings.theme'
               : pathname.endsWith('/settings')
                 ? 'siteSettings.title'
-                : pathname.endsWith('/users')
-                  ? 'admin.heading'
-                  : 'admin.dashboard',
+                : pathname.includes('/admin/products')
+                  ? 'adminProducts.heading'
+                  : pathname.includes('/admin/categories')
+                    ? 'adminProducts.categories'
+                    : pathname.endsWith('/users')
+                      ? 'admin.heading'
+                      : 'admin.dashboard',
           )}
         </span>
       </div>
@@ -112,18 +116,20 @@ export function AdminToolbar({
         data-locale-motion
         className="col-span-2 row-start-2 min-h-10 lg:col-span-1 lg:row-start-auto"
       >
-        {!pathname.endsWith('/settings/theme') && (
-          <Suspense
-            fallback={
-              <div
-                aria-hidden="true"
-                className="skeleton h-10 rounded-full motion-reduce:animate-none"
-              />
-            }
-          >
-            <UserSearch />
-          </Suspense>
-        )}
+        {!pathname.endsWith('/settings/theme') &&
+          !pathname.includes('/admin/products') &&
+          !pathname.includes('/admin/categories') && (
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  className="skeleton h-10 rounded-full motion-reduce:animate-none"
+                />
+              }
+            >
+              <UserSearch />
+            </Suspense>
+          )}
       </div>
       <div
         data-locale-motion

@@ -1,20 +1,27 @@
 'use client';
+import { FormError } from './form-error';
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 import { createPortal } from 'react-dom';
 
-const SIZE = 160;
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
-export function AvatarCrop({
+export function ImageCrop({
   src,
   previewTarget,
+  size = 640,
+  round = false,
+  onReady,
 }: {
   src: string;
   previewTarget: HTMLElement | null;
+  size?: number;
+  round?: boolean;
+  onReady: (ready: boolean) => void;
 }) {
-  const t = useTranslations('account.profile');
+  const t = useTranslations('imageEditor');
   const canvas = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number }>(
     null,
@@ -32,18 +39,21 @@ export function AvatarCrop({
   useEffect(() => {
     const photo = new window.Image();
     photo.onload = () => setImage(photo);
-    photo.onerror = () => setFailed(true);
+    photo.onerror = () => {
+      setFailed(true);
+      onReady(false);
+    };
     photo.src = src;
     return () => {
       photo.onload = null;
       photo.onerror = null;
     };
-  }, [src]);
+  }, [src, onReady]);
 
   useLayoutEffect(() => {
     const context = canvas.current?.getContext('2d');
     if (!image || !context) return;
-    context.clearRect(0, 0, SIZE, SIZE);
+    context.clearRect(0, 0, size, size);
     context.drawImage(
       image,
       width * position.x,
@@ -52,11 +62,12 @@ export function AvatarCrop({
       side,
       0,
       0,
-      SIZE,
-      SIZE,
+      size,
+      size,
     );
     canvas.current?.setAttribute('data-ready', '');
-  }, [image, width, height, side, position]);
+    onReady(true);
+  }, [image, width, height, side, position, size, onReady]);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -64,12 +75,15 @@ export function AvatarCrop({
         createPortal(
           <canvas
             ref={canvas}
-            data-avatar-crop
-            width={SIZE}
-            height={SIZE}
+            data-image-crop
+            width={size}
+            height={size}
             role="img"
             aria-label={t('photoPreview')}
-            className="block size-16 touch-none cursor-grab rounded-full bg-base-200 active:cursor-grabbing sm:size-24"
+            className={cn(
+              'block size-16 touch-none cursor-grab bg-base-200 active:cursor-grabbing sm:size-24',
+              round ? 'rounded-full' : 'rounded-box',
+            )}
             onPointerDown={(event) => {
               if (!event.isPrimary || event.button !== 0) return;
               event.currentTarget.setPointerCapture(event.pointerId);
@@ -108,9 +122,7 @@ export function AvatarCrop({
           previewTarget,
         )}
       {failed ? (
-        <p role="alert" className="text-sm text-error">
-          {t('invalidAvatar')}
-        </p>
+        <FormError>{t('invalidAvatar')}</FormError>
       ) : (
         <div className="flex min-w-36 flex-1 flex-col gap-1 text-xs" dir="ltr">
           <label className="flex items-center justify-between gap-2" dir="auto">

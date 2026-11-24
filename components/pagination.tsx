@@ -24,6 +24,7 @@ export type PaginationProps = {
   pageSize?: number;
   pageSizeOptions?: readonly number[];
   pageSizeParam?: string;
+  total?: number;
 };
 
 export function Pagination({
@@ -37,6 +38,7 @@ export function Pagination({
   pageSize,
   pageSizeOptions = PAGE_SIZE_OPTIONS,
   pageSizeParam = 'pageSize',
+  total,
 }: PaginationProps) {
   const t = useTranslations('pagination');
   const format = useFormatter();
@@ -196,18 +198,26 @@ export function Pagination({
     <nav
       aria-label={t('label')}
       className={cn(
-        'grid w-full min-w-0 justify-items-center gap-x-4 gap-y-3 px-2 py-1 2xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]',
+        'grid w-full min-w-0 justify-items-center gap-x-4 gap-y-3 px-2 py-1 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]',
         className,
       )}
     >
-      <div className="min-w-0 max-w-full 2xl:col-start-2 2xl:row-start-1">
+      {total !== undefined && (
+        <p
+          className="text-xs text-base-content/70 md:col-start-1 md:row-start-1 md:justify-self-start"
+          aria-live="polite"
+        >
+          {t('total', { count: total })}
+        </p>
+      )}
+      <div className="min-w-0 max-w-full md:col-start-2 md:row-start-1">
         {pageList()}
       </div>
       {pageSize !== undefined && (
         <Form
           action={pathname}
           scroll={scroll}
-          className="2xl:col-start-3 2xl:row-start-1 2xl:justify-self-end"
+          className="md:col-start-3 md:row-start-1 md:justify-self-end"
           onChange={(event) => event.currentTarget.requestSubmit()}
         >
           {retainedParams.map(([key, value], index) => (

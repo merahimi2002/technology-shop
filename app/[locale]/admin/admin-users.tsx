@@ -32,6 +32,12 @@ import {
 } from 'lucide-react';
 import { AccountRoleBadge } from '@/components/store/account-role-badge';
 import { AccountAvatar } from '@/components/store/account-avatar';
+import {
+  TableViewport,
+  Table,
+  TableHeader,
+  TableBody,
+} from '@/components/ui/table';
 import { Pagination } from '@/components/pagination';
 import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
 import type { UserFilters, UserList } from '@/lib/admin/users';
@@ -453,27 +459,16 @@ export function AdminUsers({
         )}
       </div>
 
-      <div
-        data-admin-table-viewport
-        onScroll={(event) => {
-          const viewport = event.currentTarget;
-          viewport.dataset.compact = String(Math.abs(viewport.scrollLeft) > 12);
-        }}
-        className="group/table mx-3 mt-4 mb-3 max-h-[70dvh] min-h-[max(min(70dvh,30rem),var(--admin-results-height,0px))] min-w-0 overflow-auto overscroll-contain rounded-2xl border border-base-content/8 sm:mx-5 sm:mb-5"
-      >
+      <TableViewport className="mx-3 mt-4 mb-3 sm:mx-5 sm:mb-5">
         <div ref={results} data-admin-results className="min-w-0">
           {result.users.length > 0 || loading ? (
             <>
-              <table
-                className="table table-pin-cols table-fixed max-md:min-w-[48rem] [&_tbody_:is(th,td)]:border-base-content/8 [&_tbody_:is(th,td)]:py-5"
+              <Table
+                className="max-md:min-w-[48rem]"
                 role="table"
                 aria-label={t('heading')}
               >
-                <thead
-                  inert={showSkeleton}
-                  className="bg-linear-to-r from-primary/16 to-secondary/16 text-base-content rtl:bg-linear-to-l [&_th]:static [&_th]:bg-transparent [&_th]:py-4 [&_th]:text-start [&_th]:text-sm [&_th]:font-bold [&_svg]:text-primary max-md:[&_th:first-child]:sticky max-md:[&_th:first-child]:z-20 max-md:[&_th:first-child]:bg-base-200"
-                  role="rowgroup"
-                >
+                <TableHeader inert={showSkeleton} role="rowgroup">
                   <tr role="row" className="border-b border-primary/15">
                     <th
                       scope="col"
@@ -553,8 +548,8 @@ export function AdminUsers({
                       </th>
                     )}
                   </tr>
-                </thead>
-                <tbody role="rowgroup">
+                </TableHeader>
+                <TableBody role="rowgroup">
                   {showSkeleton ? (
                     <UserSkeletonRows
                       pageSize={filters.pageSize}
@@ -679,8 +674,8 @@ export function AdminUsers({
                       </tr>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </>
           ) : (
             <div className="grid justify-items-center gap-4 px-4 py-12 text-center text-base-content/75">
@@ -694,12 +689,13 @@ export function AdminUsers({
             </div>
           )}
         </div>
-      </div>
+      </TableViewport>
       <div
         inert={showSkeleton}
         className="border-t border-base-content/10 px-6 py-4 sm:px-8"
       >
         <Pagination
+          total={result.total}
           page={result.page}
           pageCount={result.pages}
           pageSize={filters.pageSize}
