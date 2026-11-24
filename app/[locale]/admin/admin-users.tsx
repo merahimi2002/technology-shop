@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { AccountRoleBadge } from '@/components/store/account-role-badge';
 import { AccountAvatar } from '@/components/store/account-avatar';
+import { FormError } from '@/components/ui/form-error';
 import {
   TableViewport,
   Table,
@@ -171,9 +172,9 @@ function UserChangeButton({
               value={field === 'status' ? nextStatus : status}
             />
             {result && result !== 'saved' && (
-              <p role="alert" className="mt-3 text-sm text-error">
+              <FormError className="mt-3">
                 {t(`results.${result}`)}
-              </p>
+              </FormError>
             )}
             <div className="modal-action justify-end">
               <button

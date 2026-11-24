@@ -1,9 +1,10 @@
 'use client';
 
 import { RequiredFieldLabel } from './required-field-label';
+import { FormError } from '@/components/ui/form-error';
 import { useRef, useState, type FormEvent } from 'react';
 import { Check, Eye, EyeOff, LockKeyhole } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ModalCloseButton } from '@/components/modal-close-button';
 import { GradientButton } from '@/components/gradient-button';
 import { Title } from '@/components/title';
@@ -38,6 +39,13 @@ export function PasswordEditor({
     {},
   );
   const [message, setMessage] = useState('');
+  const locale = useLocale();
+  const [errorLocale, setErrorLocale] = useState(locale);
+  if (errorLocale !== locale) {
+    setErrorLocale(locale);
+    setErrors({});
+    setMessage('');
+  }
 
   function validate(form: HTMLFormElement) {
     const input = changePasswordSchema.safeParse(
@@ -227,21 +235,13 @@ export function PasswordEditor({
                     </button>
                   </div>
                   {errors[field] && (
-                    <p
-                      id={`profile-${field}-error`}
-                      role="alert"
-                      className="text-error"
-                    >
+                    <FormError id={`profile-${field}-error`}>
                       {errors[field]}
-                    </p>
+                    </FormError>
                   )}
                 </div>
               ))}
-              {message && (
-                <p role="alert" className="text-sm text-error">
-                  {message}
-                </p>
-              )}
+              {message && <FormError>{message}</FormError>}
               <button
                 data-password-reveal
                 type="submit"

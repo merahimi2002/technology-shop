@@ -4,8 +4,10 @@ import { useSkeletonPreview } from '@/components/dev-skeleton-preview';
 
 import { AccountSkeleton } from './account-skeleton';
 import { RequiredFieldLabel } from './required-field-label';
+import { FormError } from '@/components/ui/form-error';
 import {
   useLayoutEffect,
+  useEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -115,6 +117,16 @@ export function AccountPanel({
   const sheetAnimations = useRef<Animation[]>([]);
   const hasSwitchedSheet = useRef(false);
   const warningTimers = useRef(new Map<AccountField, number>());
+  const [errorLocale, setErrorLocale] = useState(locale);
+  if (errorLocale !== locale) {
+    setErrorLocale(locale);
+    setFieldErrors({});
+  }
+
+  useEffect(() => {
+    warningTimers.current.forEach((timer) => window.clearTimeout(timer));
+    warningTimers.current.clear();
+  }, [locale]);
 
   useLayoutEffect(() => {
     const timers = warningTimers.current;
@@ -404,15 +416,23 @@ export function AccountPanel({
 
   function fieldError(name: AccountField) {
     const feedback = fieldErrors[name];
+    if (feedback?.severity === 'error') {
+      return (
+        <FormError id={`account-${name}-error`} className="font-normal">
+          {feedback.message}
+        </FormError>
+      );
+    }
     return (
       feedback && (
-        <span
+        <FormError
           id={`account-${name}-error`}
-          role={feedback.severity === 'error' ? 'alert' : 'status'}
-          className={`text-sm font-normal ${feedback.severity === 'error' ? 'text-error' : 'text-warning'}`}
+          severity="warning"
+          role="status"
+          className="font-normal"
         >
           {feedback.message}
-        </span>
+        </FormError>
       )
     );
   }
@@ -651,11 +671,7 @@ export function AccountPanel({
                 />
                 {t('roleLabel', { role: t(`roles.${session.user.role}`) })}
               </p>
-              {message && (
-                <p role="alert" className="text-error">
-                  {t(message)}
-                </p>
-              )}
+              {message && <FormError>{t(message)}</FormError>}
               {profileSaved && (
                 <p role="status" className="text-sm text-success">
                   {t('profile.saved')}
@@ -863,14 +879,14 @@ export function AccountPanel({
                       busy={busy}
                     />
                   )}
-                  {message && (
-                    <p
-                      role={success ? 'status' : 'alert'}
-                      className={success ? 'text-success' : 'text-error'}
-                    >
-                      {t(message)}
-                    </p>
-                  )}
+                  {message &&
+                    (success ? (
+                      <p role="status" className="text-success">
+                        {t(message)}
+                      </p>
+                    ) : (
+                      <FormError>{t(message)}</FormError>
+                    ))}
                   <GradientButton
                     data-account-reveal
                     className="mt-3 w-fit self-center"

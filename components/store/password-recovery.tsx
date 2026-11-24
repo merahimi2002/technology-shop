@@ -1,6 +1,7 @@
 'use client';
 
 import { RequiredFieldLabel } from './required-field-label';
+import { FormError } from '@/components/ui/form-error';
 import { useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { KeyRound } from 'lucide-react';
@@ -20,6 +21,11 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [errorLocale, setErrorLocale] = useState(locale);
+  if (errorLocale !== locale) {
+    setErrorLocale(locale);
+    setError('');
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -138,11 +144,7 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
             />
           </label>
         )}
-        {error && (
-          <p role="alert" className="text-sm text-error">
-            {error}
-          </p>
-        )}
+        {error && <FormError>{error}</FormError>}
         <button type="submit" className="btn btn-primary w-fit rounded-full">
           {busy ? t('loading') : t(reset ? 'profile.save' : 'recovery.send')}
         </button>

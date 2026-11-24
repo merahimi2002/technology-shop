@@ -1,11 +1,12 @@
 'use client';
 
 import { RequiredFieldLabel } from './required-field-label';
-import { useState, type FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useState, type FormEvent } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Check, X } from 'lucide-react';
 import { profileSchema } from '@/lib/auth/validation';
 import { ProfilePhotoEditor } from './profile-photo-editor';
+import { FormError } from '@/components/ui/form-error';
 
 type ProfileEditorProps = {
   name: string;
@@ -34,6 +35,16 @@ export function ProfileEditor({
   const [error, setError] = useState('');
   const [nameError, setNameError] = useState('');
   const [avatar, setAvatar] = useState<string | null>();
+  const locale = useLocale();
+  const [errorLocale, setErrorLocale] = useState(locale);
+  if (errorLocale !== locale) {
+    setErrorLocale(locale);
+    setError('');
+    setNameError('');
+  }
+  useEffect(() => {
+    onErrorChange(false);
+  }, [locale, onErrorChange]);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -134,13 +145,9 @@ export function ProfileEditor({
               className="input h-9 w-full rounded-full! text-sm font-normal aria-invalid:border-error"
             />
             {nameError && (
-              <span
-                id="profile-name-error"
-                role="alert"
-                className="font-normal text-error"
-              >
+              <FormError id="profile-name-error" className="font-normal">
                 {nameError}
-              </span>
+              </FormError>
             )}
           </label>
           <label
@@ -158,11 +165,7 @@ export function ProfileEditor({
               className="input h-9 w-full rounded-full! text-left text-sm font-normal read-only:cursor-not-allowed read-only:bg-base-200 read-only:opacity-55"
             />
           </label>
-          {error && (
-            <p role="alert" className="text-sm text-error">
-              {error}
-            </p>
-          )}
+          {error && <FormError>{error}</FormError>}
           <div className="flex flex-wrap gap-2">
             <button
               data-account-reveal
